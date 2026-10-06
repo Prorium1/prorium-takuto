@@ -6,7 +6,7 @@
 
 Supabaseの「Shimei.AI」組織、Vercelの「prorium」チームへのIR専用環境の新設は承認済みです。初期管理者メールも受領し、Git管理外の初期設定SQLを準備しました。既存サービスは変更しません。現在のSupabase接続ツールでは新設費用の取得APIが利用できないため、Dashboardで料金を確認して専用プロジェクトを作成する手順を依頼しています。
 
-Vercelの管理画面: https://vercel.com/prorium/prorium-shareholder-ir 。専用プロジェクトIDは `prj_RD97hbuPh4DU5Go4MwYZXInpjeQk`。Vercelでのソース公開設定は無効とし、Deployment Protectionを維持しています。GitHubの接続先はPublicです。コード転送への初回の自動承認拒否に対し、ユーザーから公開の承認を受領し、コードの反映を進めています。公開対象はアプリの実装・SQL・Mockのみ。初期管理者設定、実際の財務情報、PDF、環境変数、APIキーをGitへ追加しません。
+Vercelの管理画面: https://vercel.com/prorium/prorium-shareholder-ir 。専用プロジェクトIDは `prj_RD97hbuPh4DU5Go4MwYZXInpjeQk`。Vercelでのソース公開設定は無効とし、Deployment Protectionを維持しています。GitHubの接続先はPublicです。ユーザーからコード公開の承認を受領し、確認済みの115ファイルを `main` に反映しました。Git連携によるProductionビルドもREADYです。公開対象はアプリの実装・SQL・Mockのみ。初期管理者設定、実際の財務情報、PDF、環境変数、APIキーをGitへ追加しません。
 
 PreviewのMockデータ保存はローカルファイルを使用するため、サーバーレス環境での永続的な編集・公開フローは動作保証しません。今回の外部Preview検証はログイン画面の表示とヘッダーのみです。月次更新・資料管理の実運用は専用Supabaseへ接続したProductionで確認します。
 
