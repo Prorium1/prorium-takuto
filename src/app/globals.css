@@ -4140,6 +4140,12 @@ small {
   font-size: 14px;
   line-height: 1.9;
 }
+.editor-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
 .financial-entry-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

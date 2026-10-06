@@ -1,6 +1,6 @@
 # freee / AI integration boundary
 
-Current state: synthetic adapter only. No OAuth, API access, webhook, live sync, production financial data or live AI requests are implemented or configured.
+Current state: freee uses the synthetic adapter only. No freee OAuth, accounting API access, webhook or live sync is configured. Production supports manually entered validated financial snapshots and privately uploaded statements; the dedicated Supabase is not yet provisioned. OpenAI monthly-narrative drafting is implemented server-side, but no dedicated API key or live-call verification is complete. This drafting does not perform live financial-data ingestion or automatically publish anything.
 
 ## Financial ingestion
 

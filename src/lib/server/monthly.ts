@@ -1,8 +1,71 @@
 import "server-only";
 import { z } from "zod";
-import { monthlySummarySchema, structureMonthlyNotes } from "../domain/monthly";
-import type { ReportContent } from "../domain/types";
+import {
+  monthlyNotesSchema,
+  monthlySummarySchema,
+  structureMonthlyNotes,
+} from "../domain/monthly";
+import type { Actor, ReportContent } from "../domain/types";
 import { isMockEnvironment } from "./environment";
+import { getAdminReport } from "./repository";
+import { saveContent } from "./updates";
+
+export async function updateMonthlyReport(
+  id: string,
+  actor: Actor,
+  revision: number,
+  input: string,
+  mode: "save" | "structure" | "generate",
+  generate = prepareMonthlySummary,
+) {
+  const notes = monthlyNotesSchema.parse(input);
+  const report = await getAdminReport(id, actor);
+  if (!report || report.state === "published")
+    throw new Error("編集可能なレポートを選択してください。");
+  const content = structuredClone(report.content);
+  let expectedRevision = revision;
+  let result: Awaited<ReturnType<typeof prepareMonthlySummary>> | undefined;
+  if (mode === "generate") {
+    // Persist private notes before the external request. This also rejects
+    // stale submissions before spending on AI and invalidates prior approval.
+    const saved = await saveContent(
+      id,
+      actor,
+      revision,
+      content,
+      report.analysis,
+      notes,
+    );
+    expectedRevision = revision + 1;
+    try {
+      result = await generate(report.period, notes);
+      result.summary = monthlySummarySchema.parse(result.summary);
+    } catch {
+      return { report: saved, generationFailed: true };
+    }
+  } else if (mode === "structure") {
+    result = {
+      summary: structureMonthlyNotes(report.period, notes),
+      method: "editorial",
+    };
+  }
+  if (result) content.summary = result.summary;
+  // Use the revision of our write, never a later revision fetched by an
+  // adapter: another editor's changes must make this completion fail.
+  const saved = await saveContent(
+    id,
+    actor,
+    expectedRevision,
+    content,
+    !result
+      ? report.analysis
+      : result.method === "openai"
+        ? "generated-ai"
+        : "human-authored",
+    notes,
+  );
+  return { report: saved, method: result?.method };
+}
 export async function prepareMonthlySummary(
   period: string,
   notes: string,

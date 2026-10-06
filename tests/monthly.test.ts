@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   emptyReport,
   structureMonthlyNotes,
+  monthlyNotesSchema,
   financialEntrySchema,
   applyFinancialEntry,
 } from "../src/lib/domain/monthly";
@@ -11,6 +12,11 @@ import {
   humanEditAnalysis,
   reportAttribution,
 } from "../src/lib/domain/provenance";
+
+test("multiline monthly notes use consistent newlines after browser form submission", () => {
+  const typed = "講座の進捗を確認しました。\n動画の制作工程を改善しました。";
+  assert.equal(monthlyNotesSchema.parse(typed.replaceAll("\n", "\r\n")), typed);
+});
 
 test("production monthly draft never contains mock financials or business claims", () => {
   const report = emptyReport("2026-10", "11111111-1111-1111-1111-111111111111");

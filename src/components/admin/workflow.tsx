@@ -15,6 +15,7 @@ import {
   reviseReportAction,
 } from "@/app/actions";
 import type { ReportVersion } from "@/lib/domain/types";
+import { useReportSection } from "./editing-guard";
 
 export const stateLabels = {
   draft: "Draft",
@@ -78,6 +79,8 @@ export function RevisionForm({ id }: { id: string }) {
 }
 export function WorkflowControls({ report }: { report: ReportVersion }) {
   const [state, action, pending] = useActionState(reportOperationAction, {});
+  const editing = useReportSection("workflow", false, pending);
+  const blocked = pending || editing.dirty || editing.busy;
   const states = ["draft", "review", "approved", "published"] as const;
   const current = states.indexOf(report.state);
   return (
@@ -105,7 +108,7 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
                   className="button secondary"
                   name="operation"
                   value="generate"
-                  disabled={pending}
+                  disabled={blocked}
                 >
                   <Sparkles size={14} />
                   Mock AI Draftを生成
@@ -116,7 +119,7 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
                   className="button primary"
                   name="operation"
                   value="review"
-                  disabled={pending}
+                  disabled={blocked}
                 >
                   レビューへ提出
                   <ArrowRight size={14} />
@@ -127,7 +130,7 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
                   className="button primary"
                   name="operation"
                   value="approve"
-                  disabled={pending}
+                  disabled={blocked}
                 >
                   <ShieldCheck size={14} />
                   内容を確認して承認
@@ -138,7 +141,7 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
                   className="button purple-button"
                   name="operation"
                   value="publish"
-                  disabled={pending}
+                  disabled={blocked}
                 >
                   株主へ公開
                   <ArrowRight size={14} />
@@ -147,13 +150,20 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
             </div>
           </form>
         )}
-        <Link
-          href={`/admin/reports/${report.id}?preview=1`}
-          className="button secondary"
-        >
-          <Eye size={14} />
-          プレビュー
-        </Link>
+        {blocked ? (
+          <button className="button secondary" disabled>
+            <Eye size={14} />
+            プレビュー
+          </button>
+        ) : (
+          <Link
+            href={`/admin/reports/${report.id}?preview=1`}
+            className="button secondary"
+          >
+            <Eye size={14} />
+            プレビュー
+          </Link>
+        )}
         {report.state === "published" && (
           <>
             <RevisionForm id={report.id} />
@@ -167,6 +177,21 @@ export function WorkflowControls({ report }: { report: ReportVersion }) {
           </>
         )}
       </div>
+      {editing.dirty && (
+        <p className="form-error" role="status">
+          未保存の入力があります。
+          {editing.sections.editor?.dirty &&
+            "レポート本文の「変更を保存」を押してください。"}
+          {editing.sections.notes?.dirty &&
+            "今月の出来事の「入力を保存」を押してください。"}
+          保存してから、プレビュー・レビュー・承認・公開へ進んでください。
+        </p>
+      )}
+      {!editing.dirty && editing.busy && (
+        <p className="workflow-info" role="status">
+          保存・生成・添付の処理が完了するまでお待ちください。
+        </p>
+      )}
       <p className="workflow-info">
         {report.state === "published"
           ? "公開済みSnapshotは変更できません。修正は新しいVersionとして作成します。"

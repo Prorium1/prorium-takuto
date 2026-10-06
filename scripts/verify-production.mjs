@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import {
+  assertVerificationWorkspace,
+  verificationEnvironment,
+} from "../src/lib/domain/verification-environment.ts";
 
 // Smoke-test the production fail-closed boundary using only loopback requests.
+await assertVerificationWorkspace();
 const origin = "http://127.0.0.1:3200";
 const child = spawn(
   process.execPath,
@@ -16,7 +21,7 @@ const child = spawn(
   {
     stdio: ["ignore", "pipe", "pipe"],
     env: {
-      ...process.env,
+      ...verificationEnvironment(),
       NODE_ENV: "production",
       PRORIUM_ENV: "production",
       NEXT_DIST_DIR: process.env.NEXT_DIST_DIR || ".next/build",

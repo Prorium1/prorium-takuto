@@ -129,6 +129,30 @@ test("production RPCs enforce MFA, grants, transactional publication and private
       ),
       /concurrent|revision/i,
     );
+    for (const invalidRevision of [null, 0, -1]) {
+      await assert.rejects(
+        db.query(
+          `select * from public.ir_save_report($1,$2,$3::jsonb,'human-authored',null)`,
+          [id, invalidRevision, JSON.stringify(initial)],
+        ),
+        /concurrent|revision/i,
+      );
+    }
+    await assert.rejects(
+      db.query(`select * from public.ir_transition_report($1,null,'review')`, [
+        id,
+      ]),
+      /concurrent|revision/i,
+    );
+    assert.equal(
+      (
+        await db.query<{ revision: number }>(
+          `select revision from public.report_versions where id=$1`,
+          [id],
+        )
+      ).rows[0].revision,
+      2,
+    );
     const doc = await db.query<{ id: string; storage_path: string }>(
       `select * from public.ir_reserve_document($1,2,$2::jsonb)`,
       [

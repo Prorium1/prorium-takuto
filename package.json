@@ -14,6 +14,7 @@
     "test": "node --conditions=react-server --import tsx --test --test-isolation=none tests/*.test.ts",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm test && npm run db:migrations:check",
+    "release:check": "node scripts/release-check.mjs",
     "db:migrations:prepare": "node scripts/prepare-migrations.mjs",
     "db:migrations:check": "node scripts/prepare-migrations.mjs --check",
     "db:bootstrap:prepare": "node scripts/prepare-bootstrap.mjs"

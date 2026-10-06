@@ -2,6 +2,7 @@
 import { useActionState } from "react";
 import { financialEntryAction } from "@/app/monthly-actions";
 import type { ReportVersion } from "@/lib/domain/types";
+import { useReportSection } from "./editing-guard";
 const fields = [
   ["revenue", "売上高"],
   ["previousRevenue", "前年同月 売上高"],
@@ -18,6 +19,7 @@ const fields = [
 ] as const;
 export function FinancialEntryForm({ report }: { report: ReportVersion }) {
   const [state, action, pending] = useActionState(financialEntryAction, {});
+  const editing = useReportSection("financial", false, pending);
   const f = report.content.financial;
   const values = {
     revenue: f.revenue.current,
@@ -78,7 +80,12 @@ export function FinancialEntryForm({ report }: { report: ReportVersion }) {
             maxLength={1000}
           />
         </div>
-        <button className="button primary" disabled={pending}>
+        <button
+          className="button primary"
+          disabled={
+            pending || editing.editorDirty || editing.otherBusy("financial")
+          }
+        >
           財務Snapshotを保存
         </button>
         {state.error && (
