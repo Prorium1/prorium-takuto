@@ -39,7 +39,11 @@
 
 作業場所：`/workspace/prorium-ir-overnight`。元の `/workspace/prorium-takuto` は変更前のまま保持。
 
-変更ブランチ：`codex/ir-overnight-readiness-20261006`。主要修正のローカルcommitは `9720e7df1daf21eaf255e062b8d41f4666fa98f1`、最終レビュー修正は `f0241ab6f1264f0fa011604d581b54aa29b0f4ad`。GitHubでは既存mainを親に同じソースtreeを保存し、ソースの一致を確認する。PRをマージするとGit連携でProductionへ反映されるため、今夜はマージしない。
+変更ブランチ：`codex/ir-overnight-readiness-20261006`。主要修正のローカルcommitは `9720e7df1daf21eaf255e062b8d41f4666fa98f1`、最終レビュー修正は `f0241ab6f1264f0fa011604d581b54aa29b0f4ad`。GitHubでは既存mainを親に同じソースtreeを保存し、完全一致を確認済み。PRをマージするとGit連携でProductionへ反映されるため、今夜はマージしない。
+
+- [Draft PR #1](https://github.com/Prorium1/prorium-takuto/pull/1)：open／Draft、未マージ。
+- [GitHubへ保存した検証済みソース](https://github.com/Prorium1/prorium-takuto/commit/24e14c794a1074021f37803027cf363b2d8e95d8)：ローカル文書込みcommit `c26ab06970d9c4e91f28d58968704d6e0bb2bc71` とtree `ede58169764eb07184033b4d76f98d9b4925d183` が完全一致。
+- このPRリンクの追記は文書のみ。アプリ実装とMigrationの検証対象は変更していない。
 
 ## ⑤ テスト結果
 
