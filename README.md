@@ -30,7 +30,7 @@ npm run dev
 4. P/L、B/S、残高試算表などの確認済みPDFを添付。単月・累計・期末を明示できます。
 5. プレビュー、レビュー、承認、公開。株主は公開済みのレポートと資料を閲覧・ダウンロードできます。
 
-本番でOpenAIキーを設定するとAI生成を利用できます。キーがない場合は文章整理で下書きを作成します。AI生成は自動公開しません。月ごとのアーカイブと資料ライブラリを維持し、公開版は改訂しても残ります。
+本番でOpenAIキーを設定するとAI生成を利用できます。原文を先に管理者専用へ保存し、AIが使えない時も「文章を整理して下書き」で継続できます。未保存の本文・原文がある間はレビュー・承認・公開を止めます。AI生成は自動公開しません。月ごとのアーカイブと資料ライブラリを維持し、公開版は改訂しても残ります。
 
 財務KPIの入力は任意です。未入力の月は架空の数値やゼロの実績を表示せず、月次サマリーと財務PDFを共有できます。手入力する場合は円単位の数値、前年同月、貸借の一致、増減理由を検証してSnapshotを保存します。
 
@@ -59,9 +59,11 @@ npm run dev
 npm run check
 npm run build
 npm run test:e2e
+# 上記と本番未設定時の拒否を、環境変数・データを分離してまとめて確認
+npm run release:check
 ```
 
-型検査、Lint、16件のDomain/Repository/Postgres RLSテスト、Migration一致チェック、8件のBrowserテストで確認しています。Browserテストは3100番ポートと一時データを使い、本番に接続しません。詳細と検証の限界は [検証結果](docs/production-verification.md) を参照してください。
+型検査、Lint、Domain/Repository/Postgres RLSテスト、Migration一致チェック、Browserテストで確認します。`release:check`は本番接続情報を子プロセスへ渡さず、架空データだけを使って結果をGit管理外の`.data/release-check/`へ保存します。Browserテストは3100番ポート、未設定Productionの確認は3200番ポートを使います。実際のAuth・SMTP・Storage・AI・Vercel動作を代替しません。詳細と検証の限界は [検証結果](docs/production-verification.md)、公開条件は [本番受入](docs/production-acceptance.md) を参照してください。
 
 Mockデータは `.data/mock-store.json` に保存します。本番はSupabaseに永続化し、このローカルファイルを使いません。
 
@@ -77,6 +79,10 @@ Mock PDF生成はシステムChromium（既定 `/usr/bin/chromium`）、本番�
 - [Architecture / Database / Security / UI / Components](docs/architecture.md)
 - [本番月次IR設計](docs/superpowers/specs/2026-10-05-production-monthly-ir-design.md)
 - [本番実装計画](docs/superpowers/plans/2026-10-05-production-monthly-ir.md)
+- [明朝の引き継ぎと公開判定](docs/launch-readiness-2026-10-07.md)
+- [優先順位と作業分類](docs/overnight-backlog-2026-10-07.md)
+- [本番受入チェックリスト](docs/production-acceptance.md)
+- [毎月の入力・運用テンプレート](docs/monthly-operations-template.md)
 - [freee・AI接続アーキテクチャ](docs/freee-integration.md)
 - [初期スキーマ](database/schema.sql) / [本番拡張](database/production.sql)
 - [適用用Migration](supabase/migrations)

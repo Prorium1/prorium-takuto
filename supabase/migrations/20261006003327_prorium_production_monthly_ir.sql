@@ -81,7 +81,7 @@ begin
  select company_id into company from public.reports where id=v.report_id;
  if not coalesce(private.is_admin(company),false) then raise exception 'Admin MFA required'; end if;
  if v.state='published' then raise exception 'Published version is immutable'; end if;
- if v.revision<>p_revision then raise exception 'Concurrent revision; reload report'; end if;
+ if p_revision is null or p_revision<1 or v.revision is distinct from p_revision then raise exception 'Concurrent revision; reload report'; end if;
  return v;
 end $$;
 create function private.validate_text_fields(o jsonb,fields text[],max_length integer default 2000) returns void language plpgsql set search_path='' as $$

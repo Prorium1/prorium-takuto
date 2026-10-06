@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compareYoY, reconcileDrivers } from "../src/lib/domain/finance";
+import {
+  compareYoY,
+  reconcileDrivers,
+  percent,
+} from "../src/lib/domain/finance";
 import { applyOperation } from "../src/lib/domain/workflow";
 import { augustReport, initialStore } from "../src/lib/mock/seed";
 import { signSession, verifySession } from "../src/lib/domain/session";
@@ -10,6 +14,13 @@ test("YoY uses the same-period baseline and handles zero/negative baselines", ()
   assert.equal(compareYoY(100, 0).percent, null);
   assert.equal(compareYoY(100, -100).percent, null);
   assert.equal(compareYoY(-120, 100).percent, -220);
+});
+
+test("undefined YoY rates are explicitly unavailable rather than reported as zero percent", () => {
+  assert.equal(percent(compareYoY(120, 0).percent), "算定不可");
+  assert.equal(percent(compareYoY(120, -10).percent), "算定不可");
+  assert.equal(percent(compareYoY(100, 100).percent), "0.0%");
+  assert.equal(percent(compareYoY(90, 100).percent), "-10.0%");
 });
 
 test("revenue and operating profit drivers reconcile to the reported change", () => {

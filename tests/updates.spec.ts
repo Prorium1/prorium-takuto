@@ -6,6 +6,7 @@ test("owner publishes a monthly narrative and private statements; investors can 
   browser,
 }) => {
   await page.goto("/login");
+  await page.setViewportSize({ width: 375, height: 900 });
   await page.getByRole("button", { name: "管理者デモを開く" }).click();
   await page.waitForURL("**/admin");
   await page.goto("/admin/reports");
@@ -21,9 +22,7 @@ test("owner publishes a monthly narrative and private statements; investors can 
     .fill(
       "非公開の検討メモ：架空の契約条件です。\n新しい講座を開講しました。\nAI動画制作の工程を改善しました。\n来月は受講者の継続率を確認します。",
     );
-  await page
-    .getByRole("button", { name: "文章からサマリーの下書きを作成" })
-    .click();
+  await page.getByRole("button", { name: "文章を整理して下書き" }).click();
   await expect(
     page.getByText("入力した文章からサマリーの下書きを作成しました。", {
       exact: false,
@@ -72,6 +71,9 @@ test("owner publishes a monthly narrative and private statements; investors can 
     );
   await page.getByRole("button", { name: "変更を保存", exact: true }).click();
   await expect(page.getByText("保存しました。", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "レビューへ提出" }),
+  ).toBeEnabled();
   await page.getByRole("button", { name: "レビューへ提出" }).click();
   await expect(
     page.getByRole("button", { name: "内容を確認して承認" }),

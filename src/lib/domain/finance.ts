@@ -25,7 +25,8 @@ export function millions(value: number, digits = 2) {
     maximumFractionDigits: digits,
   });
 }
-export function percent(value: number) {
+export function percent(value: number | null) {
+  if (value === null) return "算定不可";
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
 }
 export function periodLabel(period: string) {

@@ -3,12 +3,17 @@ import { z } from "zod";
 import { periodSchema } from "./validation";
 import type { ReportContent, ReportVersion } from "./types";
 import { contentHash } from "./workflow";
+import { normalizeMonthlyNotes } from "./text";
 
 export const monthlyNotesSchema = z
   .string()
-  .trim()
-  .min(10, "今月あったことを10文字以上で入力してください。")
-  .max(12_000);
+  .transform(normalizeMonthlyNotes)
+  .pipe(
+    z
+      .string()
+      .min(10, "今月あったことを10文字以上で入力してください。")
+      .max(12_000),
+  );
 export const monthlySummarySchema = z.object({
   headline: z.string().trim().min(1).max(100),
   text: z.string().trim().min(1).max(2000),

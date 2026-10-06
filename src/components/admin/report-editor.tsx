@@ -1,9 +1,10 @@
 "use client";
 import { useActionState, useId, useState } from "react";
 import { Plus, Save } from "lucide-react";
-import { reportOperationAction } from "@/app/actions";
+import { reportOperationAction, type ActionResult } from "@/app/actions";
 import type { ReportVersion } from "@/lib/domain/types";
 import type { ContentEdit } from "@/lib/domain/validation";
+import { useReportEditing, useReportSection } from "./editing-guard";
 
 function Field({
   label,
@@ -48,13 +49,31 @@ function patchItems<T extends { id: string }>(
   return items.map((item) => (item.id === id ? { ...item, ...patch } : item));
 }
 export function ReportEditor({ report }: { report: ReportVersion }) {
-  const [state, action, pending] = useActionState(reportOperationAction, {});
+  const [saveSequence, setSaveSequence] = useState(0);
+  const [state, action, pending] = useActionState(
+    async (previous: ActionResult, form: FormData) => {
+      const result = await reportOperationAction(previous, form);
+      // Server normalization can leave contentHash unchanged. Reset only on
+      // this editor's successful save, never on another section's revision.
+      if (result.success) setSaveSequence((sequence) => sequence + 1);
+      return result;
+    },
+    {},
+  );
+  const editing = useReportEditing();
+  const blocked = pending || editing.otherBusy("editor");
   return (
     <form action={action} className="admin-editor">
       <input type="hidden" name="id" value={report.id} />
       <input type="hidden" name="revision" value={report.revision} />
       <input type="hidden" name="operation" value="edit" />
-      <EditorFields key={report.contentHash} report={report} />
+      <fieldset className="editor-fields" disabled={blocked}>
+        <EditorFields
+          key={`${report.contentHash}:${saveSequence}`}
+          report={report}
+          pending={pending}
+        />
+      </fieldset>
       {state.error && (
         <p className="form-error" role="alert">
           {state.error}
@@ -67,7 +86,7 @@ export function ReportEditor({ report }: { report: ReportVersion }) {
       )}
       <div className="save-bar">
         <span>保存するとDraftに戻り、既存の承認は解除されます。</span>
-        <button disabled={pending} className="button primary">
+        <button disabled={blocked} className="button primary">
           <Save size={15} />
           {pending ? "保存中…" : "変更を保存"}
         </button>
@@ -75,9 +94,15 @@ export function ReportEditor({ report }: { report: ReportVersion }) {
     </form>
   );
 }
-function EditorFields({ report }: { report: ReportVersion }) {
+function EditorFields({
+  report,
+  pending,
+}: {
+  report: ReportVersion;
+  pending: boolean;
+}) {
   const c = report.content;
-  const [edit, setEdit] = useState<ContentEdit>({
+  const [initial] = useState<ContentEdit>({
     headline: c.summary.headline,
     summary: c.summary.text,
     summaryPoints: c.summary.points,
@@ -89,7 +114,14 @@ function EditorFields({ report }: { report: ReportVersion }) {
     ceoQuote: c.ceo.quote,
     ceoMessage: c.ceo.message,
   });
+  const [edit, setEdit] = useState(initial);
   const [pointsText, setPointsText] = useState(c.summary.points.join("\n"));
+  useReportSection(
+    "editor",
+    JSON.stringify(edit) !== JSON.stringify(initial) ||
+      pointsText !== c.summary.points.join("\n"),
+    pending,
+  );
   function update(patch: Partial<ContentEdit>) {
     setEdit((e) => ({ ...e, ...patch }));
   }

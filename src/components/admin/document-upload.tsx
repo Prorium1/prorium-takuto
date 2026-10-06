@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { DOCUMENT_BASES, DOCUMENT_CATEGORIES } from "@/lib/domain/documents";
 import type { ReportVersion } from "@/lib/domain/types";
 import { detachDocumentAction } from "@/app/document-actions";
+import { useReportSection } from "./editing-guard";
 export function DocumentUploadForm({
   report,
   mock,
@@ -15,8 +16,12 @@ export function DocumentUploadForm({
   const [pending, setPending] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
+  const editing = useReportSection("documents", false, pending);
+  const blocked =
+    pending || editing.editorDirty || editing.otherBusy("documents");
   async function upload(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (blocked) return;
     const form = event.currentTarget;
     setPending(true);
     setError("");
@@ -111,7 +116,7 @@ export function DocumentUploadForm({
             rows={2}
           />
         </div>
-        <button className="button primary" disabled={pending}>
+        <button className="button primary" disabled={blocked}>
           {pending ? "アップロード中…" : "PDFを添付する"}
         </button>
       </form>
@@ -136,7 +141,9 @@ export function DocumentUploadForm({
               <input type="hidden" name="id" value={report.id} />
               <input type="hidden" name="revision" value={report.revision} />
               <input type="hidden" name="documentId" value={d.id} />
-              <button className="text-button">添付から外す</button>
+              <button className="text-button" disabled={blocked}>
+                添付から外す
+              </button>
             </form>
           </div>
         ))}

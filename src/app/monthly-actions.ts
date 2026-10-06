@@ -4,12 +4,8 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReport } from "@/lib/server/repository";
 import { isMockEnvironment } from "@/lib/server/environment";
-import {
-  monthlyNotesSchema,
-  structureMonthlyNotes,
-  applyFinancialEntry,
-} from "@/lib/domain/monthly";
-import { prepareMonthlySummary } from "@/lib/server/monthly";
+import { monthlyNotesSchema, applyFinancialEntry } from "@/lib/domain/monthly";
+import { updateMonthlyReport } from "@/lib/server/monthly";
 import type { ActionResult } from "./actions";
 import { saveContent } from "@/lib/server/updates";
 import { humanEditAnalysis } from "@/lib/domain/provenance";
@@ -26,44 +22,22 @@ export async function monthlyUpdateAction(
       .positive()
       .parse(form.get("revision"));
     const notes = monthlyNotesSchema.parse(form.get("notes"));
-    const report = await getAdminReport(id, actor);
-    if (!report || report.state === "published")
-      throw new Error("編集可能なレポートを選択してください。");
     const mode = z
       .enum(["save", "structure", "generate"])
       .parse(form.get("mode"));
-    const content = structuredClone(report.content);
-    let method: "editorial" | "openai" = "editorial";
-    if (mode !== "save") {
-      const result =
-        mode === "generate"
-          ? await prepareMonthlySummary(report.period, notes)
-          : {
-              summary: structureMonthlyNotes(report.period, notes),
-              method: "editorial" as const,
-            };
-      content.summary = result.summary;
-      method = result.method;
-    }
-    await saveContent(
-      id,
-      actor,
-      revision,
-      content,
-      mode === "save"
-        ? report.analysis
-        : method === "openai"
-          ? "generated-ai"
-          : "human-authored",
-      notes,
-    );
+    const result = await updateMonthlyReport(id, actor, revision, notes, mode);
     revalidatePath(`/admin/reports/${id}`);
     revalidatePath("/admin");
+    if (result.generationFailed)
+      return {
+        error:
+          "入力は管理者専用に保存しました。AI生成に失敗したため、再試行するか「文章を整理して下書き」を選んでください。サマリーは変更していません。",
+      };
     return {
       success:
         mode === "save"
           ? "今月の出来事を管理者専用に保存しました。サマリーの公開内容はプレビューで確認してください。"
-          : `${method === "openai" ? "AIで" : "入力した文章から"}サマリーの下書きを作成しました。内容を確認してから承認・公開してください。`,
+          : `${result.method === "openai" ? "AIで" : "入力した文章から"}サマリーの下書きを作成しました。内容を確認してから承認・公開してください。`,
     };
   } catch (error) {
     return {

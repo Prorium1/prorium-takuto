@@ -203,9 +203,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
                   <td>{p.month}</td>
                   <td>{millions(p[metric])}</td>
                   <td>{millions(p[priorKey])}</td>
-                  <td>
-                    {percent(compareYoY(p[metric], p[priorKey]).percent ?? 0)}
-                  </td>
+                  <td>{percent(compareYoY(p[metric], p[priorKey]).percent)}</td>
                 </tr>
               ))}
             </tbody>
