@@ -16,7 +16,7 @@ export function ProductionLogin() {
         <span>INVITATION ONLY</span>
       </div>
       <p>
-        認証メールを送ります。メール内のリンクを開かずにコピーし、この画面へ貼り付けてください。
+        登録されたメールアドレスへ認証リンクを送ります。届いたメールの最新のリンクを一度開いてください。
       </p>
       <form action={action} className="login-form">
         <label>
@@ -37,22 +37,25 @@ export function ProductionLogin() {
           {state.success}
         </p>
       )}
-      <form action={confirm} className="login-form email-confirmation-form">
-        <label>
-          メールの認証リンクを貼り付ける
-          <input
-            name="confirmationLink"
-            type="url"
-            autoComplete="off"
-            maxLength={5000}
-            placeholder="メール内のリンクをコピーして貼り付け"
-            required
-          />
-        </label>
-        <button className="button secondary" disabled={confirming}>
-          {confirming ? "確認中…" : "リンクを確認してログイン"}
-        </button>
-      </form>
+      <details className="login-password-alternative">
+        <summary>メールのリンクを開けない場合</summary>
+        <form action={confirm} className="login-form email-confirmation-form">
+          <label>
+            メールの認証リンクを貼り付ける
+            <input
+              name="confirmationLink"
+              type="url"
+              autoComplete="off"
+              maxLength={5000}
+              placeholder="メール内のリンクをコピーして貼り付け"
+              required
+            />
+          </label>
+          <button className="button secondary" disabled={confirming}>
+            {confirming ? "確認中…" : "リンクを確認してログイン"}
+          </button>
+        </form>
+      </details>
       {confirmState.error && (
         <p role="alert" className="form-error">
           {confirmState.error}

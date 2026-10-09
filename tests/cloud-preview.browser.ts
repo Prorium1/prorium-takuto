@@ -107,3 +107,19 @@ test("solid chart and event layout remain readable on desktop and mobile", async
   });
   expect(errors).toEqual([]);
 });
+
+test("email callback removes session tokens from browser history before handling them", async ({
+  page,
+}) => {
+  const access = "a".repeat(120);
+  const refresh = "b".repeat(40);
+  await page.goto(
+    `/auth/complete#access_token=${access}&refresh_token=${refresh}`,
+  );
+  await expect(page.locator(".auth-complete-page .form-error")).toContainText(
+    "ログインを完了できませんでした",
+  );
+  expect(new URL(page.url()).hash).toBe("");
+  expect(await page.locator("body").innerText()).not.toContain(access);
+  expect(await page.locator("body").innerText()).not.toContain(refresh);
+});

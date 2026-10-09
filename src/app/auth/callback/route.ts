@@ -28,5 +28,8 @@ export async function GET(request: Request) {
       await client.auth.signOut();
     }
   }
+  // Supabase's default email template returns implicit tokens in the fragment.
+  // Browsers retain that fragment across this redirect; /auth/complete clears it.
+  if (!code) return NextResponse.redirect(`${config.origin}/auth/complete`);
   return NextResponse.redirect(`${config.origin}/login?reason=access`);
 }

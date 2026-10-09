@@ -1,6 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
 import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
 import { getActor } from "@/lib/server/auth";
@@ -13,7 +14,16 @@ export async function sendLoginLinkAction(
   try {
     const email = z.email().max(254).parse(form.get("email"));
     const config = productionConfiguration();
-    const client = await createSupabaseClient();
+    // Email is opened by a browser that may not hold the originating PKCE cookie.
+    // The callback transfers the implicit session to an HttpOnly server cookie.
+    const client = createClient(config.url, config.key, {
+      auth: {
+        flowType: "implicit",
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    });
     const { error } = await client.auth.signInWithOtp({
       email,
       options: {
@@ -28,11 +38,64 @@ export async function sendLoginLinkAction(
       };
     return {
       success:
-        "新しいメールの認証リンクを開かずにコピーし、下の欄へ貼り付けてください。",
+        "メール内の最新のリンクを一度開いてください。認証後に管理者の本人確認へ進みます。",
     };
   } catch {
     return { error: "メールアドレスと本番接続の設定を確認してください。" };
   }
+}
+export async function completeEmailLoginAction(
+  accessToken: string,
+  refreshToken: string,
+): Promise<ActionResult> {
+  let destination: string;
+  try {
+    const config = productionConfiguration();
+    const access = z.string().min(100).max(8000).parse(accessToken);
+    const refresh = z.string().min(20).max(2000).parse(refreshToken);
+    const client = await createSupabaseClient();
+    const { error } = await client.auth.setSession({
+      access_token: access,
+      refresh_token: refresh,
+    });
+    if (error)
+      return {
+        error:
+          "認証リンクを確認できませんでした。新しいメールでお試しください。",
+      };
+    const { data: identity, error: identityError } =
+      await client.auth.getUser();
+    if (identityError || !identity.user)
+      return { error: "本人確認を完了できませんでした。" };
+    const { error: invitationError } = await client.rpc(
+      "ir_accept_invitation",
+      {
+        p_company: config.companyId,
+      },
+    );
+    if (invitationError) throw invitationError;
+    const { data: actor, error: actorError } = await client.rpc(
+      "ir_current_actor",
+      {
+        p_company: config.companyId,
+      },
+    );
+    if (actorError || !actor || actor.id !== identity.user.id) {
+      await client.auth.signOut();
+      return { error: "このメールアドレスにはIRサイトの招待がありません。" };
+    }
+    destination =
+      actor.role === "admin"
+        ? actor.needsMfa
+          ? "/account/security"
+          : "/admin"
+        : "/dashboard";
+  } catch {
+    return {
+      error: "ログインを完了できませんでした。新しいメールでお試しください。",
+    };
+  }
+  redirect(destination);
 }
 export async function confirmEmailLinkAction(
   _state: ActionResult,
