@@ -12,6 +12,11 @@
   .login-password-alternative > .login-form {
     margin-top: 18px;
   }
+  .email-confirmation-form {
+    margin-top: 24px;
+    border-top: 1px solid #dce3ec;
+    padding-top: 20px;
+  }
   .monthly-report .report-heading {
     position: relative;
     padding-top: 25px;

@@ -1,15 +1,22 @@
 "use client";
 import { useActionState } from "react";
-import { sendLoginLinkAction } from "@/app/auth-actions";
+import {
+  confirmEmailLinkAction,
+  sendLoginLinkAction,
+} from "@/app/auth-actions";
 export function ProductionLogin() {
   const [state, action, pending] = useActionState(sendLoginLinkAction, {});
+  const [confirmState, confirm, confirming] = useActionState(
+    confirmEmailLinkAction,
+    {},
+  );
   return (
     <div className="demo-entry">
       <div className="demo-divider">
         <span>INVITATION ONLY</span>
       </div>
       <p>
-        登録されたメールアドレスへ認証リンクを送信します。届いたメールのリンクを開くと、管理者の本人確認へ進みます。
+        認証メールを送ります。メール内のリンクを開かずにコピーし、この画面へ貼り付けてください。
       </p>
       <form action={action} className="login-form">
         <label>
@@ -28,6 +35,27 @@ export function ProductionLogin() {
       {state.success && (
         <p role="status" className="form-success">
           {state.success}
+        </p>
+      )}
+      <form action={confirm} className="login-form email-confirmation-form">
+        <label>
+          メールの認証リンクを貼り付ける
+          <input
+            name="confirmationLink"
+            type="url"
+            autoComplete="off"
+            maxLength={5000}
+            placeholder="メール内のリンクをコピーして貼り付け"
+            required
+          />
+        </label>
+        <button className="button secondary" disabled={confirming}>
+          {confirming ? "確認中…" : "リンクを確認してログイン"}
+        </button>
+      </form>
+      {confirmState.error && (
+        <p role="alert" className="form-error">
+          {confirmState.error}
         </p>
       )}
     </div>

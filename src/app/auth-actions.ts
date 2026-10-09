@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
 import { getActor } from "@/lib/server/auth";
+import { parseEmailConfirmationLink } from "@/lib/domain/email-confirmation-link";
 import type { ActionResult } from "./actions";
 export async function sendLoginLinkAction(
   _state: ActionResult,
@@ -27,11 +28,57 @@ export async function sendLoginLinkAction(
       };
     return {
       success:
-        "メールをご確認ください。アクセスには管理者からの登録が必要です。",
+        "新しいメールの認証リンクを開かずにコピーし、下の欄へ貼り付けてください。",
     };
   } catch {
     return { error: "メールアドレスと本番接続の設定を確認してください。" };
   }
+}
+export async function confirmEmailLinkAction(
+  _state: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  let destination: string;
+  try {
+    const config = productionConfiguration();
+    const raw = z.string().max(5000).parse(form.get("confirmationLink"));
+    const token = parseEmailConfirmationLink(raw, config.url);
+    const client = await createSupabaseClient();
+    const { data: verified, error } = await client.auth.verifyOtp(token);
+    if (error || !verified.session || !verified.user)
+      return {
+        error:
+          "リンクを確認できませんでした。新しいメールを発行し、リンクを開かずにコピーしてください。",
+      };
+    const { error: invitationError } = await client.rpc(
+      "ir_accept_invitation",
+      {
+        p_company: config.companyId,
+      },
+    );
+    if (invitationError) throw invitationError;
+    const { data: actor, error: actorError } = await client.rpc(
+      "ir_current_actor",
+      {
+        p_company: config.companyId,
+      },
+    );
+    if (actorError || !actor || actor.id !== verified.user.id) {
+      await client.auth.signOut();
+      return { error: "このメールアドレスにはIRサイトの招待がありません。" };
+    }
+    destination =
+      actor.role === "admin"
+        ? actor.needsMfa
+          ? "/account/security"
+          : "/admin"
+        : "/dashboard";
+  } catch {
+    return {
+      error: "Supabaseから届いた新しい認証リンクを貼り付けてください。",
+    };
+  }
+  redirect(destination);
 }
 async function adminForMfa() {
   const actor = await getActor();
