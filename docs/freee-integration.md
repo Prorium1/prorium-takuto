@@ -15,6 +15,8 @@ Monthly reflection now has a server-only OpenAI Responses adapter and a determin
 
 ## Financial ingestion
 
+The official [freee accounting OpenAPI schema](https://github.com/freee/freee-api-schema) confirms that `GET /api/1/reports/trial_pl` and `GET /api/1/reports/trial_bs` accept `company_id`, `start_date` and `end_date`. The response includes `up_to_date`, the requested dates, company ID, account-item IDs and integer-yen balances. A pure validator now checks the exact calendar month, company, freshness and integer amounts against synthetic tests before account mapping. It does not retrieve live data or create a report.
+
 `FinancialImportProvider` is the contract; `SyntheticFreeeProvider` exercises validation and immutable snapshot creation. The future freee provider belongs in `src/lib/server/integrations/`, never client components.
 
 1. An admin authorizes the company connection server-side with OAuth state/PKCE. Store refresh tokens encrypted in an environment-specific secret store. Use least-privilege read scopes and never log credentials or raw journals.
