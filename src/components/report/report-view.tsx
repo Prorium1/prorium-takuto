@@ -18,6 +18,7 @@ import { PdfButton } from "./pdf-button";
 import { ReportProvenance } from "./report-provenance";
 import { ExecutiveSummary } from "./executive-summary";
 import { InvestorBriefing } from "./investor-briefing";
+import { EventSpotlight } from "./event-spotlight";
 import { DocumentList } from "@/components/document-list";
 import { reportAttribution } from "@/lib/domain/provenance";
 
@@ -167,6 +168,7 @@ export function ReportView({
         <a href="#performance">財務報告</a>
         <a href="#drivers">数字が変わった理由</a>
         <a href="#business">事業報告</a>
+        {c.eventSpotlight && <a href="#event">大会・イベント</a>}
         {!!c.briefing?.length && <a href="#briefing">Proriumの今</a>}
         <a href="#ai">AIの売上・効率</a>
         <a href="#risks">リスク</a>
@@ -281,6 +283,13 @@ export function ReportView({
         </div>
       </section>
       <InvestorBriefing stories={c.briefing ?? []} />
+      {c.eventSpotlight && (
+        <EventSpotlight
+          event={c.eventSpotlight}
+          period={report.period}
+          print={print}
+        />
+      )}
       <section id="ai" className="report-section">
         <SectionHeading
           number="05"

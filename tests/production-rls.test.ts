@@ -19,7 +19,7 @@ test("production RPCs enforce MFA, grants, transactional publication and private
  create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}'); alter table storage.objects enable row level security; grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;`);
     await db.exec(await readFile("database/schema.sql", "utf8"));
     await db.exec(await readFile("database/production.sql", "utf8"));
-    await db.exec(await readFile("supabase/migrations/20261009030000_briefing_stories.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009012909_freee_connection.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009021638_freee_staging.sql", "utf8"));
     await db.exec(

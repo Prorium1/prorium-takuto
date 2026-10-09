@@ -1,10 +1,34 @@
 import { z } from "zod";
+import { eventVideo } from "./event-video";
 
 export const periodSchema = z
   .string()
   .regex(/^20\d{2}-(0[1-9]|1[0-2])$/, "期間はYYYY-MMで入力してください。");
 const text = z.string().trim().min(1).max(2000);
+export const eventSpotlightSchema = z
+  .object({
+    title: text.max(120),
+    occurredOn: z.iso.date(),
+    summary: text,
+    outcomes: z.array(text.max(300)).max(4),
+    nextAction: z.string().trim().max(500),
+    videoUrl: z
+      .string()
+      .trim()
+      .max(500)
+      .refine(
+        (url) => !url || eventVideo(url) !== null,
+        "YouTubeまたはVimeoの動画URLを入力してください。",
+      )
+      .transform((url) => (url ? eventVideo(url)!.watch : "")),
+    videoTitle: z.string().trim().max(120),
+  })
+  .refine(
+    (event) => !event.videoUrl || event.videoTitle.length > 0,
+    "動画のタイトルを入力してください。",
+  );
 export const contentEditSchema = z.object({
+  eventSpotlight: eventSpotlightSchema.nullable().optional(),
   headline: text.max(100),
   summary: text,
   summaryPoints: z.array(text.max(300)).max(5),

@@ -259,6 +259,8 @@ export async function mutateReport(
     content.financialAnalysis = edit.financialAnalysis;
     content.highlights = edit.highlights;
     content.briefing = edit.briefing;
+    if (edit.eventSpotlight !== undefined)
+      content.eventSpotlight = edit.eventSpotlight;
     content.forward = edit.forward;
     content.risks = edit.risks;
     content.ceo.quote = edit.ceoQuote;

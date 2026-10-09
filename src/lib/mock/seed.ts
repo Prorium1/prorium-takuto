@@ -3,6 +3,20 @@ import { contentHash } from "../domain/workflow";
 import { compareYoY, margin } from "../domain/finance";
 
 const augustContent: ReportContent = {
+  eventSpotlight: {
+    title: "イベントレポート（デザインサンプル）",
+    occurredOn: "2026-06-01",
+    summary:
+      "架空の開催例です。大会の規模だけでなく、事業上の意味、参加者の反応、次の成長につながる施策をまとめるための表示サンプルです。実際の大会情報ではありません。",
+    outcomes: [
+      "参加者に届けた価値を、確認済みの実績で伝える。",
+      "会場で得た発見を、次のサービス改善につなげる。",
+    ],
+    nextAction:
+      "大会資料と完成版動画を確認した後、経営者が内容を編集・承認します。",
+    videoUrl: "",
+    videoTitle: "",
+  },
   financial: {
     id: "snapshot-2026-08-mock",
     period: "2026-08",

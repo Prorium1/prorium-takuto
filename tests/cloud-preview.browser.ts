@@ -60,3 +60,50 @@ test("cloud investor only sees published fixtures and can print the report", asy
   const draft = await page.goto("/reports/2026-09");
   expect(draft?.status()).toBe(404);
 });
+
+test("solid chart and event layout remain readable on desktop and mobile", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/login");
+  await page.getByRole("button", { name: "株主としてデモを見る" }).click();
+  await page.waitForURL(/\/reports\/20\d{2}-\d{2}$/);
+  await page.goto("/reports/2026-08");
+  await expect(page.locator(".chart-series")).toHaveCount(2);
+  expect(
+    await page
+      .locator(".chart-series-prior")
+      .evaluate((el) => getComputedStyle(el).strokeDasharray),
+  ).toBe("none");
+  await expect(page.locator(".chart-prior-value")).toContainText("差額");
+  await page.getByRole("button", { name: "営業利益", exact: true }).click();
+  await page.getByRole("button", { name: "数値を見る" }).click();
+  await expect(page.locator(".data-table").first()).toBeVisible();
+  await expect(page.locator("#event")).toContainText("過去開催の振り返り");
+  await expect(page.locator("#event iframe")).toHaveCount(0);
+  for (const width of [1440, 768, 375]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: `artifacts/report-refined-${width}.png`,
+      fullPage: true,
+    });
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(
+    await page
+      .locator(".chart-series-current")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("none");
+  await page.emulateMedia({ media: "print" });
+  await page.screenshot({
+    path: "artifacts/report-refined-print.png",
+    fullPage: true,
+  });
+  expect(errors).toEqual([]);
+});

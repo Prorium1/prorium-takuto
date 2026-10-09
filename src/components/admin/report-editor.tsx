@@ -6,6 +6,7 @@ import type { ReportVersion } from "@/lib/domain/types";
 import { SummaryReview } from "./summary-review";
 import type { ContentEdit } from "@/lib/domain/validation";
 import { briefingTopics } from "@/lib/domain/briefing";
+import { EventEditor } from "./event-editor";
 
 function Field({
   label,
@@ -87,6 +88,7 @@ function EditorFields({ report }: { report: ReportVersion }) {
     financialAnalysis: c.financialAnalysis,
     highlights: c.highlights,
     briefing: c.briefing ?? [],
+    eventSpotlight: c.eventSpotlight ?? null,
     forward: c.forward,
     risks: c.risks,
     ceoQuote: c.ceo.quote,
@@ -103,6 +105,14 @@ function EditorFields({ report }: { report: ReportVersion }) {
         name="payload"
         value={JSON.stringify({
           ...edit,
+          eventSpotlight: edit.eventSpotlight
+            ? {
+                ...edit.eventSpotlight,
+                outcomes: edit.eventSpotlight.outcomes
+                  .map((value) => value.trim())
+                  .filter(Boolean),
+              }
+            : null,
           summaryPoints: pointsText
             .split("\n")
             .map((point) => point.trim())
@@ -399,6 +409,10 @@ function EditorFields({ report }: { report: ReportVersion }) {
           );
         })}
       </section>
+      <EventEditor
+        event={edit.eventSpotlight ?? null}
+        onChange={(eventSpotlight) => update({ eventSpotlight })}
+      />
       <section className="editor-section">
         <h2>07 · Forward Indicators</h2>
         <p>

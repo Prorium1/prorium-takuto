@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildFreeeDraftContent } from "../src/lib/domain/freee-draft";
+import { stagedRowSchema } from "../src/lib/domain/freee-staging";
+import { stagedTrend } from "../src/lib/domain/staged-trend";
 
 const stage = {
   id: "11111111-1111-4111-8111-111111111111", period: "2026-08",
@@ -24,4 +26,21 @@ test("confirmed freee candidate creates only an unpublished-content draft with e
 test("month-to-date and unmatched balance sheet never become monthly drafts", () => {
   assert.throws(() => buildFreeeDraftContent({ ...stage, candidate: { ...stage.candidate, completeness: "month-to-date" } }, "company", confirmation), /月途中/);
   assert.throws(() => buildFreeeDraftContent({ ...stage, candidate: { ...stage.candidate, assets: 301 } }, "company", confirmation), /貸借/);
+});
+
+test("staging charts exclude incomplete months, use latest import per month and bind period metadata", () => {
+  const original = stagedRowSchema.parse(stage);
+  const newer = structuredClone(original);
+  newer.provenance.retrievedAt = "2026-10-09T01:00:00Z";
+  newer.candidate.revenue.current = 140;
+  const partial = structuredClone(original);
+  partial.period = partial.candidate.period = partial.provenance.period = "2026-10";
+  partial.candidate.completeness = "month-to-date";
+  const result = stagedTrend([original, partial, newer]);
+  assert.equal(result?.trend.length, 1);
+  assert.equal(result?.trend[0].revenue, 140);
+  assert.equal(result?.trend[0].previousRevenue, 100);
+  assert.equal(stagedTrend([partial]), null);
+  original.provenance.period = "2026-07";
+  assert.throws(() => stagedTrend([original]), /対象月/);
 });

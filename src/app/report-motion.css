@@ -1,0 +1,140 @@
+@media screen {
+  .monthly-report .report-heading {
+    position: relative;
+    padding-top: 25px;
+    animation: report-arrive 0.55s ease-out both;
+  }
+  .monthly-report .report-heading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #2865ac, #8274b1 58%, #e0e8f2);
+  }
+  .monthly-report .executive-card {
+    background: linear-gradient(120deg, #eff5fc 0%, #f5f5fb 65%, #fbfcfd 100%);
+    animation: report-arrive 0.65s ease-out both;
+  }
+  .monthly-report #ai {
+    background: linear-gradient(120deg, #132b40 0%, #203b59 66%, #313b61 100%);
+  }
+  .chart-series {
+    animation: chart-appear 0.6s ease-out both;
+  }
+  .chart-series-prior {
+    animation-delay: 0.04s;
+  }
+  .chart-prior-value {
+    color: #536578;
+    display: flex;
+    gap: 7px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    font-size: 11px;
+    margin: 4px 0 20px;
+  }
+  .chart-prior-value strong {
+    font-size: 15px;
+    font-weight: 600;
+    color: #30445b;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-prior-value > span {
+    margin-left: 15px;
+    color: #536578;
+  }
+  .chart-legend span:last-child i {
+    background: transparent;
+    border: 2px solid #718297;
+    border-radius: 0;
+  }
+  .chart-legend span:first-child i {
+    border-radius: 50%;
+    background: #2463a6;
+  }
+  .chart-point-target:focus-visible {
+    outline: 2px solid #2463a6;
+    outline-offset: -2px;
+  }
+  .staged-financial-chart {
+    border: 1px solid #d7e1ec;
+    padding: 24px;
+    margin-block: 24px;
+    background: linear-gradient(130deg, #f8fbff, #fff);
+  }
+  .staged-financial-chart > h3 {
+    margin: 0 0 8px;
+  }
+  .staged-financial-chart > p {
+    font-size: 12px;
+    color: #536578;
+    margin-bottom: 24px;
+  }
+  @keyframes report-arrive {
+    from {
+      opacity: 0.4;
+      transform: translateY(9px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes chart-appear {
+    from {
+      opacity: 0.25;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+@media screen and (max-width: 650px) {
+  .chart-svg-wrap {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .chart-svg-wrap > svg {
+    min-width: 560px;
+  }
+  .chart-stat {
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+  .chart-legend {
+    width: 100%;
+    margin-left: 0;
+  }
+  .staged-financial-chart {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .monthly-report .report-heading,
+  .monthly-report .executive-card,
+  .chart-series {
+    animation: none;
+  }
+}
+@media print {
+  .monthly-report .report-heading,
+  .monthly-report .executive-card,
+  .monthly-report #ai {
+    background: white;
+    animation: none;
+  }
+  .chart-series {
+    animation: none;
+  }
+  .chart-prior-value {
+    font-size: 9pt;
+  }
+  .chart-svg-wrap {
+    overflow: visible;
+  }
+  .chart-svg-wrap > svg {
+    min-width: 0;
+  }
+}

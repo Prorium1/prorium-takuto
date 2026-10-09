@@ -6,6 +6,8 @@ import "./globals.css";
 import "./editorial.css";
 import "./summary.css";
 import "./briefing.css";
+import "./report-motion.css";
+import "./event.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {

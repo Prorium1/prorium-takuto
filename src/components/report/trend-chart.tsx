@@ -8,16 +8,22 @@ import {
   yoyPresentation,
 } from "@/lib/domain/finance";
 
-export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
+export function TrendChart({
+  financial,
+  provisional = false,
+}: {
+  financial: Pick<FinancialSnapshot, "period" | "trend" | "isMock">;
+  provisional?: boolean;
+}) {
   const [metric, setMetric] = useState<"revenue" | "profit">("revenue");
   const [range, setRange] = useState(6);
   const [hover, setHover] = useState<number | null>(null);
   const [selection, setSelection] = useState<number | null>(null);
   const [table, setTable] = useState(false);
   const tableId = useId();
+  const areaId = useId();
   const points = financial.trend.slice(-range);
   const priorKey = metric === "revenue" ? "previousRevenue" : "previousProfit";
-  const year = Number(financial.period.slice(0, 4));
   const { ticks, y } = financialChartScale(
     points.flatMap((p) => [p[metric], p[priorKey]]),
     metric === "revenue" ? 20_000_000 : 3_000_000,
@@ -68,7 +74,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           </button>
         </div>
         <div className="chart-range" role="group" aria-label="表示期間">
-          {[6, 3].map((v) => (
+          {(financial.trend.length > 6 ? [12, 6, 3] : [6, 3]).map((v) => (
             <button
               type="button"
               aria-pressed={range === v}
@@ -117,14 +123,21 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
         <div className="chart-legend">
           <span>
             <i />
-            {year}
+            当期
           </span>
           <span>
             <i />
-            {year - 1}
+            前年同月
           </span>
         </div>
       </div>
+      <p className="chart-prior-value">
+        前年同月 <strong>{millions(selected[priorKey])}</strong> 百万円
+        <span>
+          差額 {yoy.delta > 0 ? "+" : ""}
+          {millions(yoy.delta)} 百万円
+        </span>
+      </p>
       {yoy.note && (
         <p className="comparison-note chart-comparison-note">{yoy.note}</p>
       )}
@@ -134,7 +147,13 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           role="group"
           aria-label={`${metric === "revenue" ? "売上高" : "営業利益"}の前年同月比較、${points.length}か月。各月を選択できます。詳細は下の数値表を参照。`}
         >
-          <title>月次推移・前年同月比較</title>
+          <title>{`月次推移・前年同月比較${provisional ? "（会計確認待ち）" : ""}`}</title>
+          <defs>
+            <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3976ce" stopOpacity=".18" />
+              <stop offset="100%" stopColor="#3976ce" stopOpacity=".015" />
+            </linearGradient>
+          </defs>
           {ticks.map((value, i) => {
             return (
               <g key={i}>
@@ -143,8 +162,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
                   x2="814"
                   y1={y(value)}
                   y2={y(value)}
-                  stroke="#eceef3"
-                  strokeDasharray={i === 0 ? undefined : "3 5"}
+                  stroke="#dce3ec"
                 />
                 <text
                   x="40"
@@ -161,17 +179,19 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           {points.length > 1 && (
             <path
               d={`${line(metric)} L ${x(points.length - 1)} ${y(0)} L ${x(0)} ${y(0)} Z`}
-              fill="var(--report-area)"
-              opacity=".75"
+              fill={`url(#${areaId})`}
             />
           )}
           <line x1="64" x2="814" y1={y(0)} y2={y(0)} stroke="#d6dae4" />
           <path
             d={line(priorKey)}
             fill="none"
-            stroke="#b8bdc9"
-            strokeWidth="2"
-            strokeDasharray="5 5"
+            stroke="#718297"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            className="chart-series chart-series-prior"
           />
           <path
             d={line(metric)}
@@ -180,6 +200,8 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            className="chart-series chart-series-current"
           />
           {points.map((p, i) => (
             <g key={p.month}>
@@ -192,6 +214,16 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
               >
                 {p.month}
               </text>
+              <rect
+                x={x(i) - 3}
+                y={y(p[priorKey]) - 3}
+                width="6"
+                height="6"
+                fill="white"
+                stroke="#718297"
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
+              />
               <circle
                 cx={x(i)}
                 cy={y(p[metric])}
@@ -201,9 +233,9 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
                 strokeWidth="2"
               />
               <rect
-                x={Math.min(736, x(i) - 64)}
+                x={x(i) - Math.min(64, 375 / Math.max(1, points.length - 1))}
                 y="20"
-                width="128"
+                width={Math.min(128, 750 / Math.max(1, points.length - 1))}
                 height="215"
                 fill="transparent"
                 className="chart-point-target"
@@ -234,7 +266,11 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
         </svg>
       </div>
       <div className="chart-footer">
-        <span>単位：百万円 · 単月実績{financial.isMock && " · Mock Data"}</span>
+        <span>
+          単位：百万円 ·{" "}
+          {provisional ? "freee取込候補・会計確認待ち" : "単月実績"}
+          {financial.isMock && " · Mock Data"}
+        </span>
         <button
           type="button"
           className="text-button"
@@ -252,8 +288,8 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           <thead>
             <tr>
               <th>月</th>
-              <th>{year}年</th>
-              <th>{year - 1}年</th>
+              <th>当期</th>
+              <th>前年同月</th>
               <th>YoY</th>
             </tr>
           </thead>

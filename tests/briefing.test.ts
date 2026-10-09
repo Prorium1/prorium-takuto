@@ -27,7 +27,13 @@ test("investor briefing accepts categorized source text and rejects unclassified
     await db.exec(await readFile("database/production.sql", "utf8"));
     await db.exec(
       await readFile(
-        "supabase/migrations/20261009030000_briefing_stories.sql",
+        "supabase/migrations/20261009031730_briefing_stories.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20261009031746_event_spotlight.sql",
         "utf8",
       ),
     );
@@ -36,6 +42,48 @@ test("investor briefing accepts categorized source text and rejects unclassified
       "22222222-2222-4222-8222-222222222222",
     ).content;
     content.briefing = [story as BriefingStory];
+    const event = {
+      title: "Synthetic event",
+      occurredOn: "2026-06-02",
+      summary: "Synthetic summary",
+      outcomes: ["Synthetic outcome"],
+      nextAction: "",
+      videoUrl: "",
+      videoTitle: "",
+    };
+    for (const eventSpotlight of [
+      undefined,
+      null,
+      event,
+      {
+        ...event,
+        videoUrl: "https://www.youtube.com/watch?v=abcdefghijk",
+        videoTitle: "Synthetic video",
+      },
+    ]) {
+      await db.query("select private.validate_content($1::jsonb)", [
+        JSON.stringify({ ...content, eventSpotlight }),
+      ]);
+    }
+    for (const patch of [
+      { occurredOn: "2026-09-01" },
+      { occurredOn: "2026-02-30" },
+      { videoUrl: "https://evil.example/video", videoTitle: "Video" },
+      { videoUrl: "https://www.youtube.com/watch?v=abcdefghijk" },
+      { outcomes: [12] },
+      { title: "" },
+      { unexpected: "value" },
+    ]) {
+      await assert.rejects(
+        db.query("select private.validate_content($1::jsonb)", [
+          JSON.stringify({
+            ...content,
+            eventSpotlight: { ...event, ...patch },
+          }),
+        ]),
+      );
+    }
+
     await db.query("select private.validate_content($1::jsonb)", [
       JSON.stringify(content),
     ]);

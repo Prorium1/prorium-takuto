@@ -87,6 +87,15 @@ export type AIKpi = {
   description: string;
 };
 export type ReportContent = {
+  eventSpotlight?: {
+    title: string;
+    occurredOn: string;
+    summary: string;
+    outcomes: string[];
+    nextAction: string;
+    videoUrl: string;
+    videoTitle: string;
+  } | null;
   documents?: FinancialDocument[];
   financial: FinancialSnapshot;
   summary: {
