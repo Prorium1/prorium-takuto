@@ -5,6 +5,7 @@ import "@fontsource/noto-sans-jp/600.css";
 import "./globals.css";
 import "./editorial.css";
 import "./summary.css";
+import "./briefing.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {

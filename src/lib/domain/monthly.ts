@@ -60,6 +60,7 @@ export function emptyReport(period: string, companyId: string): ReportVersion {
     revenueDrivers: [],
     profitDrivers: [],
     highlights: [],
+    briefing: [],
     ai: { revenue: [], efficiency: [], narrative: "", attributionNote: "" },
     forward: [],
     risks: [],

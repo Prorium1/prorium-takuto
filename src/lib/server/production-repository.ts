@@ -258,6 +258,7 @@ export async function mutateReport(
     content.summary.outlook = edit.summaryOutlook;
     content.financialAnalysis = edit.financialAnalysis;
     content.highlights = edit.highlights;
+    content.briefing = edit.briefing;
     content.forward = edit.forward;
     content.risks = edit.risks;
     content.ceo.quote = edit.ceoQuote;

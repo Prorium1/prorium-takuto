@@ -17,6 +17,7 @@ import { DriverBridge } from "./driver-bridge";
 import { PdfButton } from "./pdf-button";
 import { ReportProvenance } from "./report-provenance";
 import { ExecutiveSummary } from "./executive-summary";
+import { InvestorBriefing } from "./investor-briefing";
 import { DocumentList } from "@/components/document-list";
 import { reportAttribution } from "@/lib/domain/provenance";
 
@@ -161,6 +162,15 @@ export function ReportView({
       )}
       <ExecutiveSummary report={report} />
       <ReportProvenance report={report} />
+      <nav className="report-chapter-nav" aria-label="レポートの目次">
+        <span>IN THIS REPORT</span>
+        <a href="#performance">財務報告</a>
+        <a href="#drivers">数字が変わった理由</a>
+        <a href="#business">事業報告</a>
+        {!!c.briefing?.length && <a href="#briefing">Proriumの今</a>}
+        <a href="#ai">AIの売上・効率</a>
+        <a href="#risks">リスク</a>
+      </nav>
       <section id="performance" className="report-section">
         <SectionHeading
           number="02"
@@ -270,6 +280,7 @@ export function ReportView({
           ))}
         </div>
       </section>
+      <InvestorBriefing stories={c.briefing ?? []} />
       <section id="ai" className="report-section">
         <SectionHeading
           number="05"

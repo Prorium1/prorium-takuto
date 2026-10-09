@@ -45,6 +45,23 @@ export type BusinessHighlight = {
   status: string;
   period: string;
 };
+export type BriefingTopic =
+  | "development"
+  | "people"
+  | "funding"
+  | "pr"
+  | "other"
+  | "asks"
+  | "market"
+  | "services"
+  | "customers";
+export type BriefingStory = {
+  id: string;
+  topic: BriefingTopic;
+  kind: IndicatorKind;
+  title: string;
+  body: string;
+};
 export type ForwardIndicator = {
   id: string;
   kind: IndicatorKind;
@@ -82,6 +99,7 @@ export type ReportContent = {
   revenueDrivers: Driver[];
   profitDrivers: Driver[];
   highlights: BusinessHighlight[];
+  briefing?: BriefingStory[];
   ai: {
     revenue: AIKpi[];
     efficiency: AIKpi[];

@@ -51,7 +51,10 @@ async function withStore<T>(
 ): Promise<T> {
   requireMockEnvironment();
   if (isCloudMockPreview()) {
-    if (write) throw new Error("クラウドPreviewでは保存・公開を行えません。架空データの閲覧と振り返りの下書き確認をご利用ください。");
+    if (write)
+      throw new Error(
+        "クラウドPreviewでは保存・公開を行えません。架空データの閲覧と振り返りの下書き確認をご利用ください。",
+      );
     return structuredClone(await operation(initialStore()));
   }
   const task = (globalStore.__proriumStoreQueue || Promise.resolve()).then(
@@ -284,6 +287,7 @@ export async function mutateReport(
       next.content.summary.outlook = edit.summaryOutlook;
       next.content.financialAnalysis = edit.financialAnalysis;
       next.content.highlights = edit.highlights;
+      next.content.briefing = edit.briefing;
       next.content.forward = edit.forward;
       next.content.risks = edit.risks;
       next.content.ceo.quote = edit.ceoQuote;

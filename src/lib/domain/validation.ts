@@ -24,6 +24,28 @@ export const contentEditSchema = z.object({
       }),
     )
     .max(12),
+  briefing: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        topic: z.enum([
+          "development",
+          "people",
+          "funding",
+          "pr",
+          "other",
+          "asks",
+          "market",
+          "services",
+          "customers",
+        ]),
+        kind: z.enum(["Actual", "Committed", "Forecast", "Pipeline"]),
+        title: text.max(120),
+        body: text,
+      }),
+    )
+    .max(24)
+    .default([]),
   forward: z
     .array(
       z.object({
