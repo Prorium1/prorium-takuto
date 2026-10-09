@@ -53,7 +53,7 @@ export default async function ImportPage() {
           </p>
           {configured && <Link href="/api/integrations/freee/connect" className="button primary">{connection?.connected ? "freeeを再接続" : "freeeを接続"}</Link>}
         </section>
-        <FreeeStagedReview rows={stagedResult.data || []} />
+        <FreeeStagedReview rows={stagedResult.data || []} reportPeriods={reports.map((report) => report.period)} />
         <FreeeImportPlan reports={reports} mock={false} />
       </Shell>
     );

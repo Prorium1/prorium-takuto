@@ -1,24 +1,10 @@
 import { periodLabel } from "@/lib/domain/finance";
-import { z } from "zod";
+import { stagedRowSchema } from "@/lib/domain/freee-staging";
+import { FreeePromoteForm } from "./freee-promote-form";
 
-const money = z.number().safe().int();
-const stagedSchema = z.object({
-  id: z.uuid(),
-  period: z.string().regex(/^20\d{2}-(0[1-9]|1[0-2])$/),
-  candidate: z.object({
-    completeness: z.literal("month-to-date").optional(),
-    throughDate: z.string().optional(),
-    revenue: z.object({ current: money, previous: money }),
-    operatingProfit: z.object({ current: money, previous: money }),
-    ordinaryProfit: z.object({ current: money, previous: money }),
-    cash: z.object({ current: money, previous: money }),
-  }),
-  provenance: z.object({ closeConfirmed: z.literal(false), retrievedAt: z.string() }),
-});
-
-export function FreeeStagedReview({ rows }: { rows: unknown[] }) {
+export function FreeeStagedReview({ rows, reportPeriods = [] }: { rows: unknown[]; reportPeriods?: string[] }) {
   const staged = rows.flatMap((row) => {
-    const parsed = stagedSchema.safeParse(row);
+    const parsed = stagedRowSchema.safeParse(row);
     return parsed.success ? [parsed.data] : [];
   });
   if (!staged.length) return null;
@@ -42,11 +28,12 @@ export function FreeeStagedReview({ rows }: { rows: unknown[] }) {
               <td>{yen(row.candidate.operatingProfit.current)}<br /><small>前年 {yen(row.candidate.operatingProfit.previous)}</small></td>
               <td>{yen(row.candidate.ordinaryProfit.current)}<br /><small>前年 {yen(row.candidate.ordinaryProfit.previous)}</small></td>
               <td>{yen(row.candidate.cash.current)}<br /><small>前年 {yen(row.candidate.cash.previous)}</small></td>
-              <td>{row.candidate.completeness === "month-to-date" ? `${row.candidate.throughDate ?? "月途中"}まで · 参考値` : "月次締め・科目確認待ち"}</td>
+              <td>{row.candidate.completeness === "month-to-date" ? `${row.candidate.throughDate ?? "月途中"}まで · 参考値` : reportPeriods.includes(row.period) ? "非公開下書きへ反映済み" : "月次締め・科目確認待ち"}</td>
             </tr>)}
           </tbody>
         </table>
       </div>
+      {staged.filter((row) => row.candidate.completeness !== "month-to-date" && !reportPeriods.includes(row.period)).map((row) => <FreeePromoteForm key={row.id} id={row.id} period={row.period} cashAccountIds={row.provenance.cashAccountIds.current} />)}
       <p className="workflow-info">取込候補 → 会計・経営確認 → 下書きSnapshot → レポート確認 → 承認 → 公開</p>
     </section>
   );

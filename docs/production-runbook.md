@@ -2,7 +2,7 @@
 
 ## 現在の状態
 
-コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番URLは https://prorium-shareholder-ir.vercel.app 。VercelチームのDeployment Protectionを維持しています。Shimei.AI組織の専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` にfreee非公開ステージを含む5件のMigrationを適用し、RLSとStorage設定を検査しました。Vercel Productionには専用DBのURL・公開用キー・freeeのOAuth設定を登録済みです。初期管理者の招待レコードは登録済みですが、本人の初回ログインとMFAは未完了です。freeeコネクター経由で今期11月から9月の月次と10月9日までの暫定値を本番DBの非公開ステージに保存しました。取込候補は締め・科目の確認待ちで、レポート本文・株主公開版には反映されていません。
+コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番URLは https://prorium-shareholder-ir.vercel.app 。VercelチームのDeployment Protectionを維持しています。Shimei.AI組織の専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` にfreee非公開ステージと下書き昇格処理を含む6件のMigrationを適用し、RLSとStorage設定を検査しました。Vercel Productionには専用DBのURL・公開用キー・freeeのOAuth設定を登録済みです。初期管理者の招待レコードは登録済みですが、本人の初回ログインとMFAは未完了です。freeeコネクター経由で今期11月から9月の月次と10月9日までの暫定値を本番DBの非公開ステージに保存しました。取込候補は締め・科目の確認待ちで、レポート本文・株主公開版には反映されていません。管理者は `/admin/import` で締め・科目・固定費・増減理由を確認すると、完了月のみ非公開の下書きSnapshotへ反映できます。
 
 Supabaseの「Shimei.AI」組織、Vercelの「prorium」チームにIR専用環境があります。既存サービスは変更しません。Supabase接続ツールの新設費用取得APIが利用できなかったため、プロジェクト作成と料金確認はDashboardで行いました。
 
@@ -23,6 +23,9 @@ DevelopmentとPreviewはMockのみ。本番と別の環境変数スコープに�
    - `supabase/migrations/20261009010730_prorium_report_baseline.sql`
    - `supabase/migrations/20261009010747_prorium_production_monthly_ir.sql`
    - `supabase/migrations/20261009010930_lock_down_auto_rls_helper.sql`
+   - `supabase/migrations/20261009012909_freee_connection.sql`
+   - `supabase/migrations/20261009021638_freee_staging.sql`
+   - `supabase/migrations/20261009022645_promote_freee_stage.sql`
 3. RLSと権限のAdvisorを実行します。`private` スキーマをData APIへ公開しません。公開スキーマには明示的なGRANTを使用します。
 4. `ir-financial-documents` がprivate、PDFのみ、最大4 MiBであることを確認します。StorageオブジェクトのUPDATE/DELETE権限はアプリに与えません。
 5. Backup/PITR、保持期間、DBアクセス担当を会社の運用に合わせて設定します。自動バックアップがStorageの実ファイルまで復元するとは仮定せず、ファイルのバックアップ・復元も確認します。
