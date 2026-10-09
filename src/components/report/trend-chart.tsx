@@ -1,50 +1,67 @@
 "use client";
-import { useState } from "react";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { useId, useState } from "react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown, Minus } from "lucide-react";
 import type { FinancialSnapshot } from "@/lib/domain/types";
-import { compareYoY, millions, percent } from "@/lib/domain/finance";
+import {
+  financialChartScale,
+  millions,
+  yoyPresentation,
+} from "@/lib/domain/finance";
 
 export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
   const [metric, setMetric] = useState<"revenue" | "profit">("revenue");
   const [range, setRange] = useState(6);
   const [hover, setHover] = useState<number | null>(null);
+  const [selection, setSelection] = useState<number | null>(null);
   const [table, setTable] = useState(false);
+  const tableId = useId();
   const points = financial.trend.slice(-range);
   const priorKey = metric === "revenue" ? "previousRevenue" : "previousProfit";
   const year = Number(financial.period.slice(0, 4));
-  const max =
-    Math.ceil(
-      Math.max(...points.map((p) => Math.max(p[metric], p[priorKey]))) /
-        (metric === "revenue" ? 20_000_000 : 3_000_000),
-    ) * (metric === "revenue" ? 20_000_000 : 3_000_000);
-  const x = (i: number) => 64 + i * (750 / (points.length - 1));
-  const y = (v: number) => 222 - (v / max) * 190;
+  const { ticks, y } = financialChartScale(
+    points.flatMap((p) => [p[metric], p[priorKey]]),
+    metric === "revenue" ? 20_000_000 : 3_000_000,
+  );
+  const x = (i: number) =>
+    points.length === 1 ? 439 : 64 + i * (750 / (points.length - 1));
   const line = (
     key: "revenue" | "profit" | "previousRevenue" | "previousProfit",
   ) =>
     points
       .map((p, i) => `${i === 0 ? "M" : "L"} ${x(i)} ${y(p[key])}`)
       .join(" ");
-  const selected = points[hover ?? points.length - 1];
-  const yoy = compareYoY(selected[metric], selected[priorKey]);
+  const selectedIndex = Math.min(
+    hover ?? selection ?? points.length - 1,
+    points.length - 1,
+  );
+  const selected = points[selectedIndex];
+  if (!selected)
+    return <p className="section-empty">推移データは未掲載です。</p>;
+  const yoy = yoyPresentation(selected[metric], selected[priorKey]);
   return (
     <div className="chart-card">
       <div className="chart-toolbar">
         <div className="chart-tabs" role="group" aria-label="表示する指標">
           <button
+            type="button"
+            aria-pressed={metric === "revenue"}
             className={metric === "revenue" ? "selected" : ""}
             onClick={() => {
               setMetric("revenue");
               setHover(null);
+              setSelection(null);
             }}
           >
             売上高
           </button>
           <button
+            type="button"
+            aria-pressed={metric === "profit"}
             className={metric === "profit" ? "selected" : ""}
             onClick={() => {
               setMetric("profit");
               setHover(null);
+              setSelection(null);
             }}
           >
             営業利益
@@ -53,11 +70,14 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
         <div className="chart-range" role="group" aria-label="表示期間">
           {[6, 3].map((v) => (
             <button
+              type="button"
+              aria-pressed={range === v}
               className={range === v ? "selected" : ""}
               key={v}
               onClick={() => {
                 setRange(v);
                 setHover(null);
+                setSelection(null);
               }}
             >
               {v}か月
@@ -75,9 +95,23 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
             <small>百万円</small>
           </strong>
         </div>
-        <span className="positive">
-          <ArrowUpRight size={15} />
-          {yoy.percent !== null ? percent(yoy.percent) : "比較対象なし"}
+        <span
+          className={
+            yoy.direction === "flat"
+              ? "comparison-neutral"
+              : yoy.delta > 0
+                ? "positive"
+                : "negative"
+          }
+        >
+          {yoy.direction === "flat" ? (
+            <Minus size={15} />
+          ) : yoy.delta > 0 ? (
+            <ArrowUpRight size={15} />
+          ) : (
+            <ArrowDownRight size={15} />
+          )}
+          {yoy.label}
           <small>YoY</small>
         </span>
         <div className="chart-legend">
@@ -91,15 +125,17 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           </span>
         </div>
       </div>
+      {yoy.note && (
+        <p className="comparison-note chart-comparison-note">{yoy.note}</p>
+      )}
       <div className="chart-svg-wrap">
         <svg
           viewBox="0 0 864 258"
-          role="img"
-          aria-label={`${metric === "revenue" ? "売上高" : "営業利益"}の前年同月比較、${range}か月。詳細は下の数値表を参照。`}
+          role="group"
+          aria-label={`${metric === "revenue" ? "売上高" : "営業利益"}の前年同月比較、${points.length}か月。各月を選択できます。詳細は下の数値表を参照。`}
         >
           <title>月次推移・前年同月比較</title>
-          {[0, 1, 2, 3].map((i) => {
-            const value = (max * i) / 3;
+          {ticks.map((value, i) => {
             return (
               <g key={i}>
                 <line
@@ -114,7 +150,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
                   x="40"
                   y={y(value) + 4}
                   textAnchor="end"
-                  fill="#9097a6"
+                  fill="#586c7b"
                   fontSize="11"
                 >
                   {millions(value, 0)}
@@ -122,11 +158,14 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
               </g>
             );
           })}
-          <path
-            d={`${line(metric)} L ${x(points.length - 1)} 222 L 64 222 Z`}
-            fill="#eeedfc"
-            opacity=".75"
-          />
+          {points.length > 1 && (
+            <path
+              d={`${line(metric)} L ${x(points.length - 1)} ${y(0)} L ${x(0)} ${y(0)} Z`}
+              fill="var(--report-area)"
+              opacity=".75"
+            />
+          )}
+          <line x1="64" x2="814" y1={y(0)} y2={y(0)} stroke="#d6dae4" />
           <path
             d={line(priorKey)}
             fill="none"
@@ -137,7 +176,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
           <path
             d={line(metric)}
             fill="none"
-            stroke="#625bd6"
+            stroke="var(--report-accent)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -148,7 +187,7 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
                 x={x(i)}
                 y="250"
                 textAnchor="middle"
-                fill="#7a8190"
+                fill="#586c7b"
                 fontSize="12"
               >
                 {p.month}
@@ -156,62 +195,90 @@ export function TrendChart({ financial }: { financial: FinancialSnapshot }) {
               <circle
                 cx={x(i)}
                 cy={y(p[metric])}
-                r={i === (hover ?? points.length - 1) ? 5 : 3}
-                fill="#625bd6"
+                r={i === selectedIndex ? 5 : 3}
+                fill="var(--report-accent)"
                 stroke="white"
                 strokeWidth="2"
               />
               <rect
-                x={x(i) - 28}
+                x={Math.min(736, x(i) - 64)}
                 y="20"
-                width="56"
+                width="128"
                 height="215"
                 fill="transparent"
-                onMouseEnter={() => setHover(i)}
-                onMouseLeave={() => setHover(null)}
+                className="chart-point-target"
+                role="button"
+                tabIndex={0}
+                aria-label={`${p.month}の${metric === "revenue" ? "売上高" : "営業利益"} ${millions(p[metric])}百万円`}
+                aria-pressed={i === selectedIndex}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse") setHover(i);
+                }}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === "mouse") setHover(null);
+                }}
+                onPointerUp={(event) => {
+                  if (event.pointerType !== "mouse") setSelection(i);
+                }}
+                onClick={() => setSelection(i)}
+                onFocus={() => setSelection(i)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelection(i);
+                  }
+                }}
               />
             </g>
           ))}
         </svg>
       </div>
       <div className="chart-footer">
-        <span>単位：百万円 · 単月実績 · Mock Data</span>
+        <span>単位：百万円 · 単月実績{financial.isMock && " · Mock Data"}</span>
         <button
+          type="button"
           className="text-button"
           aria-expanded={table}
+          aria-controls={tableId}
           onClick={() => setTable(!table)}
         >
           数値を見る
           <ChevronDown size={13} />
         </button>
       </div>
-      {table && (
-        <div className="table-wrap">
-          <table className="data-table">
-            <caption className="sr-only">月次数値の前年同月比較</caption>
-            <thead>
-              <tr>
-                <th>月</th>
-                <th>{year}年</th>
-                <th>{year - 1}年</th>
-                <th>YoY</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((p) => (
+      <div className="table-wrap" id={tableId} hidden={!table}>
+        <table className="data-table">
+          <caption className="sr-only">月次数値の前年同月比較</caption>
+          <thead>
+            <tr>
+              <th>月</th>
+              <th>{year}年</th>
+              <th>{year - 1}年</th>
+              <th>YoY</th>
+            </tr>
+          </thead>
+          <tbody>
+            {points.map((p) => {
+              const comparison = yoyPresentation(p[metric], p[priorKey]);
+              return (
                 <tr key={p.month}>
                   <td>{p.month}</td>
                   <td>{millions(p[metric])}</td>
                   <td>{millions(p[priorKey])}</td>
                   <td>
-                    {percent(compareYoY(p[metric], p[priorKey]).percent ?? 0)}
+                    {comparison.label}
+                    {comparison.note && (
+                      <small className="comparison-note">
+                        {comparison.note}
+                      </small>
+                    )}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

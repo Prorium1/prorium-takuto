@@ -37,7 +37,11 @@
     ".next/e2e/types/**/*.ts",
     ".next/e2e/dev/types/**/*.ts",
     ".next/build/types/**/*.ts",
-    ".next/build/dev/types/**/*.ts"
+    ".next/build/dev/types/**/*.ts",
+    ".next/cloud-e2e/types/**/*.ts",
+    ".next/cloud-e2e/dev/types/**/*.ts",
+    ".next/summary-ui/types/**/*.ts",
+    ".next/summary-ui/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

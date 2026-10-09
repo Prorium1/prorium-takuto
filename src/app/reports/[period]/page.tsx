@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { ReportView } from "@/components/report/report-view";
 import { requireActor } from "@/lib/server/auth";
+import { isCloudMockPreview } from "@/lib/server/environment";
 import {
   getPublishedReport,
   listPublishedReports,
@@ -66,7 +67,7 @@ export default async function ReportPage({
           </div>
         )}
       </div>
-      <ReportView report={report} />
+      <ReportView report={report} browserPrint={isCloudMockPreview()} />
     </Shell>
   );
 }

@@ -5,13 +5,16 @@ import { Download, LoaderCircle } from "lucide-react";
 export function PdfButton({
   period,
   version,
+  browserPrint = false,
 }: {
   period: string;
   version: string;
+  browserPrint?: boolean;
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   async function download() {
+    if (browserPrint) { window.print(); return; }
     setPending(true);
     setError("");
     try {
@@ -41,7 +44,7 @@ export function PdfButton({
         ) : (
           <Download size={16} />
         )}
-        {pending ? "PDFを生成中…" : "PDFをダウンロード"}
+        {pending ? "PDFを生成中…" : browserPrint ? "PDF保存 / 印刷" : "PDFをダウンロード"}
       </button>
       {error && (
         <p className="form-error" role="alert">

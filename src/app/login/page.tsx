@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LoginForm } from "@/components/login-form";
 import { getActor } from "@/lib/server/auth";
@@ -15,7 +15,7 @@ export default async function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-story">
-        <Brand light />
+        <Brand />
         <div className="login-story-main">
           <span className="eyebrow">PRORIUM SHAREHOLDER PORTAL</span>
           <h1>
@@ -33,21 +33,27 @@ export default async function LoginPage() {
               MONTHLY SHAREHOLDER REPORT
               <ArrowUpRight size={18} />
             </span>
-            <div className="cover-month">
-              08<span>/ 2026</span>
+            <div className="cover-title">
+              Clarity.
+              <br />
+              Every month.
             </div>
-            <span className="cover-caption">成長を、利益につなげる。</span>
-            <div className="cover-line">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
+            <span className="cover-caption">
+              数字の先にある、経営の意思を。
+            </span>
+            <div className="cover-contents">
+              <span>
+                <i>01</i> Performance
+              </span>
+              <span>
+                <i>02</i> Perspective
+              </span>
+              <span>
+                <i>03</i> Possibilities
+              </span>
             </div>
             <span className="cover-bottom">
-              <Sparkles size={13} />
-              AI assisted. Human approved.
+              PRIVATE SHAREHOLDER PUBLICATION
               {isMockEnvironment() && <span>MOCK</span>}
             </span>
           </div>

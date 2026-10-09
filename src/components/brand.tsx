@@ -1,17 +1,18 @@
-export function Brand({ light = false }: { light?: boolean }) {
+import Image from "next/image";
+
+export function Brand() {
   return (
-    <div className={`brand ${light ? "brand-light" : ""}`}>
-      <span className="brand-symbol" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </span>
-      <div>
-        <span className="brand-name">
-          prorium<span>.</span>
-        </span>
-        <span className="brand-subtitle">INVESTOR RELATIONS</span>
-      </div>
+    <div className="brand">
+      <Image
+        className="brand-logo"
+        src="/brand/prorium-logo-horizontal.png"
+        alt="Prorium"
+        width={1878}
+        height={732}
+        unoptimized
+        preload
+      />
+      <span className="brand-subtitle">INVESTOR RELATIONS</span>
     </div>
   );
 }

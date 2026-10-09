@@ -1,0 +1,62 @@
+import { test, expect } from "@playwright/test";
+
+test("cloud preview structures reflection locally without saving or sending private notes", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "管理者デモを開く" }).click();
+  await page.waitForURL(/\/admin$/);
+  await page.getByRole("link", { name: "振り返りを試す →" }).click();
+  await expect(page.getByRole("button", { name: "入力を保存" })).toHaveCount(0);
+  const posts: string[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST") posts.push(request.url());
+  });
+  await page.getByRole("button", { name: "サンプルを入れる" }).click();
+  await page.getByText("非公開メモ", { exact: true }).click();
+  await page.getByLabel("管理者専用メモ").fill("private-canary-do-not-send");
+  await page.getByRole("button", { name: "下書きを確認", exact: true }).click();
+  const draft = page.getByRole("article", { name: "確認用の下書き" });
+  await expect(draft).toContainText("売上の変化理由（経営者の説明）");
+  await expect(draft).toContainText("未計測");
+  await expect(draft).not.toContainText("private-canary");
+  expect(posts).toEqual([]);
+  await page.setViewportSize({ width: 375, height: 900 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "artifacts/cloud-reflection-mobile.png",
+    fullPage: true,
+  });
+  await page.reload();
+  await expect(page.getByLabel("今月あったこと", { exact: true })).toHaveValue(
+    "",
+  );
+  await expect(draft).toHaveCount(0);
+});
+
+test("cloud investor only sees published fixtures and can print the report", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "株主としてデモを見る" }).click();
+  await page.waitForURL(/\/reports\/20\d{2}-\d{2}$/);
+  await page.goto("/reports/2026-08");
+  await expect(page.getByText("確認用デモ", { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    window.print = () => {
+      document.body.dataset.printed = "yes";
+    };
+  });
+  await page.getByRole("button", { name: "PDF保存 / 印刷" }).click();
+  await expect(page.locator("body")).toHaveAttribute("data-printed", "yes");
+  const pdf = await page.request.get("/api/reports/2026-08/pdf");
+  expect(pdf.status()).toBe(501);
+  const admin = await page.goto("/admin");
+  expect(admin?.status()).toBe(404);
+  const draft = await page.goto("/reports/2026-09");
+  expect(draft?.status()).toBe(404);
+});

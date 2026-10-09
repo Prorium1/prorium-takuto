@@ -34,7 +34,7 @@ BrowserテストにはシステムChromiumが必要です。ネットワーク�
 
 ## まだ確認できていないこと
 
-本番プロジェクト未作成のため、実際のSupabase Auth・Storage・PostgREST、Custom SMTP配送、OpenAI API、Vercel Function、最終URLの運用をまだ確認できていません。PGliteはPostgresのRLSとTriggerを実行しますが、これら外部サービスを代替する動作確認にはなりません。
+2026-10-09にIR専用Supabaseプロジェクトへ3件のMigrationを適用し、実DBで14テーブルのRLS、匿名権限、private PDF bucket、自動RLS補助関数の実行権限を確認しました。Supabase Authの実ログイン、Custom SMTP配送、実際の投資家権限、OpenAI API、認証後のVercel Functionと最終URLの運用は未確認です。PGliteのテストはこれら外部サービスを代替しません。
 
 実際の公開前に [本番手順](production-runbook.md) の実URL確認を完了します。開発環境では実際の財務資料を使用していません。
 # Vercelへの初回デプロイ確認（2026-10-06）

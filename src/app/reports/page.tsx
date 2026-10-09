@@ -42,15 +42,16 @@ export default async function ArchivePage() {
             key={report.id}
           >
             <div className="archive-top">
-              <span className="archive-icon">
-                <FileText size={21} />
-              </span>
+              <span className="archive-year">{report.period.slice(0, 4)}</span>
               <span
                 className={`badge ${i === 0 ? "badge-purple" : "badge-neutral"}`}
               >
                 {i === 0 ? "Latest report" : report.version}
               </span>
             </div>
+            <span className="archive-folio" aria-hidden="true">
+              {report.period.slice(5)}
+            </span>
             <span className="eyebrow">MONTHLY SHAREHOLDER REPORT</span>
             <h2>{periodLabel(report.period)}</h2>
             <p>{report.content.summary.headline}</p>

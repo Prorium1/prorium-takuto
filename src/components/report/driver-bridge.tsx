@@ -13,13 +13,23 @@ export function DriverBridge({
   current: number;
   drivers: Driver[];
 }) {
-  const max = Math.max(...drivers.map((d) => Math.abs(d.amount)));
+  const max = Math.max(1, ...drivers.map((d) => Math.abs(d.amount)));
+  const delta = current - previous;
   return (
     <article className="driver-card">
       <div className="driver-header">
         <h3>{title}</h3>
-        <span className="positive">
-          +{millions(current - previous)}
+        <span
+          className={
+            delta < 0
+              ? "negative"
+              : delta > 0
+                ? "positive"
+                : "comparison-neutral"
+          }
+        >
+          {delta > 0 ? "+" : ""}
+          {millions(delta)}
           <small>百万円</small>
         </span>
       </div>
@@ -52,7 +62,10 @@ export function DriverBridge({
               <i
                 style={{
                   width: `${(Math.abs(d.amount) / max) * 100}%`,
-                  background: d.amount >= 0 ? "#8b85dd" : "#c5a995",
+                  background:
+                    d.amount >= 0
+                      ? "var(--report-driver-positive)"
+                      : "var(--report-driver-negative)",
                 }}
               />
             </div>

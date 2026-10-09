@@ -11,10 +11,11 @@
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node --conditions=react-server --import tsx --test --test-isolation=none tests/*.test.ts",
+    "test": "node --conditions=react-server --import tsx --test --test-isolation=none tests/*.test.ts && npm run test:render",
+    "test:render": "node --import tsx --test --test-isolation=none tests/*.render.ts",
     "test:e2e": "playwright test",
+    "test:cloud-preview": "playwright test --config playwright.cloud.config.ts",
     "check": "npm run typecheck && npm run lint && npm test && npm run db:migrations:check",
-    "db:migrations:prepare": "node scripts/prepare-migrations.mjs",
     "db:migrations:check": "node scripts/prepare-migrations.mjs --check",
     "db:bootstrap:prepare": "node scripts/prepare-bootstrap.mjs"
   },

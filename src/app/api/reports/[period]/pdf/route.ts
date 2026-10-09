@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getActor, SESSION_COOKIE } from "@/lib/server/auth";
 import { getPublishedReport, recordPdfExport } from "@/lib/server/repository";
 import { periodSchema } from "@/lib/domain/validation";
+import { isCloudMockPreview } from "@/lib/server/environment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +25,11 @@ export async function GET(
   const report = await getPublishedReport(period, actor, version);
   if (!report)
     return Response.json({ error: "Report not found" }, { status: 404 });
+  if (isCloudMockPreview())
+    return Response.json(
+      { error: "Previewではレポート画面のPDF保存 / 印刷をご利用ください。" },
+      { status: 501 },
+    );
   if ((counter.__proriumPdfCount || 0) >= 2)
     return Response.json(
       { error: "PDF generation busy" },

@@ -1,6 +1,17 @@
 # freee / AI integration boundary
 
-Current state: synthetic adapter only. No OAuth, API access, webhook, live sync, production financial data or live AI requests are implemented or configured.
+Current financial ingestion: synthetic adapter only. A production-only freee OAuth authorization-code flow and encrypted credential storage are implemented in code. The IR-specific freee app has been created and Vercel Production has Client ID/Secret entries, but the callback URL has not been independently verified and no authorization has occurred. Accounting API access, journal mapping, and scheduled live sync are not implemented. The connected assistant can see Prorium's freee company metadata, but this does not authenticate the IR website. No real financial data has been read into development.
+
+## OAuth setup required before first connection
+
+1. In [freee app management](https://app.secure.freee.co.jp/developers/applications), open the new IR-only accounting app. Confirm read-only accounting permissions and register `https://prorium-shareholder-ir.vercel.app/api/integrations/freee/callback` as its callback URL. The expected Prorium freee company ID is `11486508`; confirm this in the authorization screen before granting access.
+2. `FREEE_CLIENT_ID` and `FREEE_CLIENT_SECRET` are now registered as Sensitive entries in the [Vercel IR project](https://vercel.com/prorium/prorium-shareholder-ir/settings/environment-variables) **Production** environment; their values have not been read back or verified by an authorization exchange. `FREEE_COMPANY_ID=11486508` and a generated `FREEE_TOKEN_ENCRYPTION_KEY` are also in Production. Never put any secret in Git, chat, Preview or Development.
+3. The reviewed `20261009012909_freee_connection.sql` migration is applied to the dedicated IR Supabase project. It creates a private, RLS-protected table and MFA-gated RPCs; neither investors nor the Data API can read the credential ciphertext.
+4. Deploy the matching code, sign in as the IR admin with MFA, and select `freeeを接続` at `/admin/import`. OAuth state is a short-lived HttpOnly cookie, the selected company must match `FREEE_COMPANY_ID`, and the refresh/access tokens are AES-256-GCM encrypted before DB storage. No token is displayed in the UI.
+
+**Connection is not import.** The dashboard reports OAuth status only. Do not describe the connection as automatic data sync until the accounting mapping and scheduled job below are implemented and verified with production data. Published reports never sync automatically.
+
+Monthly reflection now has a server-only OpenAI Responses adapter and a deterministic editorial fallback. Its production key is not configured and no live request has been verified. See [monthly reflection and activation status](./monthly-reflection.md) for the implemented flow and remaining setup.
 
 ## Financial ingestion
 

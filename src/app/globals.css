@@ -159,6 +159,27 @@ small {
   gap: 3px;
   font-weight: 600;
 }
+.comparison-neutral {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #657083;
+  font-weight: 600;
+}
+.comparison-note {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  color: #657083;
+  font-weight: 400;
+}
+.chart-point-target {
+  cursor: pointer;
+}
+.chart-point-target:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: -2px;
+}
 .button {
   display: inline-flex;
   align-items: center;
@@ -799,6 +820,25 @@ small {
 }
 .automation-strip small svg {
   color: #5c9e84;
+}
+.source-provenance {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  margin: -2px 0 17px;
+  padding: 0 17px;
+  font-size: 10px;
+  color: #737c8e;
+}
+.source-provenance strong,
+.source-provenance time {
+  margin-left: 5px;
+  font-weight: 400;
+  color: #535d70;
+}
+.source-provenance .source-sync {
+  margin-left: auto;
 }
 .report-section {
   margin-top: 41px;
@@ -2985,6 +3025,14 @@ small {
   }
 }
 @media (max-width: 620px) {
+  .source-provenance {
+    padding: 0 5px;
+    gap: 4px 12px;
+    font-size: 9px;
+  }
+  .source-provenance .source-sync {
+    margin-left: 0;
+  }
   .topbar {
     padding: 0 17px;
   }
@@ -3687,7 +3735,7 @@ small {
   *:before,
   *:after {
     animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
   }
 }
 .revision-form {

@@ -14,7 +14,10 @@ import { periodLabel } from "@/lib/domain/finance";
 import { MonthlyUpdateForm } from "@/components/admin/monthly-update";
 import { FinancialEntryForm } from "@/components/admin/financial-entry";
 import { DocumentUploadForm } from "@/components/admin/document-upload";
-import { isMockEnvironment } from "@/lib/server/environment";
+import {
+  isMockEnvironment,
+  isCloudMockPreview,
+} from "@/lib/server/environment";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -43,6 +46,33 @@ export default async function AdminReportPage({
         <ReportView report={report} preview />
       </Shell>
     );
+  if (isCloudMockPreview())
+    return (
+      <Shell role={actor.role}>
+        <Link className="admin-back" href="/admin/reports">
+          <ArrowLeft size={13} />
+          すべてのレポート
+        </Link>
+        <div className="page-heading">
+          <span className="eyebrow">MONTHLY REFLECTION · DEMO</span>
+          <h1>{periodLabel(report.period)}</h1>
+          <p>架空の出来事を入力して、株主向け下書きを確認できます。</p>
+        </div>
+        <MonthlyUpdateForm
+          key={report.id}
+          report={report}
+          notes=""
+          aiEnabled={false}
+          cloudPreview
+        />
+        <Link
+          className="button secondary"
+          href={`/admin/reports/${id}?preview=1`}
+        >
+          サンプルレポートを見る
+        </Link>
+      </Shell>
+    );
   return (
     <Shell role={actor.role}>
       <Link className="admin-back" href="/admin/reports">
@@ -58,6 +88,7 @@ export default async function AdminReportPage({
       {report.state !== "published" && (
         <>
           <MonthlyUpdateForm
+            key={report.id}
             report={report}
             notes={
               store.monthlyInputs?.find((n) => n.reportId === id)?.notes || ""

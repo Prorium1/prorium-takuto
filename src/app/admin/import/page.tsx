@@ -1,15 +1,24 @@
 import { ArrowRight, Database } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { ImportForm } from "@/components/admin/import-form";
+import { FreeeImportPlan } from "@/components/admin/freee-import-plan";
 import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReports, getAdminStore } from "@/lib/server/repository";
-import { isMockEnvironment } from "@/lib/server/environment";
+import { productionClient } from "@/lib/server/production-repository";
+import {
+  isMockEnvironment,
+  isCloudMockPreview,
+} from "@/lib/server/environment";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export default async function ImportPage() {
   const actor = await requireAdmin();
-  if (!isMockEnvironment())
+  const reports = await getAdminReports(actor);
+  if (!isMockEnvironment()) {
+    const configured = Boolean(process.env.FREEE_CLIENT_ID && process.env.FREEE_CLIENT_SECRET && process.env.FREEE_COMPANY_ID && process.env.FREEE_TOKEN_ENCRYPTION_KEY);
+    const client = await productionClient(actor, true);
+    const { data: connection } = await client.rpc("ir_freee_connection_status", { p_company: actor.companyId });
     return (
       <Shell role={actor.role}>
         <div className="page-heading">
@@ -29,15 +38,20 @@ export default async function ImportPage() {
         <section className="admin-panel">
           <h2>freee 連携</h2>
           <p className="admin-info">
-            自動取込は未接続です。現時点ではfreeeなどから出力したPDFを共有できます。公開済みの資料・数値は、会計ソフトで後から変更しても更新されません。
+            {connection?.connected
+              ? `事業所 ${connection.freeeCompanyId} の認可情報を保存しました。月次自動取込は勘定科目の対応と締め確認が済むまで開始されません。`
+              : configured
+                ? "freeeのIR専用アプリを管理者として接続してください。認可後、勘定科目の対応と締め確認を行います。"
+                : "freeeのIR専用OAuthアプリと本番環境変数の設定を待っています。"}
+            公開済みの資料・数値は、会計ソフトで後から変更しても更新されません。
           </p>
+          {configured && <Link href="/api/integrations/freee/connect" className="button primary">{connection?.connected ? "freeeを再接続" : "freeeを接続"}</Link>}
         </section>
+        <FreeeImportPlan reports={reports} mock={false} />
       </Shell>
     );
-  const [reports, store] = await Promise.all([
-    getAdminReports(actor),
-    getAdminStore(actor),
-  ]);
+  }
+  const store = await getAdminStore(actor);
   return (
     <Shell role={actor.role}>
       <div className="page-heading">
@@ -76,8 +90,13 @@ export default async function ImportPage() {
           </div>
           <span className="badge badge-neutral">Live connection 未接続</span>
         </div>
-        <ImportForm reports={reports.filter((r) => r.state !== "published")} />
+        {!isCloudMockPreview() && (
+          <ImportForm
+            reports={reports.filter((r) => r.state !== "published")}
+          />
+        )}
       </section>
+      <FreeeImportPlan reports={reports} mock />
       <section className="admin-panel">
         <div className="panel-heading">
           <h2>Import History</h2>
@@ -89,7 +108,7 @@ export default async function ImportPage() {
           </p>
         ) : (
           <div className="table-wrap">
-            <table className="data-table">
+            <table className="data-table" aria-label="取り込み履歴">
               <thead>
                 <tr>
                   <th>PERIOD</th>

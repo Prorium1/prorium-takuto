@@ -18,7 +18,7 @@ import {
   SyntheticFreeeProvider,
 } from "../domain/providers";
 import { emptyReport } from "../domain/monthly";
-import { requireMockEnvironment } from "./environment";
+import { requireMockEnvironment, isCloudMockPreview } from "./environment";
 
 const globalStore = globalThis as typeof globalThis & {
   __proriumStoreQueue?: Promise<unknown>;
@@ -50,6 +50,10 @@ async function withStore<T>(
   write = false,
 ): Promise<T> {
   requireMockEnvironment();
+  if (isCloudMockPreview()) {
+    if (write) throw new Error("クラウドPreviewでは保存・公開を行えません。架空データの閲覧と振り返りの下書き確認をご利用ください。");
+    return structuredClone(await operation(initialStore()));
+  }
   const task = (globalStore.__proriumStoreQueue || Promise.resolve()).then(
     async () => {
       const file = storePath();
@@ -233,6 +237,16 @@ export async function reviseReport(
     report.publishedAt = null;
     report.createdAt = new Date().toISOString();
     store.reports.push(report);
+    const monthlyInput = store.monthlyInputs?.find(
+      (input) => input.reportId === source.id,
+    );
+    if (monthlyInput) {
+      store.monthlyInputs!.push({
+        ...monthlyInput,
+        reportId: report.id,
+        updatedAt: report.createdAt,
+      });
+    }
     audit(
       store,
       actor,

@@ -3,6 +3,7 @@ import { useActionState, useId, useState } from "react";
 import { Plus, Save } from "lucide-react";
 import { reportOperationAction } from "@/app/actions";
 import type { ReportVersion } from "@/lib/domain/types";
+import { SummaryReview } from "./summary-review";
 import type { ContentEdit } from "@/lib/domain/validation";
 
 function Field({
@@ -108,6 +109,23 @@ function EditorFields({ report }: { report: ReportVersion }) {
       />
       <section className="editor-section">
         <h2>01 · Executive Summary</h2>
+        <SummaryReview
+          content={{
+            ...c,
+            summary: {
+              headline: edit.headline,
+              text: edit.summary,
+              points: pointsText
+                .split("\n")
+                .map((p) => p.trim())
+                .filter(Boolean),
+              outlook: edit.summaryOutlook,
+            },
+            financialAnalysis: edit.financialAnalysis,
+            risks: edit.risks,
+            forward: edit.forward,
+          }}
+        />
         <Field
           label="見出し"
           value={edit.headline}
@@ -120,7 +138,7 @@ function EditorFields({ report }: { report: ReportVersion }) {
           onChange={(summary) => update({ summary })}
         />
         <Field
-          label="Financial Analysis"
+          label="数字の変化理由（Why It Changed）"
           multiline
           value={edit.financialAnalysis}
           onChange={(financialAnalysis) => update({ financialAnalysis })}
