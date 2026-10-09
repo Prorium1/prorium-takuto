@@ -1,4 +1,17 @@
 @media screen {
+  .login-password-alternative {
+    margin-top: 22px;
+    border-top: 1px solid #dce3ec;
+    padding-top: 18px;
+  }
+  .login-password-alternative > summary {
+    cursor: pointer;
+    color: #536578;
+    font-size: 11px;
+  }
+  .login-password-alternative > .login-form {
+    margin-top: 18px;
+  }
   .monthly-report .report-heading {
     position: relative;
     padding-top: 25px;
