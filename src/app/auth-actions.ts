@@ -51,8 +51,9 @@ export async function completeEmailLoginAction(
   let destination: string;
   try {
     const config = productionConfiguration();
-    const access = z.string().min(100).max(8000).parse(accessToken);
-    const refresh = z.string().min(20).max(2000).parse(refreshToken);
+    // Token length is not an authorization check. Supabase verifies both tokens.
+    const access = z.string().min(1).max(8000).parse(accessToken);
+    const refresh = z.string().min(1).max(2000).parse(refreshToken);
     const client = await createSupabaseClient();
     const { error } = await client.auth.setSession({
       access_token: access,
