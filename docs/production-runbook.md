@@ -2,7 +2,7 @@
 
 ## 現在の状態
 
-コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番ログイン画面はHTTP 200、nonce CSP付きで応答し、未認証PDF取得は401で拒否しました。本番URLは https://prorium-shareholder-ir.vercel.app 。現在はVercelチームのDeployment Protectionを維持しています。Shimei.AI組織の専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` にfreee接続用を含む4件のMigrationを適用し、RLSとStorage設定を検査しました。Vercel Productionには専用DBのURL・公開用キー・freee事業所ID・OAuthトークン暗号化キーを登録済みです。初期管理者の招待レコードは登録済みですが、本人の初回ログインとMFA、認証メール配送、本番の月次運用は未検証で、投資家向け利用は開始できません。
+コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番URLは https://prorium-shareholder-ir.vercel.app 。VercelチームのDeployment Protectionを維持しています。Shimei.AI組織の専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` にfreee非公開ステージを含む5件のMigrationを適用し、RLSとStorage設定を検査しました。Vercel Productionには専用DBのURL・公開用キー・freeeのOAuth設定を登録済みです。初期管理者の招待レコードは登録済みですが、本人の初回ログインとMFAは未完了です。freeeコネクター経由で今期11月から9月の月次と10月9日までの暫定値を本番DBの非公開ステージに保存しました。取込候補は締め・科目の確認待ちで、レポート本文・株主公開版には反映されていません。
 
 Supabaseの「Shimei.AI」組織、Vercelの「prorium」チームにIR専用環境があります。既存サービスは変更しません。Supabase接続ツールの新設費用取得APIが利用できなかったため、プロジェクト作成と料金確認はDashboardで行いました。
 

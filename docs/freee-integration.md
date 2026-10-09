@@ -1,6 +1,8 @@
 # freee / AI integration boundary
 
-Current financial ingestion: synthetic adapter only. A production-only freee OAuth authorization-code flow and encrypted credential storage are implemented in code. The IR-specific freee app has been created and Vercel Production has Client ID/Secret entries, but the callback URL has not been independently verified and no authorization has occurred. Accounting API access, journal mapping, and scheduled live sync are not implemented. The connected assistant can see Prorium's freee company metadata, but this does not authenticate the IR website. No real financial data has been read into development.
+Current financial ingestion: the IR site's production-only OAuth authorization-code flow and encrypted credential storage are implemented, but the site has not yet been authorized by an MFA admin. The connected assistant's separate freee accounting connection retrieved real P/L and B/S directly into transient tool memory, validated company, date, `up_to_date`, integer-yen totals and balance-sheet equality, and staged non-public candidate aggregates in the dedicated production IR database. No real financial data was written into development, Git, Preview or a published report. Scheduled live sync and report snapshot promotion are not implemented.
+
+The production-only staging contains November 2025 through September 2026 as full calendar months and October 2026 only through October 9 as an explicitly incomplete month-to-date comparison. Every row remains `pending-review` with `closeConfirmed=false`. The candidate cash mapping uses freee account names/IDs and must be checked by management. Monthly fixed costs, business drivers and AI attribution were not inferred. The dedicated admin page can inspect candidate values after the admin completes Auth and MFA; investors cannot select the staging table.
 
 ## OAuth setup required before first connection
 

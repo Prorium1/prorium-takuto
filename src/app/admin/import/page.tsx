@@ -2,6 +2,7 @@ import { ArrowRight, Database } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { ImportForm } from "@/components/admin/import-form";
 import { FreeeImportPlan } from "@/components/admin/freee-import-plan";
+import { FreeeStagedReview } from "@/components/admin/freee-staged-review";
 import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReports, getAdminStore } from "@/lib/server/repository";
 import { productionClient } from "@/lib/server/production-repository";
@@ -18,7 +19,12 @@ export default async function ImportPage() {
   if (!isMockEnvironment()) {
     const configured = Boolean(process.env.FREEE_CLIENT_ID && process.env.FREEE_CLIENT_SECRET && process.env.FREEE_COMPANY_ID && process.env.FREEE_TOKEN_ENCRYPTION_KEY);
     const client = await productionClient(actor, true);
-    const { data: connection } = await client.rpc("ir_freee_connection_status", { p_company: actor.companyId });
+    const [connectionResult, stagedResult] = await Promise.all([
+      client.rpc("ir_freee_connection_status", { p_company: actor.companyId }),
+      client.rpc("ir_list_freee_staged", { p_company: actor.companyId }),
+    ]);
+    if (stagedResult.error) throw new Error("freee取込候補を確認できませんでした。");
+    const connection = connectionResult.data;
     return (
       <Shell role={actor.role}>
         <div className="page-heading">
@@ -47,6 +53,7 @@ export default async function ImportPage() {
           </p>
           {configured && <Link href="/api/integrations/freee/connect" className="button primary">{connection?.connected ? "freeeを再接続" : "freeeを接続"}</Link>}
         </section>
+        <FreeeStagedReview rows={stagedResult.data || []} />
         <FreeeImportPlan reports={reports} mock={false} />
       </Shell>
     );

@@ -20,6 +20,7 @@ test("production RPCs enforce MFA, grants, transactional publication and private
     await db.exec(await readFile("database/schema.sql", "utf8"));
     await db.exec(await readFile("database/production.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009012909_freee_connection.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261009021638_freee_staging.sql", "utf8"));
     await db.exec(
       `insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now()),('${stranger}','stranger@example.test',now()); insert into public.companies(id,name) values ('${company}','Prorium'); insert into private.admin_memberships(user_id,company_id) values ('${admin}','${company}');`,
     );
@@ -58,7 +59,11 @@ test("production RPCs enforce MFA, grants, transactional publication and private
     await actor(investor, "aal1");
     await assert.rejects(db.query("select public.ir_freee_connection_status($1)", [company]), /MFA|Admin/i);
     await assert.rejects(db.query("select * from private.freee_connections"), /permission denied/i);
+    await assert.rejects(db.query("select * from private.freee_staged_financials"), /permission denied/i);
+    await assert.rejects(db.query("select * from public.ir_list_freee_staged($1)", [company]), /MFA|Admin/i);
     await actor(admin);
+    const staged = await db.query("select * from public.ir_list_freee_staged($1)", [company]);
+    assert.equal(staged.rows.length, 0);
     const malformed = emptyReport("2026-09", company).content;
     delete malformed.financial.available;
     await assert.rejects(
