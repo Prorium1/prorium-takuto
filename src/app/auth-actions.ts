@@ -6,6 +6,7 @@ import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
 import { getActor } from "@/lib/server/auth";
 import { parseEmailConfirmationLink } from "@/lib/domain/email-confirmation-link";
+import { loginEmailError } from "@/lib/domain/login-error";
 import type { ActionResult } from "./actions";
 export async function sendLoginLinkAction(
   _state: ActionResult,
@@ -31,11 +32,7 @@ export async function sendLoginLinkAction(
         emailRedirectTo: `${config.origin}/auth/callback`,
       },
     });
-    if (error)
-      return {
-        error:
-          "認証メールを送信できませんでした。少し時間をおくか、管理者にご連絡ください。",
-      };
+    if (error) return { error: loginEmailError(error) };
     return {
       success:
         "メール内の最新のリンクを一度開いてください。認証後に管理者の本人確認へ進みます。",

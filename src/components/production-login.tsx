@@ -13,10 +13,10 @@ export function ProductionLogin() {
   return (
     <div className="demo-entry">
       <div className="demo-divider">
-        <span>INVITATION ONLY</span>
+        <span>メールでログイン</span>
       </div>
       <p>
-        登録されたメールアドレスへ認証リンクを送ります。届いたメールの最新のリンクを一度開いてください。
+        登録済みのメールアドレスを入力し、届いた最新のメールにあるリンクを一度開いてください。管理者の方は、続けて認証アプリを設定します。
       </p>
       <form action={action} className="login-form">
         <label>
@@ -38,7 +38,8 @@ export function ProductionLogin() {
         </p>
       )}
       <details className="login-password-alternative">
-        <summary>メールのリンクを開けない場合</summary>
+        <summary>メールのリンクが開けない場合</summary>
+        <p>まだ開いていない最新のリンクだけをコピーしてください。開いた後のリンクは再利用できません。</p>
         <form action={confirm} className="login-form email-confirmation-form">
           <label>
             メールの認証リンクを貼り付ける
