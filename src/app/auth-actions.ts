@@ -170,7 +170,7 @@ async function adminForMfa() {
     throw new Error("管理者の認証が必要です。");
   return createSupabaseClient();
 }
-export type MfaResult = ActionResult & { factorId?: string; qrCode?: string };
+export type MfaResult = ActionResult & { factorId?: string; qrCode?: string; secret?: string };
 export async function enrollMfaAction(_state: MfaResult): Promise<MfaResult> {
   void _state;
   try {
@@ -193,6 +193,7 @@ export async function enrollMfaAction(_state: MfaResult): Promise<MfaResult> {
     return {
       factorId: data.id,
       qrCode: data.totp.qr_code,
+      secret: data.totp.secret,
       success:
         "認証アプリでQRコードを読み取り、6桁のコードを入力してください。",
     };

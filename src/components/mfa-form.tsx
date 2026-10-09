@@ -1,7 +1,7 @@
 "use client";
-import Image from "next/image";
 import { useActionState } from "react";
 import { enrollMfaAction, verifyMfaAction } from "@/app/auth-actions";
+import { MfaEnrollmentGuide } from "./mfa-enrollment-guide";
 export function MfaForm({ existingFactor }: { existingFactor?: string }) {
   const [setup, enroll, enrolling] = useActionState(enrollMfaAction, {});
   const [result, verify, verifying] = useActionState(verifyMfaAction, {});
@@ -19,17 +19,8 @@ export function MfaForm({ existingFactor }: { existingFactor?: string }) {
           </button>
         </form>
       )}
-      {setup.qrCode && (
-        <div className="mfa-qr">
-          <Image
-            unoptimized
-            src={setup.qrCode}
-            alt="認証アプリ登録用のQRコード"
-            width={200}
-            height={200}
-          />
-          <p>{setup.success}</p>
-        </div>
+      {setup.qrCode && setup.secret && (
+        <MfaEnrollmentGuide qrCode={setup.qrCode} secret={setup.secret} />
       )}
       {factor && (
         <form action={verify} className="create-form">

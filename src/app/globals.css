@@ -4315,6 +4315,16 @@ small {
   font-size: 13px;
   line-height: 1.9;
 }
+.mfa-secret {
+  display: block;
+  margin: 10px 0 0;
+  padding: 12px;
+  border: 1px solid #d9dce5;
+  border-radius: 6px;
+  background: #f5f6f8;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
 @media (max-width: 1000px) {
   .document-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
