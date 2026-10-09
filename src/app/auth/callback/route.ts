@@ -3,7 +3,10 @@ import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
 export async function GET(request: Request) {
   const config = productionConfiguration();
-  const code = new URL(request.url).searchParams.get("code");
+  const params = new URL(request.url).searchParams;
+  if (params.has("error"))
+    return NextResponse.redirect(`${config.origin}/login?reason=oauth`);
+  const code = params.get("code");
   if (code) {
     const client = await createSupabaseClient();
     const { data: verified, error } =

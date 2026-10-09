@@ -3,15 +3,26 @@ import { ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LoginForm } from "@/components/login-form";
 import { getActor } from "@/lib/server/auth";
+import { googleProviderEnabled } from "@/lib/domain/google-provider";
 import {
   isMockEnvironment,
+  productionConfiguration,
   productionConfigured,
 } from "@/lib/server/environment";
 
 export const dynamic = "force-dynamic";
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
   const actor = await getActor();
   if (actor) redirect("/dashboard");
+  const { reason } = await searchParams;
+  const productionEnabled = productionConfigured();
+  const googleEnabled = productionEnabled
+    ? await googleProviderEnabled(productionConfiguration())
+    : false;
   return (
     <main className="login-page">
       <section className="login-story">
@@ -69,9 +80,17 @@ export default async function LoginPage() {
           <p className="login-intro">
             最新の経営状況と、これからの成長をお届けします。
           </p>
+          {(reason === "oauth" || reason === "access") && (
+            <p role="alert" className="form-error">
+              {reason === "oauth"
+                ? "Google認証を完了できませんでした。もう一度お試しください。"
+                : "認証を完了できませんでした。新しい認証リンクでお試しください。"}
+            </p>
+          )}
           <LoginForm
             mockEnabled={isMockEnvironment()}
-            productionEnabled={productionConfigured()}
+            productionEnabled={productionEnabled}
+            googleEnabled={googleEnabled}
           />
         </div>
       </section>

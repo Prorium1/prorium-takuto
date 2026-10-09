@@ -3,17 +3,36 @@ import { useActionState } from "react";
 import {
   confirmEmailLinkAction,
   sendLoginLinkAction,
+  startGoogleLoginAction,
 } from "@/app/auth-actions";
-export function ProductionLogin() {
+export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
   const [state, action, pending] = useActionState(sendLoginLinkAction, {});
+  const [googleState, googleAction, googlePending] = useActionState(
+    startGoogleLoginAction,
+    {},
+  );
   const [confirmState, confirm, confirming] = useActionState(
     confirmEmailLinkAction,
     {},
   );
   return (
     <div className="demo-entry">
+      {googleEnabled && (
+        <>
+          <form action={googleAction} className="login-form">
+            <button className="button secondary" disabled={googlePending}>
+              {googlePending ? "Googleに接続中…" : "Googleでログイン"}
+            </button>
+          </form>
+          {googleState.error && (
+            <p role="alert" className="form-error">
+              {googleState.error}
+            </p>
+          )}
+        </>
+      )}
       <div className="demo-divider">
-        <span>メールでログイン</span>
+        <span>{googleEnabled ? "またはメールでログイン" : "メールでログイン"}</span>
       </div>
       <p>
         登録済みのメールアドレスを入力し、届いた最新のメールにあるリンクを一度開いてください。管理者の方は、続けて認証アプリを設定します。

@@ -7,9 +7,11 @@ import { ProductionLogin } from "./production-login";
 export function LoginForm({
   mockEnabled,
   productionEnabled = false,
+  googleEnabled = false,
 }: {
   mockEnabled: boolean;
   productionEnabled?: boolean;
+  googleEnabled?: boolean;
 }) {
   const [state, action, pending] = useActionState(loginAction, {});
   const [email, setEmail] = useState("");
@@ -60,7 +62,7 @@ export function LoginForm({
     <>
       {productionEnabled && !mockEnabled ? (
         <>
-          <ProductionLogin />
+          <ProductionLogin googleEnabled={googleEnabled} />
           <details className="login-password-alternative">
             <summary>パスワードでログインする場合</summary>
             {passwordForm}

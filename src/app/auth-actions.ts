@@ -7,7 +7,30 @@ import { productionConfiguration } from "@/lib/server/environment";
 import { getActor } from "@/lib/server/auth";
 import { parseEmailConfirmationLink } from "@/lib/domain/email-confirmation-link";
 import { loginEmailError } from "@/lib/domain/login-error";
+import { googleProviderEnabled } from "@/lib/domain/google-provider";
 import type { ActionResult } from "./actions";
+export async function startGoogleLoginAction(
+  _state: ActionResult,
+): Promise<ActionResult> {
+  void _state;
+  let authorizationUrl: string;
+  try {
+    const config = productionConfiguration();
+    if (!(await googleProviderEnabled(config)))
+      return { error: "Googleログインは現在設定中です。メールでログインしてください。" };
+    const client = await createSupabaseClient();
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${config.origin}/auth/callback` },
+    });
+    if (error || !data.url || new URL(data.url).origin !== new URL(config.url).origin)
+      return { error: "Googleログインを開始できませんでした。" };
+    authorizationUrl = data.url;
+  } catch {
+    return { error: "Googleログインを開始できませんでした。" };
+  }
+  redirect(authorizationUrl);
+}
 export async function sendLoginLinkAction(
   _state: ActionResult,
   form: FormData,
