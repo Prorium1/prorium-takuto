@@ -19,7 +19,7 @@ test("confirmed admins can manage with an email session while grants and snapsho
  create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}'); alter table storage.objects enable row level security; grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;`);
     await db.exec(await readFile("database/schema.sql", "utf8"));
     await db.exec(await readFile("database/production.sql", "utf8"));
-    await db.exec(await readFile("supabase/migrations/20261010025059_email_only_admin_access.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261010025805_email_only_admin_access.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009012909_freee_connection.sql", "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009021638_freee_staging.sql", "utf8"));
