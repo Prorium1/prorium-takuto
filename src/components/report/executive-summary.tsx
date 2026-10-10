@@ -1,11 +1,40 @@
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Database, Sparkles } from "lucide-react";
 import type { ReportVersion } from "@/lib/domain/types";
+import { millions, yoyPresentation } from "@/lib/domain/finance";
 import { reportAttribution } from "@/lib/domain/provenance";
 import { priorityRisk } from "@/lib/domain/summary-quality";
 
 export function ExecutiveSummary({ report }: { report: ReportVersion }) {
   const { summary, risks } = report.content;
   const risk = priorityRisk(risks);
+  const financial = report.content.financial;
+  const pendingFreee =
+    report.state === "draft" &&
+    report.contextRequired &&
+    financial.source === "freee" &&
+    !financial.isMock &&
+    financial.available !== false;
+  const revenueYoY = yoyPresentation(
+    financial.revenue.current,
+    financial.revenue.previous,
+  );
+  const profitYoY = yoyPresentation(
+    financial.operatingProfit.current,
+    financial.operatingProfit.previous,
+  );
+  const factualPoints = pendingFreee
+    ? [
+        `売上高 ${millions(financial.revenue.current)}百万円（前年同月比 ${revenueYoY.label}）`,
+        `営業利益 ${millions(financial.operatingProfit.current)}百万円（前年同月比 ${profitYoY.label}）`,
+        "変化の理由は経営者の確認待ちです。",
+      ]
+    : [];
+  const points = summary.points.length ? summary.points : factualPoints;
+  const summaryText =
+    summary.text.trim() ||
+    (pendingFreee
+      ? "freeeから取り込んだ会計確認済みの単月実績を表示しています。変化の理由は経営者の確認待ちです。"
+      : "");
   return (
     <section
       id="summary"
@@ -18,8 +47,10 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
             <span>01</span>EXECUTIVE SUMMARY · 今月のサマリー
           </span>
           <span className="ai-badge">
-            <Sparkles size={12} />
-            {reportAttribution(report).summaryLabel}
+            {pendingFreee ? <Database size={12} /> : <Sparkles size={12} />}
+            {pendingFreee
+              ? "freee実数値 · 経営者の説明待ち"
+              : reportAttribution(report).summaryLabel}
           </span>
         </div>
         <div className="executive-content">
@@ -27,9 +58,13 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
             <span className="summary-reading-label">
               まず、今月の結論から。
             </span>
-            <h2 id="summary-title">{summary.headline}</h2>
-            {summary.text.trim() ? (
-              summary.text
+            <h2 id="summary-title">
+              {pendingFreee && summary.headline === "今月のサマリー"
+                ? "会計数値から、今月を読む。"
+                : summary.headline}
+            </h2>
+            {summaryText ? (
+              summaryText
                 .split(/\n\s*\n/)
                 .filter(Boolean)
                 .map((paragraph, i) => <p key={i}>{paragraph}</p>)
@@ -42,7 +77,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
               今月の要点<span>KEY TAKEAWAYS</span>
             </h3>
             <ol>
-              {summary.points.map((point, i) => (
+              {points.map((point, i) => (
                 <li key={i}>
                   <span aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
@@ -51,7 +86,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
                 </li>
               ))}
             </ol>
-            {!summary.points.length && <p>要点はまだ掲載されていません。</p>}
+            {!points.length && <p>要点はまだ掲載されていません。</p>}
           </div>
         </div>
         <div className="summary-context">

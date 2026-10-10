@@ -31,6 +31,37 @@ test("executive overview separates outlook and risk and leaves the published con
   assert.match(empty, /見通しはまだ掲載されていません/);
 });
 
+test("private freee draft summarizes verified figures without inventing reasons", () => {
+  const report = structuredClone(augustReport);
+  report.state = "draft";
+  report.contextRequired = true;
+  report.content.financial.isMock = false;
+  report.content.financial.source = "freee";
+  report.content.summary = {
+    headline: "今月のサマリー",
+    text: "",
+    points: [],
+    outlook: "",
+  };
+  report.content.risks = [];
+  report.analysis = "not-generated";
+  report.approvedBy = null;
+  const html = renderToStaticMarkup(
+    createElement(ExecutiveSummary, { report }),
+  );
+  assert.match(html, /freee実数値/);
+  assert.match(html, /売上高/);
+  assert.match(html, /営業利益/);
+  assert.match(html, /前年同月/);
+  assert.match(html, /変化の理由は経営者の確認待ち/);
+  assert.doesNotMatch(html, /サマリーは準備中です/);
+  report.contextRequired = false;
+  const ordinary = renderToStaticMarkup(
+    createElement(ExecutiveSummary, { report }),
+  );
+  assert.doesNotMatch(ordinary, /freee実数値/);
+});
+
 test("zero and singleton histories render finite chart geometry", () => {
   for (const count of [1, 2, 6]) {
     const f = financial();
