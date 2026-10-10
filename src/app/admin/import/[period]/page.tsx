@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/server/auth";
 import { productionClient, databaseError } from "@/lib/server/production-repository";
 import { isMockEnvironment } from "@/lib/server/environment";
 import { periodSchema } from "@/lib/domain/validation";
-import { periodLabel, millions } from "@/lib/domain/finance";
+import { periodLabel, millions, margin } from "@/lib/domain/finance";
 import { stagedRowSchema } from "@/lib/domain/freee-staging";
 import { stagedTrend } from "@/lib/domain/staged-trend";
 import { freeeReviewFacts } from "@/lib/domain/freee-review";
@@ -39,6 +39,7 @@ export default async function FreeeMonthReview({ params }: { params: Promise<{ p
   const incomplete = row.candidate.completeness === "month-to-date";
   const yen = (value: number) => `${value.toLocaleString("ja-JP")}円`;
   const retrieved = new Date(row.provenance.retrievedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", dateStyle: "medium", timeStyle: "short" });
+  const operatingMargin = margin(row.candidate.operatingProfit.current, row.candidate.revenue.current);
 
   return (
     <Shell role="admin">
@@ -48,7 +49,7 @@ export default async function FreeeMonthReview({ params }: { params: Promise<{ p
           <div>
             <span className="eyebrow">MONTHLY FINANCIAL REVIEW / {period.replace("-", ".")}</span>
             <h1>{periodLabel(period)}<br /><em>数字から、経営の説明へ。</em></h1>
-            <p>freee取得値を確認するための管理者専用ビュー。前年同月との変化は計算値です。理由・会計締め・現預金科目は経営者の確認を待っています。</p>
+            <p>freee取得値では、売上高は{millions(row.candidate.revenue.current)}百万円、営業利益は{millions(row.candidate.operatingProfit.current)}百万円。営業利益率は{operatingMargin.toFixed(1)}%。会計締め・現預金科目・増減理由を確認するまで株主向けの確定実績にはしません。</p>
           </div>
           <div className="freee-review-state"><span className="freee-review-pulse" />{incomplete ? "月途中の参考値" : report?.content.financial.source === "freee" ? "下書きへ反映済み" : "会計確認待ち"}</div>
         </div>
