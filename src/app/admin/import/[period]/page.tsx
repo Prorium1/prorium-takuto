@@ -35,7 +35,7 @@ export default async function FreeeMonthReview({ params }: { params: Promise<{ p
   const row = rows.find((entry) => entry.period === period);
   if (!row) notFound();
   const report = reports.find((entry) => entry.period === period);
-  const chart = stagedTrend(rows);
+  const chart = stagedTrend(rows.filter((entry) => entry.period <= period));
   const incomplete = row.candidate.completeness === "month-to-date";
   const yen = (value: number) => `${value.toLocaleString("ja-JP")}円`;
   const retrieved = new Date(row.provenance.retrievedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", dateStyle: "medium", timeStyle: "short" });
