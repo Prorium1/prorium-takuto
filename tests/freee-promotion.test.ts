@@ -17,7 +17,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     for (const file of ["database/schema.sql", "database/production.sql", "supabase/migrations/20261010025805_email_only_admin_access.sql", "supabase/migrations/20261009012909_freee_connection.sql", "supabase/migrations/20261009021638_freee_staging.sql", "supabase/migrations/20261009022645_promote_freee_stage.sql"])
       await db.exec(await readFile(file, "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
-    await db.exec(await readFile("supabase/migrations/20261010033000_freee_context_gate.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261010033622_freee_context_gate.sql", "utf8"));
     await db.exec(`insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`);
     await db.exec(`insert into public.companies(id,name) values ('${company}','Prorium'); insert into private.admin_memberships(user_id,company_id) values ('${admin}','${company}');`);
     const candidate = { period: "2026-08", currency: "JPY", source: "freee", revenue: { current: 100, previous: 80 }, operatingProfit: { current: 20, previous: 10 }, ordinaryProfit: { current: 22, previous: 11 }, cash: { current: 50, previous: 40 }, assets: 300, liabilities: 100, equity: 200, monthlyFixedCosts: null };
