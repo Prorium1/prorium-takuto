@@ -47,7 +47,7 @@ export default async function AdminReportsPage() {
           </div>
         </section>
       )}
-      {!isCloudMockPreview() && (
+      {!isCloudMockPreview() && candidates.length === 0 && (
         <section className="admin-panel">
           <div className="panel-heading">
             <h2>Create Report</h2>
