@@ -36,7 +36,7 @@ export function ReportTable({ reports }: { reports: ReportVersion[] }) {
                 <span
                   className={`badge ${r.state === "published" ? "badge-green" : r.state === "draft" ? "badge-neutral" : "badge-purple"}`}
                 >
-                  {labels[r.state]}
+                  {r.contextRequired ? "経営者の説明待ち" : labels[r.state]}
                 </span>
               </td>
               <td>

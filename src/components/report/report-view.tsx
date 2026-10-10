@@ -92,7 +92,7 @@ export function ReportView({
       {preview && (
         <div className="preview-banner">
           <ShieldCheck size={16} />
-          管理者プレビュー · {report.state} · 株主には公開されていません
+          管理者プレビュー · {report.state} · {report.contextRequired ? "固定費・増減理由の入力待ち" : "株主には公開されていません"}
         </div>
       )}
       <div className="report-heading">
@@ -396,7 +396,7 @@ export function ReportView({
                   </strong>
                   <span className="badge badge-green">月末現預金</span>
                 </div>
-                <p>
+                {report.contextRequired ? <p>月次固定費と現預金との比較は、経営者の入力を待っています。</p> : <p>
                   月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
                   <b>
                     {f.monthlyFixedCosts > 0
@@ -405,7 +405,7 @@ export function ReportView({
                     か月分
                   </b>
                   の現預金。将来の資金繰りを保証する値ではなく、現在の固定費との単純比較です。
-                </p>
+                </p>}
               </article>
               <article className="balance-card">
                 <div>

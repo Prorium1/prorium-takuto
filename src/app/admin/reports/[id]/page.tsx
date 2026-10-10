@@ -13,6 +13,7 @@ import { periodLabel } from "@/lib/domain/finance";
 
 import { MonthlyUpdateForm } from "@/components/admin/monthly-update";
 import { FinancialEntryForm } from "@/components/admin/financial-entry";
+import { FreeeContextForm } from "@/components/admin/freee-context-form";
 import { DocumentUploadForm } from "@/components/admin/document-upload";
 import {
   isMockEnvironment,
@@ -84,7 +85,10 @@ export default async function AdminReportPage({
         <h1>{periodLabel(report.period)}</h1>
         <p>Monthly Shareholder Report</p>
       </div>
-      <WorkflowControls report={report} />
+      {report.contextRequired ? (
+        <div className="preview-banner">freeeの会計数値を非公開下書きに保存しました。固定費と増減理由の入力後にレビューへ進めます。</div>
+      ) : <WorkflowControls report={report} />}
+      {report.contextRequired && <FreeeContextForm report={report} />}
       {report.state !== "published" && (
         <>
           <MonthlyUpdateForm
@@ -98,7 +102,7 @@ export default async function AdminReportPage({
             }
           />
           <DocumentUploadForm report={report} mock={isMockEnvironment()} />
-          {!isMockEnvironment() && <FinancialEntryForm report={report} />}
+          {!isMockEnvironment() && !report.contextRequired && <FinancialEntryForm report={report} />}
         </>
       )}
       <AnalysisDraftView

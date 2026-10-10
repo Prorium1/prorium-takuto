@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import { emptyReport } from "../src/lib/domain/monthly";
+import { buildPendingFreeeDraftContent } from "../src/lib/domain/freee-draft";
 
 test("an email-authenticated admin can promote a confirmed stage while investors cannot", async () => {
   const db = new PGlite();
@@ -16,6 +17,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     for (const file of ["database/schema.sql", "database/production.sql", "supabase/migrations/20261010025805_email_only_admin_access.sql", "supabase/migrations/20261009012909_freee_connection.sql", "supabase/migrations/20261009021638_freee_staging.sql", "supabase/migrations/20261009022645_promote_freee_stage.sql"])
       await db.exec(await readFile(file, "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261010033000_freee_context_gate.sql", "utf8"));
     await db.exec(`insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`);
     await db.exec(`insert into public.companies(id,name) values ('${company}','Prorium'); insert into private.admin_memberships(user_id,company_id) values ('${admin}','${company}');`);
     const candidate = { period: "2026-08", currency: "JPY", source: "freee", revenue: { current: 100, previous: 80 }, operatingProfit: { current: 20, previous: 10 }, ordinaryProfit: { current: 22, previous: 11 }, cash: { current: 50, previous: 40 }, assets: 300, liabilities: 100, equity: 200, monthlyFixedCosts: null };
@@ -45,6 +47,24 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     assert.equal(snapshot.rows[0].source, "freee");
     assert.ok(snapshot.rows[0].import_job_id);
     await assert.rejects(db.query("update public.financial_snapshots set data='{}' where id=$1", [promoted.rows[0].financial_snapshot_id]), /permission|immutable/i);
+    await db.exec("reset role");
+    const pendingCandidate = { ...candidate, period: "2026-07" };
+    const pendingProvenance = { ...provenance, period: "2026-07", retrievedAt: "2026-10-09T00:00:00.000Z", cashAccountIds: { current: [100], previous: [100] } };
+    const pendingStage = await db.query<{ id: string }>("insert into private.freee_staged_financials(company_id,period,freee_company_id,candidate,provenance) values($1,'2026-07-01',11486508,$2::jsonb,$3::jsonb) returning id", [company, JSON.stringify(pendingCandidate), JSON.stringify(pendingProvenance)]);
+    const pendingId = pendingStage.rows[0].id;
+    const pendingContent = buildPendingFreeeDraftContent({ id: pendingId, period: "2026-07", candidate: pendingCandidate, provenance: pendingProvenance }, company);
+    pendingContent.summary.text = "Synthetic management summary for review";
+    pendingContent.ceo.message = "Synthetic CEO commentary for review";
+    await actor(admin, "aal1");
+    await assert.rejects(db.query("select * from public.ir_promote_freee_stage_pending($1,$2::jsonb,false,true,true)", [pendingId, JSON.stringify(pendingContent)]), /confirmation/i);
+    const pending = await db.query<{ id: string; revision: number; context_required: boolean; state: string }>("select * from public.ir_promote_freee_stage_pending($1,$2::jsonb,true,true,true)", [pendingId, JSON.stringify(pendingContent)]);
+    assert.equal(pending.rows[0].context_required, true);
+    await assert.rejects(db.query("select * from public.ir_transition_report($1,$2,'review')", [pending.rows[0].id, pending.rows[0].revision]), /context|required|check constraint/i);
+    const complete = await db.query<{ revision: number; context_required: boolean; content: typeof pendingContent }>("select * from public.ir_complete_freee_context($1,$2,$3,$4,$5)", [pending.rows[0].id, pending.rows[0].revision, 12, "Synthetic revenue reason confirmed by management", "Synthetic profit reason confirmed by management"]);
+    assert.equal(complete.rows[0].context_required, false);
+    assert.equal(complete.rows[0].content.financial.monthlyFixedCosts, 12);
+    const reviewed = await db.query<{ state: string }>("select * from public.ir_transition_report($1,$2,'review')", [pending.rows[0].id, complete.rows[0].revision]);
+    assert.equal(reviewed.rows[0].state, "review");
     await actor(investor);
     assert.equal((await db.query("select * from public.report_versions")).rows.length, 0);
   } finally { await db.close(); }

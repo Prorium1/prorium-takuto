@@ -68,6 +68,7 @@ function mapVersion(row: Row): ReportVersion {
     version: String(row.version),
     state: row.state as ReportVersion["state"],
     revision: Number(row.revision),
+    contextRequired: Boolean(row.context_required),
     content: row.content as ReportContent,
     contentHash: String(row.content_hash),
     analysis: row.analysis as ReportVersion["analysis"],

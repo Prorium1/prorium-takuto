@@ -32,3 +32,16 @@ export function buildFreeeDraftContent(rawStage: unknown, companyId: string, raw
   content.financialAnalysis = `売上の変化: ${confirmation.revenueReason}\n営業利益の変化: ${confirmation.profitReason}`;
   return content;
 }
+
+export function buildPendingFreeeDraftContent(rawStage: unknown, companyId: string) {
+  const content = buildFreeeDraftContent(rawStage, companyId, {
+    monthlyFixedCosts: 0,
+    revenueReason: "売上の増減理由は経営者の追記待ちです。",
+    profitReason: "営業利益の増減理由は経営者の追記待ちです。",
+  });
+  content.financial.revenue.status = "freee・会計確認済み";
+  content.financial.operatingProfit.status = "freee・会計確認済み";
+  content.financial.ordinaryProfit.status = "freee・会計確認済み";
+  content.financial.cash.status = "freee・対象科目確認済み";
+  return content;
+}

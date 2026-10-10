@@ -126,6 +126,7 @@ export type ReportVersion = {
   version: string;
   state: ReportState;
   revision: number;
+  contextRequired?: boolean;
   content: ReportContent;
   contentHash: string;
   analysis:
