@@ -17,7 +17,7 @@ export default async function LoginPage({
   searchParams: Promise<{ reason?: string }>;
 }) {
   const actor = await getActor();
-  if (actor) redirect("/dashboard");
+  if (actor) redirect(actor.role === "admin" ? "/admin" : "/dashboard");
   const { reason } = await searchParams;
   const productionEnabled = productionConfigured();
   const googleEnabled = productionEnabled

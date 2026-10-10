@@ -34,9 +34,9 @@ export async function productionClient(actor: Actor, admin = false) {
     roleError ||
     !data ||
     data.role !== actor.role ||
-    (admin && (data.role !== "admin" || data.needsMfa))
+    (admin && data.role !== "admin")
   )
-    throw new Error("管理者認証・MFAまたはアクセス権を確認してください。");
+    throw new Error("管理者権限とアクセス権を確認してください。");
   return client;
 }
 export function databaseError(error: { message: string } | null) {
@@ -52,7 +52,7 @@ export function databaseError(error: { message: string } | null) {
       "公開済みの内容は変更できません。改訂版を作成してください。",
     );
   if (/MFA|Admin/i.test(error.message))
-    throw new Error("管理者認証とMFAが必要です。");
+    throw new Error("管理者権限が必要です。");
   if (/Summary|commentary/i.test(error.message))
     throw new Error("サマリーとCEOコメントを入力してください。");
   throw new Error(

@@ -76,13 +76,7 @@ export async function loginAction(
     return { error: errorMessage(error) };
   }
   const actor = await getActor();
-  redirect(
-    actor?.role === "admin"
-      ? actor.needsMfa
-        ? "/account/security"
-        : "/admin"
-      : "/dashboard",
-  );
+  redirect(actor?.role === "admin" ? "/admin" : "/dashboard");
 }
 export async function enterDemoAction(form: FormData) {
   requireMockEnvironment();

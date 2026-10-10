@@ -35,7 +35,7 @@ export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
         <span>{googleEnabled ? "またはメールでログイン" : "メールでログイン"}</span>
       </div>
       <p>
-        登録済みのメールアドレスを入力し、届いた最新のメールにあるリンクを一度開いてください。管理者の方は、続けて認証アプリを設定します。
+        登録済みのメールアドレスを入力し、届いた最新のメールのリンクを一度開くとログインできます。
       </p>
       <form action={action} className="login-form">
         <label>

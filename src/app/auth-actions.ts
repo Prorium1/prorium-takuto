@@ -4,7 +4,6 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
-import { getActor } from "@/lib/server/auth";
 import { parseEmailConfirmationLink } from "@/lib/domain/email-confirmation-link";
 import { loginEmailError } from "@/lib/domain/login-error";
 import { googleProviderEnabled } from "@/lib/domain/google-provider";
@@ -58,7 +57,7 @@ export async function sendLoginLinkAction(
     if (error) return { error: loginEmailError(error) };
     return {
       success:
-        "メール内の最新のリンクを一度開いてください。認証後に管理者の本人確認へ進みます。",
+        "メールを送りました。最新のメールのリンクを一度開くとログインできます。",
     };
   } catch {
     return { error: "メールアドレスと本番接続の設定を確認してください。" };
@@ -105,12 +104,7 @@ export async function completeEmailLoginAction(
       await client.auth.signOut();
       return { error: "このメールアドレスにはIRサイトの招待がありません。" };
     }
-    destination =
-      actor.role === "admin"
-        ? actor.needsMfa
-          ? "/account/security"
-          : "/admin"
-        : "/dashboard";
+    destination = actor.role === "admin" ? "/admin" : "/dashboard";
   } catch {
     return {
       error: "ログインを完了できませんでした。新しいメールでお試しください。",
@@ -151,83 +145,11 @@ export async function confirmEmailLinkAction(
       await client.auth.signOut();
       return { error: "このメールアドレスにはIRサイトの招待がありません。" };
     }
-    destination =
-      actor.role === "admin"
-        ? actor.needsMfa
-          ? "/account/security"
-          : "/admin"
-        : "/dashboard";
+    destination = actor.role === "admin" ? "/admin" : "/dashboard";
   } catch {
     return {
       error: "Supabaseから届いた新しい認証リンクを貼り付けてください。",
     };
   }
   redirect(destination);
-}
-async function adminForMfa() {
-  const actor = await getActor();
-  if (!actor || actor.role !== "admin")
-    throw new Error("管理者の認証が必要です。");
-  return createSupabaseClient();
-}
-export type MfaResult = ActionResult & { factorId?: string; qrCode?: string; secret?: string };
-export async function enrollMfaAction(_state: MfaResult): Promise<MfaResult> {
-  void _state;
-  try {
-    const client = await adminForMfa();
-    const { data: factors, error: factorError } =
-      await client.auth.mfa.listFactors();
-    if (factorError) throw factorError;
-    if (factors.totp.some((f) => f.status === "verified"))
-      return { error: "登録済みの認証アプリで6桁のコードを入力してください。" };
-    for (const f of factors.all.filter(
-      (f) => f.factor_type === "totp" && f.status === "unverified",
-    ))
-      await client.auth.mfa.unenroll({ factorId: f.id });
-    const { data, error } = await client.auth.mfa.enroll({
-      factorType: "totp",
-      issuer: "Prorium IR",
-      friendlyName: "Prorium management",
-    });
-    if (error) throw error;
-    return {
-      factorId: data.id,
-      qrCode: data.totp.qr_code,
-      secret: data.totp.secret,
-      success:
-        "認証アプリでQRコードを読み取り、6桁のコードを入力してください。",
-    };
-  } catch {
-    return {
-      error: "MFAを設定できませんでした。再ログインしてお試しください。",
-    };
-  }
-}
-export async function verifyMfaAction(
-  _state: ActionResult,
-  form: FormData,
-): Promise<ActionResult> {
-  try {
-    const client = await adminForMfa();
-    const code = z
-      .string()
-      .regex(/^\d{6}$/)
-      .parse(form.get("code"));
-    const factorId = z.uuid().parse(form.get("factorId"));
-    const { data } = await client.auth.mfa.listFactors();
-    if (!data?.all.some((f) => f.id === factorId && f.factor_type === "totp"))
-      throw new Error("Unknown factor");
-    const { error } = await client.auth.mfa.challengeAndVerify({
-      factorId,
-      code,
-    });
-    if (error)
-      return {
-        error:
-          "コードを確認してください。時間が経過した場合は新しいコードを入力してください。",
-      };
-  } catch {
-    return { error: "認証アプリの6桁のコードを入力してください。" };
-  }
-  redirect("/admin");
 }

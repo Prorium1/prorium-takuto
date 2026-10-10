@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       );
       if (!invitationError && !actorError && actor?.id === verified.user.id)
         return NextResponse.redirect(
-          `${config.origin}${actor.role === "admin" ? (actor.needsMfa ? "/account/security" : "/admin") : "/dashboard"}`,
+          `${config.origin}${actor.role === "admin" ? "/admin" : "/dashboard"}`,
         );
       await client.auth.signOut();
     }

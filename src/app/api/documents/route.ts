@@ -16,8 +16,8 @@ export async function POST(request: Request) {
   const actor = await getActor();
   if (!actor)
     return Response.json({ error: "Authentication required" }, { status: 401 });
-  if (actor.role !== "admin" || actor.needsMfa)
-    return Response.json({ error: "Admin MFA required" }, { status: 403 });
+  if (actor.role !== "admin")
+    return Response.json({ error: "Admin authorization required" }, { status: 403 });
   const origin = request.headers.get("origin");
   const expected = productionConfigured()
     ? productionConfiguration().origin

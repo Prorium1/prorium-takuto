@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export async function GET() {
   if (isMockEnvironment()) return new Response(null, { status: 404 });
   const actor = await getActor();
-  if (actor?.role !== "admin" || actor.needsMfa) return new Response(null, { status: 403 });
+  if (actor?.role !== "admin") return new Response(null, { status: 403 });
   let config;
   try { config = freeeConfig(); } catch { return new Response("freee連携の本番設定が未完了です。", { status: 503 }); }
   const state = randomBytes(32).toString("base64url");

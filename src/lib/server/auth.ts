@@ -39,7 +39,6 @@ export async function requireActor(): Promise<Actor> {
 export async function requireAdmin(): Promise<Actor> {
   const actor = await requireActor();
   if (actor.role !== "admin") notFound();
-  if (actor.needsMfa) redirect("/account/security");
   return actor;
 }
 export async function setSession(actor: Actor) {

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export async function GET(request: Request) {
   if (isMockEnvironment()) return new Response(null, { status: 404 });
   const actor = await getActor();
-  if (actor?.role !== "admin" || actor.needsMfa) return new Response(null, { status: 403 });
+  if (actor?.role !== "admin") return new Response(null, { status: 403 });
   const jar = await cookies();
   const saved = jar.get("prorium_freee_oauth")?.value;
   jar.set("prorium_freee_oauth", "", {

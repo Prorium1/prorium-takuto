@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import { emptyReport } from "../src/lib/domain/monthly";
 
-test("only an MFA admin can promote a confirmed full-month freee stage into an unpublished immutable snapshot", async () => {
+test("an email-authenticated admin can promote a confirmed stage while investors cannot", async () => {
   const db = new PGlite();
   const company = "11111111-1111-1111-1111-111111111111";
   const admin = "22222222-2222-2222-2222-222222222222";
@@ -13,7 +13,7 @@ test("only an MFA admin can promote a confirmed full-month freee stage into an u
   try {
     await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$; create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb $$; grant usage on schema auth to authenticated,service_role; grant execute on function auth.uid(),auth.jwt() to authenticated,service_role;
       create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}'); alter table storage.objects enable row level security; grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;`);
-    for (const file of ["database/schema.sql", "database/production.sql", "supabase/migrations/20261009012909_freee_connection.sql", "supabase/migrations/20261009021638_freee_staging.sql", "supabase/migrations/20261009022645_promote_freee_stage.sql"])
+    for (const file of ["database/schema.sql", "database/production.sql", "supabase/migrations/20261010025059_email_only_admin_access.sql", "supabase/migrations/20261009012909_freee_connection.sql", "supabase/migrations/20261009021638_freee_staging.sql", "supabase/migrations/20261009022645_promote_freee_stage.sql"])
       await db.exec(await readFile(file, "utf8"));
     await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
     await db.exec(`insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`);
@@ -27,17 +27,17 @@ test("only an MFA admin can promote a confirmed full-month freee stage into an u
     content.revenueDrivers = [{ label: "経営者確認", amount: 20, description: "Synthetic documented revenue reason" }];
     content.profitDrivers = [{ label: "経営者確認", amount: 10, description: "Synthetic documented profit reason" }];
     await actor(admin, "aal1");
-    await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)", [stageId, JSON.stringify(content)]), /MFA|Admin/i);
+    await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,false,true,true)", [stageId, JSON.stringify(content)]), /confirmation/i);
     await actor(investor);
     await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)", [stageId, JSON.stringify(content)]), /MFA|Admin/i);
-    await actor(admin);
+    await actor(admin, "aal1");
     await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,false,true,true)", [stageId, JSON.stringify(content)]), /confirmation/i);
     const wrong = structuredClone(content);
     wrong.financial.revenue.current = 101;
     await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)", [stageId, JSON.stringify(wrong)]), /mismatch/i);
     await db.exec("reset role");
     const partial = await db.query<{ id: string }>("insert into private.freee_staged_financials(company_id,period,freee_company_id,candidate,provenance) values($1,'2026-09-01',11486508,$2::jsonb,$3::jsonb) returning id", [company, JSON.stringify({ ...candidate, period: "2026-09", completeness: "month-to-date" }), JSON.stringify({ ...provenance, period: "2026-09" })]);
-    await actor(admin);
+    await actor(admin, "aal1");
     await assert.rejects(db.query("select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)", [partial.rows[0].id, JSON.stringify(content)]), /Incomplete month/i);
     const promoted = await db.query<{ state: string; financial_snapshot_id: string }>("select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)", [stageId, JSON.stringify(content)]);
     assert.equal(promoted.rows[0].state, "draft");
