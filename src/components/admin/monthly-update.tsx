@@ -262,6 +262,27 @@ export function MonthlyUpdateForm({
               />
             </div>
           </details>
+          <details className="reflection-extra reflection-voice">
+            <summary>
+              音声サマリーの話す内容
+              {reflection.voiceScript && " · 入力あり"}
+            </summary>
+            <div className="form-field">
+              <label htmlFor="reflection-voice-script">CEOボイスの構成メモ</label>
+              <p id="voice-script-hint" className="field-hint">
+                「今月の結論 → 数字の理由 → 次の打ち手」を話すための非公開メモです。株主向け本文やAIには自動で送られません。音声を公開するときは別途確認します。
+              </p>
+              <textarea
+                id="reflection-voice-script"
+                value={reflection.voiceScript}
+                onChange={(e) => update("voiceScript", e.target.value)}
+                rows={4}
+                maxLength={3000}
+                aria-describedby="voice-script-hint"
+                placeholder="1. 今月の結論\n2. 売上・利益が変わった理由\n3. 株主に伝えたい次の一手"
+              />
+            </div>
+          </details>
           <details className="reflection-extra reflection-private">
             <summary>
               <LockKeyhole size={14} /> 非公開メモ

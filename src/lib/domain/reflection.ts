@@ -15,11 +15,12 @@ export const reflectionSchema = z
     aiImpact: answer,
     outlook: answer,
     hypotheses: answer,
+    voiceScript: z.string().trim().max(3000).default(""),
     privateNotes: z.string().trim().max(3000),
   })
   .strict();
 export type MonthlyReflection = z.infer<typeof reflectionSchema>;
-export type PublicReflection = Omit<MonthlyReflection, "privateNotes">;
+export type PublicReflection = Omit<MonthlyReflection, "privateNotes" | "voiceScript">;
 
 export function emptyReflection(): MonthlyReflection {
   return {
@@ -30,6 +31,7 @@ export function emptyReflection(): MonthlyReflection {
     aiImpact: "",
     outlook: "",
     hypotheses: "",
+    voiceScript: "",
     privateNotes: "",
   };
 }

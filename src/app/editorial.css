@@ -2553,3 +2553,62 @@
 .reflection-draft h4 { font-size: 17px; margin: 28px 0 12px; }
 .reflection-draft p { white-space: pre-line; font-size: 14px; line-height: 2; color: #384556; }
 @media print { .cloud-preview-notice { display: none; } }
+
+/* Private financial review: deliberate editorial hierarchy for imported data. */
+.freee-review { max-width: 1280px; margin: 0 auto 110px; }
+.freee-review-hero {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 32px;
+  padding: 58px 0 48px; border-bottom: 1px solid var(--line);
+  background: radial-gradient(ellipse at 72% 5%, rgba(52, 104, 167, .105), transparent 48%);
+}
+.freee-review-hero h1 { margin: 20px 0 20px; color: #17232d; font-size: clamp(40px, 5vw, 76px); font-weight: 600; line-height: 1.16; letter-spacing: -.065em; }
+.freee-review-hero h1 em { font-style: normal; font-weight: 400; color: #326ba6; }
+.freee-review-hero p { max-width: 64ch; color: #586779; font-size: 14px; line-height: 1.95; }
+.freee-review-state { display: flex; align-items: center; flex: none; gap: 10px; border: 1px solid #c9d7e4; border-radius: 100px; padding: 10px 15px; color: #245989; background: #f7fafd; font-size: 12px; font-weight: 600; }
+.freee-review-pulse { width: 7px; height: 7px; border-radius: 50%; background: #3478b7; box-shadow: 0 0 0 5px rgba(52, 120, 183, .1); }
+.freee-review-source { display: flex; flex-wrap: wrap; gap: 12px 30px; padding: 18px 0 32px; color: #627181; font-size: 11px; letter-spacing: .035em; }
+.freee-review-source span { display: flex; align-items: center; gap: 7px; }
+.freee-review-kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); border: 1px solid #dce4ea; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 14px 55px rgba(25, 55, 82, .045); }
+.freee-review-kpi { min-width: 0; padding: 27px 24px 23px; border-right: 1px solid #e5eaf0; }
+.freee-review-kpi:last-child { border-right: 0; }
+.freee-review-kpi > span { color: #667585; font-size: 11px; }
+.freee-review-kpi strong { display: block; margin: 16px 0 15px; color: #17232d; font-size: clamp(25px, 2.7vw, 39px); line-height: 1; font-weight: 500; letter-spacing: -.055em; white-space: nowrap; }
+.freee-review-kpi strong small { margin-left: 4px; color: #667585; font-size: 11px; font-weight: 400; letter-spacing: 0; }
+.freee-review-kpi-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-top: 13px; border-top: 1px solid #eef1f4; font-size: 11px; }
+.freee-review-kpi-bottom > span { color: #778594; }
+.freee-review-kpi-bottom b { font-weight: 600; }
+.freee-review-kpi > small { color: #7a858e; font-size: 10px; }
+.freee-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px; margin-top: 24px; }
+.freee-review-panel { min-width: 0; padding: 32px; border: 1px solid #e0e6eb; border-radius: 12px; background: #fff; }
+.freee-review-panel h2, .freee-review-section-head h2, .freee-review-publish h2 { margin: 12px 0; color: #1e2b36; font-size: clamp(23px, 2vw, 30px); font-weight: 550; letter-spacing: -.04em; }
+.freee-review-panel p, .freee-review-section-head p, .freee-review-publish p { color: #657280; font-size: 12px; line-height: 1.9; }
+.freee-review-next { background: linear-gradient(145deg, #f6f9fc, #ecf2f8); }
+.freee-review-comparison { margin-top: 24px; border-top: 1px solid #e4e9ee; }
+.freee-review-comparison > div { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; padding: 13px 0; border-bottom: 1px solid #e4e9ee; font-size: 12px; }
+.freee-review-comparison span { color: #6b7784; }
+.freee-review-comparison strong { color: #1b3448; font-size: 16px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.freee-review-pending { display: inline-flex; align-items: center; gap: 9px; margin-top: 23px; color: #9b6b38; font-size: 12px; font-weight: 600; }
+.freee-review-chart { margin-top: 82px; }
+.freee-review-section-head { margin-bottom: 22px; }
+.freee-review-voice { background: #182e45; border-color: #182e45; }
+.freee-review-voice > svg, .freee-review-voice .section-kicker { color: #91bce0; }
+.freee-review-voice h2 { color: #fff; }
+.freee-review-voice p { color: #c0d0dc; }
+.freee-review-voice a { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; color: #c9e4fb; font-size: 12px; }
+.freee-review-publish { display: flex; justify-content: space-between; gap: 28px; align-items: start; margin-top: 80px; padding: 36px; border-top: 2px solid #284e74; background: #f7f9fb; }
+.freee-review-publish > div:first-child { max-width: 58ch; }
+.freee-review-publish details { width: min(100%, 480px); }
+.freee-review-publish form { padding-top: 12px; }
+.freee-review-link { color: #2463a6; font-weight: 600; white-space: nowrap; }
+@media (max-width: 1050px) { .freee-review-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } .freee-review-kpi:nth-child(2) { border-right: 0; } .freee-review-kpi:nth-child(-n+2) { border-bottom: 1px solid #e5eaf0; } }
+@media (max-width: 680px) { .freee-review-hero { display: block; padding: 34px 0; } .freee-review-state { width: fit-content; margin-top: 22px; } .freee-review-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } .freee-review-kpi { padding: 20px 15px; } .freee-review-kpi strong { font-size: clamp(20px, 5.4vw, 32px); } .freee-review-grid { grid-template-columns: 1fr; } .freee-review-panel { padding: 25px 22px; } .freee-review-comparison strong { font-size: 13px; } .freee-review-chart { margin-top: 52px; } .freee-review-publish { display: block; margin-top: 52px; padding: 27px 20px; } }
+@media (prefers-reduced-motion: no-preference) { .freee-review-kpi { animation: freee-review-rise .55s both; } .freee-review-kpi:nth-child(2) { animation-delay: .05s; } .freee-review-kpi:nth-child(3) { animation-delay: .1s; } .freee-review-kpi:nth-child(4) { animation-delay: .15s; } @keyframes freee-review-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } } }
+.fiscal-review-index { margin-bottom: 24px; }
+.fiscal-review-months { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+.fiscal-review-month { display: grid; gap: 11px; padding: 19px; border: 1px solid #dce5ec; border-radius: 8px; background: #fff; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.fiscal-review-month:hover { border-color: #7da9cf; transform: translateY(-2px); box-shadow: 0 9px 23px rgba(27, 67, 106, .08); }
+.fiscal-review-month > span { color: #17232d; font-size: 17px; font-weight: 600; letter-spacing: -.035em; }
+.fiscal-review-month b { color: #417199; font-size: 11px; font-weight: 600; }
+.fiscal-review-month small { color: #758390; font-size: 10px; }
+@media (max-width: 1050px) { .fiscal-review-months { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 680px) { .fiscal-review-months { grid-template-columns: repeat(2, minmax(0,1fr)); } .fiscal-review-month { padding: 16px; } }

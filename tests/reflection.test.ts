@@ -19,6 +19,7 @@ const sample = () => ({
   aiImpact: "動画制作にAIを試用中です。削減時間は未計測です。",
   outlook: "来月は継続率を確認する予定です。",
   hypotheses: "広告改善の寄与も考えられますが、未検証です。",
+  voiceScript: "VOICE_PRIVATE_SCRIPT_DO_NOT_PUBLISH",
   privateNotes: "機密：個人名や交渉条件は公開しない。",
 });
 
@@ -49,6 +50,8 @@ test("private memo never enters shareholder draft or AI input; unknown financial
   ]) {
     assert.ok(!JSON.stringify(value).includes(reflection.privateNotes));
     assert.ok(!JSON.stringify(value).includes("privateNotes"));
+    assert.ok(!JSON.stringify(value).includes(reflection.voiceScript));
+    assert.ok(!JSON.stringify(value).includes("voiceScript"));
   }
   assert.equal(input.financial, null);
   const draft = structureReflection(report.period, reflection);

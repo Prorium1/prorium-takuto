@@ -26,6 +26,7 @@ test("AI drafting sends only public reflection and snapshot facts, fails closed 
     ...emptyReflection(),
     events: "合成データで新しい講座の運営を検証しました。",
     privateNotes: "PRIVATE_CANARY_NEVER_TRANSMIT",
+    voiceScript: "VOICE_PRIVATE_CANARY_NEVER_TRANSMIT",
   };
   const financial = emptyReport("2026-10", "company").content.financial;
   const draft = structureReflection("2026-10", reflection);
@@ -37,6 +38,7 @@ test("AI drafting sends only public reflection and snapshot facts, fails closed 
       assert.equal(body.store, false);
       assert.ok(!String(init?.body).includes(reflection.privateNotes));
       assert.ok(!String(init?.body).includes("privateNotes"));
+      assert.ok(!String(init?.body).includes(reflection.voiceScript));
       assert.equal(JSON.parse(body.input).financial, null);
       return Response.json({
         output: [

@@ -3,13 +3,14 @@ import { stagedRowSchema } from "@/lib/domain/freee-staging";
 import { FreeePromoteForm } from "./freee-promote-form";
 import { TrendChart } from "@/components/report/trend-chart";
 import { stagedTrend } from "@/lib/domain/staged-trend";
+import Link from "next/link";
 
 export function FreeeStagedReview({
   rows,
-  reportPeriods = [],
+  confirmedPeriods = [],
 }: {
   rows: unknown[];
-  reportPeriods?: string[];
+  confirmedPeriods?: string[];
 }) {
   const staged = rows.flatMap((row) => {
     const parsed = stagedRowSchema.safeParse(row);
@@ -46,6 +47,7 @@ export function FreeeStagedReview({
               <th>経常利益</th>
               <th>現預金</th>
               <th>状態</th>
+              <th>レビュー</th>
             </tr>
           </thead>
           <tbody>
@@ -79,10 +81,11 @@ export function FreeeStagedReview({
                 <td>
                   {row.candidate.completeness === "month-to-date"
                     ? `${row.candidate.throughDate ?? "月途中"}まで · 参考値`
-                    : reportPeriods.includes(row.period)
+                    : confirmedPeriods.includes(row.period)
                       ? "非公開下書きへ反映済み"
                       : "月次締め・科目確認待ち"}
                 </td>
+                <td><Link href={`/admin/import/${row.period}`} className="freee-review-link">数字を見る →</Link></td>
               </tr>
             ))}
           </tbody>
@@ -92,7 +95,7 @@ export function FreeeStagedReview({
         .filter(
           (row) =>
             row.candidate.completeness !== "month-to-date" &&
-            !reportPeriods.includes(row.period),
+            !confirmedPeriods.includes(row.period),
         )
         .map((row) => (
           <FreeePromoteForm
