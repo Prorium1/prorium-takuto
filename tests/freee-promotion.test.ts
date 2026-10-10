@@ -60,6 +60,9 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     const pending = await db.query<{ id: string; revision: number; context_required: boolean; state: string }>("select * from public.ir_promote_freee_stage_pending($1,$2::jsonb,true,true,true)", [pendingId, JSON.stringify(pendingContent)]);
     assert.equal(pending.rows[0].context_required, true);
     await assert.rejects(db.query("select * from public.ir_transition_report($1,$2,'review')", [pending.rows[0].id, pending.rows[0].revision]), /context|required|check constraint/i);
+    await actor(investor);
+    await assert.rejects(db.query("select * from public.ir_complete_freee_context($1,$2,$3,$4,$5)", [pending.rows[0].id, pending.rows[0].revision, 12, "Synthetic revenue reason confirmed by management", "Synthetic profit reason confirmed by management"]), /MFA|Admin/i);
+    await actor(admin, "aal1");
     const complete = await db.query<{ revision: number; context_required: boolean; content: typeof pendingContent }>("select * from public.ir_complete_freee_context($1,$2,$3,$4,$5)", [pending.rows[0].id, pending.rows[0].revision, 12, "Synthetic revenue reason confirmed by management", "Synthetic profit reason confirmed by management"]);
     assert.equal(complete.rows[0].context_required, false);
     assert.equal(complete.rows[0].content.financial.monthlyFixedCosts, 12);
