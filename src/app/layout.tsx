@@ -8,6 +8,7 @@ import "./summary.css";
 import "./briefing.css";
 import "./report-motion.css";
 import "./event.css";
+import "./investor-experience.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {

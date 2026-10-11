@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        port: "",
+        pathname: "/vi/*/hqdefault.jpg",
+        search: "",
+      },
+    ],
+    qualities: [75],
+  },
   devIndicators: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   async headers() {

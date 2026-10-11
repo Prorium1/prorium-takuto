@@ -8,6 +8,10 @@ test("event video accepts explicit providers and strips tracking parameters", ()
   assert.equal(youtube?.watch, "https://www.youtube.com/watch?v=abcdefghijk");
   assert.equal(new URL(youtube!.embed).hostname, "www.youtube-nocookie.com");
   assert.equal(
+    youtube?.poster,
+    "https://i.ytimg.com/vi/abcdefghijk/hqdefault.jpg",
+  );
+  assert.equal(
     eventVideo("https://vimeo.com/123456/abcdef")?.embed,
     "https://player.vimeo.com/video/123456?dnt=1&autoplay=1&h=abcdef",
   );

@@ -31,7 +31,7 @@ export default async function ReportPage({
   const versions = archive.filter((r) => r.period === period);
   return (
     <Shell role={actor.role} report>
-      <div className="report-navigation">
+      <div className="report-navigation investor-report-navigation">
         <span>
           <span className="live-dot" />
           株主限定 · Monthly Report

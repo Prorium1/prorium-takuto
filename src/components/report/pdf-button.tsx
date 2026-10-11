@@ -14,7 +14,10 @@ export function PdfButton({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   async function download() {
-    if (browserPrint) { window.print(); return; }
+    if (browserPrint) {
+      window.print();
+      return;
+    }
     setPending(true);
     setError("");
     try {
@@ -44,7 +47,11 @@ export function PdfButton({
         ) : (
           <Download size={16} />
         )}
-        {pending ? "PDFを生成中…" : browserPrint ? "PDF保存 / 印刷" : "PDFをダウンロード"}
+        {pending
+          ? "PDFを生成中…"
+          : browserPrint
+            ? "PDF保存 / 印刷"
+            : "PDFを保存"}
       </button>
       {error && (
         <p className="form-error" role="alert">

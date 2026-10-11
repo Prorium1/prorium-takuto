@@ -15,6 +15,7 @@ import { MonthlyUpdateForm } from "@/components/admin/monthly-update";
 import { FinancialEntryForm } from "@/components/admin/financial-entry";
 import { FreeeContextForm } from "@/components/admin/freee-context-form";
 import { DocumentUploadForm } from "@/components/admin/document-upload";
+import { EventPreparationCard } from "@/components/admin/event-preparation-card";
 import {
   isMockEnvironment,
   isCloudMockPreview,
@@ -85,9 +86,19 @@ export default async function AdminReportPage({
         <h1>{periodLabel(report.period)}</h1>
         <p>Monthly Shareholder Report</p>
       </div>
+      {!isMockEnvironment() &&
+        report.period === "2026-08" &&
+        report.state !== "published" &&
+        !report.content.eventSpotlight && (
+          <EventPreparationCard report={report} />
+        )}
       {report.contextRequired ? (
-        <div className="preview-banner">freeeの会計数値を非公開下書きに保存しました。固定費と増減理由の入力後にレビューへ進めます。</div>
-      ) : <WorkflowControls report={report} />}
+        <div className="preview-banner">
+          freeeの会計数値を非公開下書きに保存しました。固定費と増減理由の入力後にレビューへ進めます。
+        </div>
+      ) : (
+        <WorkflowControls report={report} />
+      )}
       {report.contextRequired && <FreeeContextForm report={report} />}
       {report.state !== "published" && (
         <>
@@ -102,7 +113,9 @@ export default async function AdminReportPage({
             }
           />
           <DocumentUploadForm report={report} mock={isMockEnvironment()} />
-          {!isMockEnvironment() && !report.contextRequired && <FinancialEntryForm report={report} />}
+          {!isMockEnvironment() && !report.contextRequired && (
+            <FinancialEntryForm report={report} />
+          )}
         </>
       )}
       <AnalysisDraftView

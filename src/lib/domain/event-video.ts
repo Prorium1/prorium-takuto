@@ -1,6 +1,11 @@
 export function eventVideo(
   raw: string,
-): { provider: "YouTube" | "Vimeo"; embed: string; watch: string } | null {
+): {
+  provider: "YouTube" | "Vimeo";
+  embed: string;
+  watch: string;
+  poster?: string;
+} | null {
   try {
     const url = new URL(raw);
     if (url.protocol !== "https:" || url.username || url.password || url.port)
@@ -22,6 +27,7 @@ export function eventVideo(
         provider: "YouTube",
         embed: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
         watch: `https://www.youtube.com/watch?v=${id}`,
+        poster: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
       };
     if (["vimeo.com", "www.vimeo.com"].includes(url.hostname)) {
       const match = url.pathname.match(

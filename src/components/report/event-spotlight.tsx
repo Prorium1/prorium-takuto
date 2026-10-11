@@ -27,7 +27,10 @@ export function EventSpotlight({
       aria-labelledby="event-title"
     >
       <div className="event-masthead">
-        <span>FIELD REPORT</span>
+        <span>
+          FIELD NOTES{" "}
+          <span className="event-masthead-jp">/ 大会・イベント</span>
+        </span>
         <span>
           {event.occurredOn.slice(0, 7) === period
             ? "当月開催"
@@ -36,31 +39,44 @@ export function EventSpotlight({
         </span>
       </div>
       <div className="event-layout">
+        <div className="event-media">
+          {video && !print ? (
+            <EventVideo url={event.videoUrl} title={event.videoTitle} />
+          ) : (
+            <div className="event-date-art" aria-hidden="true">
+              <span>{event.occurredOn.slice(0, 4)} / EVENT REVIEW</span>
+              <strong>{event.occurredOn.slice(5).replace("-", ".")}</strong>
+              <i />
+              <span>現場の記録を、次の一歩へ。</span>
+            </div>
+          )}
+        </div>
         <div className="event-editorial">
-          <span className="event-kicker">現場の熱量を、次の成長へ。</span>
+          <span className="event-kicker">映像とともに、現場を振り返る。</span>
           <h2 id="event-title">{event.title}</h2>
+          <span className="event-summary-label">開催概要</span>
           <p>{event.summary}</p>
         </div>
-        {video && !print ? (
-          <EventVideo url={event.videoUrl} title={event.videoTitle} />
-        ) : (
-          <div className="event-date-art" aria-hidden="true">
-            <span>{event.occurredOn.slice(0, 4)} / EVENT</span>
-            <strong>{event.occurredOn.slice(5).replace("-", ".")}</strong>
-            <i />
-            <span>EXPERIENCE → INSIGHT → ACTION</span>
-          </div>
-        )}
       </div>
       {event.outcomes.length > 0 && (
-        <ol className="event-outcomes">
-          {event.outcomes.map((outcome, i) => (
-            <li key={i}>
-              <span>{String(i + 1).padStart(2, "0")}</span>
-              <p>{outcome}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="event-results">
+          <h3>
+            確認済みの成果 <span>VERIFIED OUTCOMES</span>
+          </h3>
+          <ol className="event-outcomes">
+            {event.outcomes.map((outcome, i) => (
+              <li key={i}>
+                <span>{String(i + 1).padStart(2, "0")}</span>
+                <p>{outcome}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {!event.outcomes.length && (
+        <p className="event-pending-outcomes">
+          成果・事業への寄与は、確認後に追記します。
+        </p>
       )}
       {event.nextAction && (
         <div className="event-next">

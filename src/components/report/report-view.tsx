@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Database,
   Layers,
+  PlayCircle,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -21,6 +22,7 @@ import { InvestorBriefing } from "./investor-briefing";
 import { EventSpotlight } from "./event-spotlight";
 import { DocumentList } from "@/components/document-list";
 import { reportAttribution } from "@/lib/domain/provenance";
+import { eventVideo } from "@/lib/domain/event-video";
 
 function SectionHeading({
   number,
@@ -87,12 +89,17 @@ export function ReportView({
   const month = Number(report.period.slice(5));
   const year = Number(report.period.slice(0, 4));
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const hasEventVideo =
+    c.eventSpotlight && eventVideo(c.eventSpotlight.videoUrl);
   return (
     <article className={`monthly-report ${print ? "print-report" : ""}`}>
       {preview && (
         <div className="preview-banner">
           <ShieldCheck size={16} />
-          管理者プレビュー · {report.state} · {report.contextRequired ? "固定費・増減理由の入力待ち" : "株主には公開されていません"}
+          管理者プレビュー · {report.state} ·{" "}
+          {report.contextRequired
+            ? "固定費・増減理由の入力待ち"
+            : "株主には公開されていません"}
         </div>
       )}
       <div className="report-heading">
@@ -110,18 +117,29 @@ export function ReportView({
               className={`badge ${report.state === "published" ? "badge-green" : "badge-purple"}`}
             >
               <span className="badge-dot" />
-              {report.state === "published" ? "Published" : "Preview"}
+              {report.state === "published" ? "公開済み" : "プレビュー"}
             </span>
           </h1>
-          <p>
-            株式会社Prorium <span>·</span> 月次株主レポート
-          </p>
+          <p>数字と現場で読む、Proriumの現在地。</p>
         </div>
         <div className="report-heading-side">
           <div className="issue-folio" aria-hidden="true">
             <span>{year} / ISSUE</span>
             <strong>{String(month).padStart(2, "0")}</strong>
           </div>
+          {hasEventVideo && !print && (
+            <a className="report-film-link" href="#event">
+              <PlayCircle size={17} />
+              <span>
+                現場の映像を見る
+                <small>
+                  {Number(c.eventSpotlight!.occurredOn.slice(5, 7))}
+                  月開催の大会・イベント
+                </small>
+              </span>
+              <ArrowUpRight size={14} />
+            </a>
+          )}
           {!preview && !print && (
             <PdfButton
               period={report.period}
@@ -173,6 +191,13 @@ export function ReportView({
         <a href="#ai">AIの売上・効率</a>
         <a href="#risks">リスク</a>
       </nav>
+      {c.eventSpotlight && !print && (
+        <EventSpotlight
+          event={c.eventSpotlight}
+          period={report.period}
+          print={false}
+        />
+      )}
       <section id="performance" className="report-section">
         <SectionHeading
           number="02"
@@ -283,7 +308,7 @@ export function ReportView({
         </div>
       </section>
       <InvestorBriefing stories={c.briefing ?? []} />
-      {c.eventSpotlight && (
+      {c.eventSpotlight && print && (
         <EventSpotlight
           event={c.eventSpotlight}
           period={report.period}
@@ -396,16 +421,22 @@ export function ReportView({
                   </strong>
                   <span className="badge badge-green">月末現預金</span>
                 </div>
-                {report.contextRequired ? <p>月次固定費と現預金との比較は、経営者の入力を待っています。</p> : <p>
-                  月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
-                  <b>
-                    {f.monthlyFixedCosts > 0
-                      ? (f.cash.current / f.monthlyFixedCosts).toFixed(1)
-                      : "—"}
-                    か月分
-                  </b>
-                  の現預金。将来の資金繰りを保証する値ではなく、現在の固定費との単純比較です。
-                </p>}
+                {report.contextRequired ? (
+                  <p>
+                    月次固定費と現預金との比較は、経営者の入力を待っています。
+                  </p>
+                ) : (
+                  <p>
+                    月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
+                    <b>
+                      {f.monthlyFixedCosts > 0
+                        ? (f.cash.current / f.monthlyFixedCosts).toFixed(1)
+                        : "—"}
+                      か月分
+                    </b>
+                    の現預金。将来の資金繰りを保証する値ではなく、現在の固定費との単純比較です。
+                  </p>
+                )}
               </article>
               <article className="balance-card">
                 <div>
