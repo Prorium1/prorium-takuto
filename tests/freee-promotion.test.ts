@@ -44,7 +44,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
         "utf8",
       ),
     );
-    await db.exec(await readFile("supabase/migrations/20261011110230_executive_finance_gateway.sql","utf8"));
+    await db.exec(await readFile("supabase/migrations/20261011113944_executive_finance_gateway.sql","utf8"));
     await db.exec(
       `insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`,
     );
