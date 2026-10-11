@@ -18,7 +18,13 @@ export async function GET(request: Request) {
   const config = productionConfiguration();
   const store = await cookies();
   const cookie = store.get(SSO_COOKIE)?.value;
-  store.delete(SSO_COOKIE);
+  store.set(SSO_COOKIE, "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   try {
     const payload = validatePlatformCallback(
       cookie,
