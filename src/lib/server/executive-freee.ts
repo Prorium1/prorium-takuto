@@ -8,6 +8,7 @@ import {
   executiveFinancial,
 } from "../domain/executive-finance";
 import { monthlyFreeeWindow } from "../domain/freee-trial";
+import { parseExecutiveStatements } from "../domain/executive-statements";
 import { productionConfiguration, isMockEnvironment } from "./environment";
 const GATEWAY =
   "https://acpwmxehprpcdyrsbfqe.supabase.co/functions/v1/ir-executive-gateway";
@@ -144,27 +145,42 @@ export async function fetchExecutiveFreee(requested?: string) {
       .toISOString()
       .slice(0, 7);
     const prior = `${year - 1}-${String(month).padStart(2, "0")}`;
-    const values = await Promise.all(
-      [period, previous, prior].map(async (p) => {
-        const d = monthlyFreeeWindow(p);
-        return parseExecutivePL(
-          await get("reports/trial_pl", {
+    const [rawPL, rawBS] = await Promise.all([
+      Promise.all(
+        [period, previous, prior].map(async (p) => {
+          const d = monthlyFreeeWindow(p);
+          return await get("reports/trial_pl", {
             company_id: String(config.companyId),
             start_date: d.start,
             end_date: d.end,
-          }),
-          config.companyId,
-          p,
-        );
+          });
+        }),
+      ),
+      get("reports/trial_bs", {
+        company_id: String(config.companyId),
+        start_date: dates.start,
+        end_date: dates.end,
       }),
+    ]);
+    const values = rawPL.map((raw, i) =>
+      parseExecutivePL(raw, config.companyId, [period, previous, prior][i]),
     );
-    const financial = executiveFinancial(
+    const monthFiscal = info.company.fiscal_years.find(
+      (y) => y.start_date <= dates.start && y.end_date >= dates.end,
+    );
+    if (!monthFiscal)
+      throw new Error("対象月の会計年度を確認できませんでした。");
+    const statements = parseExecutiveStatements(
+      rawPL[0],
+      rawBS,
+      config.companyId,
       period,
-      values[0],
-      values[1],
-      values[2],
-      close,
+      monthFiscal.start_date,
     );
+    const financial = {
+      ...executiveFinancial(period, values[0], values[1], values[2], close),
+      statements,
+    };
     await gateway("store", owner, { months: [financial] });
     return { months: [financial], close, waitingClose: false };
   } finally {
