@@ -6,10 +6,16 @@ import { stagedTrend } from "../src/lib/domain/staged-trend";
 
 const stage = {
   id: "11111111-1111-4111-8111-111111111111", period: "2026-08",
-  candidate: { period: "2026-08", currency: "JPY", source: "freee", revenue: { current: 130, previous: 100 }, operatingProfit: { current: 20, previous: 15 }, ordinaryProfit: { current: 21, previous: 16 }, cash: { current: 80, previous: 60 }, assets: 300, liabilities: 100, equity: 200, monthlyFixedCosts: null },
+  candidate: { period: "2026-08", currency: "JPY", source: "freee", plBasis: "monthly-net-v2", revenue: { current: 130, previous: 100 }, operatingProfit: { current: 20, previous: 15 }, ordinaryProfit: { current: 21, previous: 16 }, cash: { current: 80, previous: 60 }, assets: 300, liabilities: 100, equity: 200, monthlyFixedCosts: null },
   provenance: { period: "2026-08", closeConfirmed: false, retrievedAt: "2026-10-09T00:00:00Z", cashAccountIds: { current: [1], previous: [1] } },
 };
 const confirmation = { monthlyFixedCosts: 10, revenueReason: "Synthetic revenue change evidence", profitReason: "Synthetic operating profit evidence" };
+
+test("legacy cumulative stages cannot be promoted or charted as monthly results",()=>{
+  const legacy=structuredClone(stage);delete (legacy.candidate as {plBasis?:string}).plBasis;
+  assert.throws(()=>buildFreeeDraftContent(legacy,"company",confirmation),/累計/);
+  assert.equal(stagedTrend([stagedRowSchema.parse(legacy)]),null);
+});
 
 test("confirmed freee candidate creates only an unpublished-content draft with exact financial drivers", () => {
   const content = buildFreeeDraftContent(stage, "22222222-2222-4222-8222-222222222222", confirmation);

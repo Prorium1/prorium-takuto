@@ -37,5 +37,5 @@
     ".next/summary-ui/types/**/*.ts",
     ".next/summary-ui/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "supabase/functions/ir-platform-sso/index.ts"]
+  "exclude": ["node_modules", "supabase/functions/ir-platform-sso/index.ts", "supabase/functions/ir-executive-gateway/index.ts"]
 }

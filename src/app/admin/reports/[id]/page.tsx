@@ -16,6 +16,7 @@ import { FinancialEntryForm } from "@/components/admin/financial-entry";
 import { FreeeContextForm } from "@/components/admin/freee-context-form";
 import { DocumentUploadForm } from "@/components/admin/document-upload";
 import { EventPreparationCard } from "@/components/admin/event-preparation-card";
+import { MonthlyBasisCorrection } from "@/components/admin/monthly-basis-correction";
 import {
   isMockEnvironment,
   isCloudMockPreview,
@@ -38,7 +39,11 @@ export default async function AdminReportPage({
     getAdminStore(actor),
   ]);
   if (!report) notFound();
-  if (preview === "1")
+  const legacyBasis =
+    report.content.financial.source === "freee" &&
+    report.content.financial.plBasis !== "monthly-net-v2" &&
+    report.state !== "published";
+  if (preview === "1" && !legacyBasis)
     return (
       <Shell role={actor.role} report>
         <Link className="admin-back" href={`/admin/reports/${id}`}>
@@ -92,14 +97,18 @@ export default async function AdminReportPage({
         !report.content.eventSpotlight && (
           <EventPreparationCard report={report} />
         )}
-      {report.contextRequired ? (
+      {legacyBasis ? (
+        <MonthlyBasisCorrection report={report} />
+      ) : report.contextRequired ? (
         <div className="preview-banner">
           freeeの会計数値を非公開下書きに保存しました。固定費と増減理由の入力後にレビューへ進めます。
         </div>
       ) : (
         <WorkflowControls report={report} />
       )}
-      {report.contextRequired && <FreeeContextForm report={report} />}
+      {report.contextRequired && !legacyBasis && (
+        <FreeeContextForm report={report} />
+      )}
       {report.state !== "published" && (
         <>
           <MonthlyUpdateForm
@@ -113,7 +122,7 @@ export default async function AdminReportPage({
             }
           />
           <DocumentUploadForm report={report} mock={isMockEnvironment()} />
-          {!isMockEnvironment() && !report.contextRequired && (
+          {!isMockEnvironment() && !report.contextRequired && !legacyBasis && (
             <FinancialEntryForm report={report} />
           )}
         </>

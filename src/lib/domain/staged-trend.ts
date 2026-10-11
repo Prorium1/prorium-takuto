@@ -4,6 +4,7 @@ import type { FinancialSnapshot } from "./types";
 export function stagedTrend(
   rows: StagedFreeeRow[],
 ): Pick<FinancialSnapshot, "period" | "trend" | "isMock"> | null {
+  rows = rows.filter((row) => row.candidate.plBasis === "monthly-net-v2");
   const byMonth = new Map<string, StagedFreeeRow>();
   for (const row of [...rows].sort((a, b) =>
     b.provenance.retrievedAt.localeCompare(a.provenance.retrievedAt),

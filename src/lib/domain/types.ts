@@ -24,6 +24,7 @@ export type FinancialSnapshot = {
   source:
     "synthetic-freee-fixture" | "management-entry" | "not-entered" | "freee";
   updatedAt: string;
+  plBasis?: "monthly-net-v2";
   revenue: Metric;
   operatingProfit: Metric;
   ordinaryProfit: Metric;

@@ -44,6 +44,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
         "utf8",
       ),
     );
+    await db.exec(await readFile("supabase/migrations/20261011110230_executive_finance_gateway.sql","utf8"));
     await db.exec(
       `insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`,
     );
@@ -53,7 +54,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     const candidate = {
       period: "2026-08",
       currency: "JPY",
-      source: "freee",
+      source: "freee", plBasis: "monthly-net-v2",
       revenue: { current: 100, previous: 80 },
       operatingProfit: { current: 20, previous: 10 },
       ordinaryProfit: { current: 22, previous: 11 },
@@ -77,7 +78,7 @@ test("an email-authenticated admin can promote a confirmed stage while investors
     content.financial = {
       ...content.financial,
       available: true,
-      source: "freee",
+      source: "freee", plBasis: "monthly-net-v2",
       revenue: { current: 100, previous: 80, status: "要確認" },
       operatingProfit: { current: 20, previous: 10, status: "要確認" },
       ordinaryProfit: { current: 22, previous: 11, status: "要確認" },
@@ -156,6 +157,8 @@ test("an email-authenticated admin can promote a confirmed stage while investors
       /Incomplete month/i,
     );
     const promoted = await db.query<{
+      id:string;
+      revision:number;
       state: string;
       financial_snapshot_id: string;
     }>(
@@ -175,6 +178,26 @@ test("an email-authenticated admin can promote a confirmed stage while investors
       ]),
       /permission|immutable/i,
     );
+    await db.exec("reset role");
+    const monthlySource={period:"2026-08",basis:"monthly-net-v2",source:"freee",retrievedAt:"2026-09-01T00:00:00Z",monthly:{revenue:90,operatingProfit:-5,ordinaryProfit:-4},previousYear:{revenue:70,operatingProfit:-8,ordinaryProfit:-7}};
+    await db.query("insert into private.executive_financials(company_id,period,payload) values($1,'2026-08-01',$2)",[company,JSON.stringify(monthlySource)]);
+    await db.query("insert into private.executive_gateway(company_id,token_hash) values($1,$2)",[company,"a".repeat(64)]);
+    await db.query("insert into private.freee_connections(company_id,freee_company_id,token_ciphertext,expires_at,connected_by) values($1,1234,$2,now()+interval '1 hour',$3)",[company,"mock-encrypted-token".repeat(3),admin]);
+    await actor(investor);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),investor]),/permission denied/);
+    await assert.rejects(db.query("select public.ir_correct_freee_month($1,$2,true)",[promoted.rows[0].id,promoted.rows[0].revision]),/Admin|MFA/);
+    await actor(admin,"aal1");
+    await assert.rejects(db.query("select public.ir_correct_freee_month($1,$2,false)",[promoted.rows[0].id,promoted.rows[0].revision]),/confirmation/i);
+    await db.query("select public.ir_correct_freee_month($1,$2,true)",[promoted.rows[0].id,promoted.rows[0].revision]);
+    const corrected=(await db.query<{content:typeof content;context_required:boolean;financial_snapshot_id:string}>("select content,context_required,financial_snapshot_id from public.report_versions where id=$1",[promoted.rows[0].id])).rows[0];
+    assert.equal(corrected.content.financial.revenue.current,90);assert.equal(corrected.content.financial.operatingProfit.current,-5);assert.equal(corrected.content.financial.cash.current,50);assert.equal(corrected.content.financial.plBasis,"monthly-net-v2");assert.equal(corrected.context_required,true);assert.notEqual(corrected.financial_snapshot_id,promoted.rows[0].financial_snapshot_id);
+    assert.equal((await db.query<{data:typeof content.financial}>("select data from public.financial_snapshots where id=$1",[promoted.rows[0].financial_snapshot_id])).rows[0].data.revenue.current,100);
+    await db.exec("reset role;set role service_role;");
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["b".repeat(64),admin]),/access denied/i);
+    await db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),admin]);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),investor]),/already running/i);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'release',$2)",["a".repeat(64),investor]),/lease/i);
+    await db.query("select public.ir_executive_gateway($1,'release',$2)",["a".repeat(64),admin]);
     await db.exec("reset role");
     const pendingCandidate = { ...candidate, period: "2026-07" };
     const pendingProvenance = {
