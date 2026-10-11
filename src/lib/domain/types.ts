@@ -24,6 +24,7 @@ export type FinancialSnapshot = {
   source:
     "synthetic-freee-fixture" | "management-entry" | "not-entered" | "freee";
   updatedAt: string;
+  plBasis?: "monthly-net-v2";
   revenue: Metric;
   operatingProfit: Metric;
   ordinaryProfit: Metric;
@@ -44,6 +45,23 @@ export type BusinessHighlight = {
   description: string;
   status: string;
   period: string;
+};
+export type BriefingTopic =
+  | "development"
+  | "people"
+  | "funding"
+  | "pr"
+  | "other"
+  | "asks"
+  | "market"
+  | "services"
+  | "customers";
+export type BriefingStory = {
+  id: string;
+  topic: BriefingTopic;
+  kind: IndicatorKind;
+  title: string;
+  body: string;
 };
 export type ForwardIndicator = {
   id: string;
@@ -70,6 +88,15 @@ export type AIKpi = {
   description: string;
 };
 export type ReportContent = {
+  eventSpotlight?: {
+    title: string;
+    occurredOn: string;
+    summary: string;
+    outcomes: string[];
+    nextAction: string;
+    videoUrl: string;
+    videoTitle: string;
+  } | null;
   documents?: FinancialDocument[];
   financial: FinancialSnapshot;
   summary: {
@@ -82,6 +109,7 @@ export type ReportContent = {
   revenueDrivers: Driver[];
   profitDrivers: Driver[];
   highlights: BusinessHighlight[];
+  briefing?: BriefingStory[];
   ai: {
     revenue: AIKpi[];
     efficiency: AIKpi[];
@@ -99,6 +127,7 @@ export type ReportVersion = {
   version: string;
   state: ReportState;
   revision: number;
+  contextRequired?: boolean;
   content: ReportContent;
   contentHash: string;
   analysis:

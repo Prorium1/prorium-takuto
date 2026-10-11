@@ -1,21 +1,32 @@
 import { redirect } from "next/navigation";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LoginForm } from "@/components/login-form";
 import { getActor } from "@/lib/server/auth";
+import { googleProviderEnabled } from "@/lib/domain/google-provider";
 import {
   isMockEnvironment,
+  productionConfiguration,
   productionConfigured,
 } from "@/lib/server/environment";
 
 export const dynamic = "force-dynamic";
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
   const actor = await getActor();
-  if (actor) redirect("/dashboard");
+  if (actor) redirect(actor.role === "admin" ? "/admin" : "/dashboard");
+  const { reason } = await searchParams;
+  const productionEnabled = productionConfigured();
+  const googleEnabled = productionEnabled
+    ? await googleProviderEnabled(productionConfiguration())
+    : false;
   return (
     <main className="login-page">
       <section className="login-story">
-        <Brand light />
+        <Brand />
         <div className="login-story-main">
           <span className="eyebrow">PRORIUM SHAREHOLDER PORTAL</span>
           <h1>
@@ -33,21 +44,27 @@ export default async function LoginPage() {
               MONTHLY SHAREHOLDER REPORT
               <ArrowUpRight size={18} />
             </span>
-            <div className="cover-month">
-              08<span>/ 2026</span>
+            <div className="cover-title">
+              Clarity.
+              <br />
+              Every month.
             </div>
-            <span className="cover-caption">成長を、利益につなげる。</span>
-            <div className="cover-line">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
+            <span className="cover-caption">
+              数字の先にある、経営の意思を。
+            </span>
+            <div className="cover-contents">
+              <span>
+                <i>01</i> Performance
+              </span>
+              <span>
+                <i>02</i> Perspective
+              </span>
+              <span>
+                <i>03</i> Possibilities
+              </span>
             </div>
             <span className="cover-bottom">
-              <Sparkles size={13} />
-              AI assisted. Human approved.
+              PRIVATE SHAREHOLDER PUBLICATION
               {isMockEnvironment() && <span>MOCK</span>}
             </span>
           </div>
@@ -63,9 +80,34 @@ export default async function LoginPage() {
           <p className="login-intro">
             最新の経営状況と、これからの成長をお届けします。
           </p>
+          {(reason === "oauth" ||
+            reason === "access" ||
+            reason === "platform") && (
+            <p role="alert" className="form-error">
+              {reason === "platform"
+                ? "Proriumのログイン連携を完了できませんでした。プラットフォームのマスターアカウントでログインして、もう一度お試しください。"
+                : reason === "oauth"
+                  ? "Google認証を完了できませんでした。もう一度お試しください。"
+                  : "認証を完了できませんでした。新しい認証リンクでお試しください。"}
+            </p>
+          )}
+          {productionEnabled && (
+            <div className="login-platform-entry">
+              <a
+                className="button secondary"
+                href={`${productionConfiguration().origin}/auth/platform`}
+              >
+                Proriumプラットフォームから管理画面へ
+              </a>
+              <p className="login-helper">
+                登録済みのマスターアカウントで、そのまま管理・編集できます。
+              </p>
+            </div>
+          )}
           <LoginForm
             mockEnabled={isMockEnvironment()}
-            productionEnabled={productionConfigured()}
+            productionEnabled={productionEnabled}
+            googleEnabled={googleEnabled}
           />
         </div>
       </section>

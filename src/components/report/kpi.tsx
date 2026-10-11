@@ -1,6 +1,6 @@
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 import type { FinancialSnapshot } from "@/lib/domain/types";
-import { compareYoY, millions, percent } from "@/lib/domain/finance";
+import { millions, yoyPresentation } from "@/lib/domain/finance";
 
 export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
   const cards = [
@@ -13,7 +13,7 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
     <div className="kpi-grid">
       {cards.map(({ key, label, en }) => {
         const metric = financial[key];
-        const yoy = compareYoY(metric.current, metric.previous);
+        const yoy = yoyPresentation(metric.current, metric.previous);
         return (
           <article className="kpi-card" key={key}>
             <div className="kpi-label">
@@ -26,15 +26,23 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
               <span>百万円</span>
             </div>
             <div className="kpi-comparison">
-              <span className={yoy.delta >= 0 ? "positive" : "negative"}>
-                {yoy.delta >= 0 ? (
+              <span
+                className={
+                  yoy.direction === "flat"
+                    ? "comparison-neutral"
+                    : yoy.delta > 0
+                      ? "positive"
+                      : "negative"
+                }
+              >
+                {yoy.direction === "flat" ? (
+                  <Minus size={16} />
+                ) : yoy.delta > 0 ? (
                   <ArrowUpRight size={16} />
                 ) : (
                   <ArrowDownRight size={16} />
                 )}
-                {yoy.percent === null
-                  ? `${millions(yoy.delta)}百万円`
-                  : percent(yoy.percent)}
+                {yoy.label}
               </span>
               <span>YoY</span>
               <span className="kpi-status">{metric.status}</span>
@@ -42,6 +50,7 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
             <div className="kpi-baseline">
               前年同月 <strong>{millions(metric.previous)}</strong> 百万円
             </div>
+            {yoy.note && <p className="comparison-note">{yoy.note}</p>}
           </article>
         );
       })}

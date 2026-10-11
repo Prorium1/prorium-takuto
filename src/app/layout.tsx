@@ -3,6 +3,12 @@ import "@fontsource-variable/inter";
 import "@fontsource/noto-sans-jp/400.css";
 import "@fontsource/noto-sans-jp/600.css";
 import "./globals.css";
+import "./editorial.css";
+import "./summary.css";
+import "./briefing.css";
+import "./report-motion.css";
+import "./event.css";
+import "./investor-experience.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -11,6 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Prorium IR",
   },
   description: "Prorium Monthly Shareholder Report · Investor Relations",
+  icons: { icon: "/brand/prorium-logo-horizontal.png" },
   robots: { index: false, follow: false },
 };
 export default function RootLayout({

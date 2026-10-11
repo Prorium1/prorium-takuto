@@ -34,9 +34,9 @@ export async function productionClient(actor: Actor, admin = false) {
     roleError ||
     !data ||
     data.role !== actor.role ||
-    (admin && (data.role !== "admin" || data.needsMfa))
+    (admin && data.role !== "admin")
   )
-    throw new Error("管理者認証・MFAまたはアクセス権を確認してください。");
+    throw new Error("管理者権限とアクセス権を確認してください。");
   return client;
 }
 export function databaseError(error: { message: string } | null) {
@@ -52,7 +52,7 @@ export function databaseError(error: { message: string } | null) {
       "公開済みの内容は変更できません。改訂版を作成してください。",
     );
   if (/MFA|Admin/i.test(error.message))
-    throw new Error("管理者認証とMFAが必要です。");
+    throw new Error("管理者権限が必要です。");
   if (/Summary|commentary/i.test(error.message))
     throw new Error("サマリーとCEOコメントを入力してください。");
   throw new Error(
@@ -68,6 +68,7 @@ function mapVersion(row: Row): ReportVersion {
     version: String(row.version),
     state: row.state as ReportVersion["state"],
     revision: Number(row.revision),
+    contextRequired: Boolean(row.context_required),
     content: row.content as ReportContent,
     contentHash: String(row.content_hash),
     analysis: row.analysis as ReportVersion["analysis"],
@@ -258,6 +259,9 @@ export async function mutateReport(
     content.summary.outlook = edit.summaryOutlook;
     content.financialAnalysis = edit.financialAnalysis;
     content.highlights = edit.highlights;
+    content.briefing = edit.briefing;
+    if (edit.eventSpotlight !== undefined)
+      content.eventSpotlight = edit.eventSpotlight;
     content.forward = edit.forward;
     content.risks = edit.risks;
     content.ceo.quote = edit.ceoQuote;

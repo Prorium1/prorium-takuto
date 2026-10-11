@@ -135,3 +135,129 @@ test("owner publishes a monthly narrative and private statements; investors can 
   ).toBe(200);
   await investor.close();
 });
+
+test("monthly reflection saves privately, regenerates reasons and requires review before investor publication", async ({
+  page,
+  browser,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "管理者デモを開く" }).click();
+  await page.waitForURL("**/admin");
+  await page.goto("/admin/reports");
+  await page.getByLabel("対象月").fill("2026-12");
+  await page.getByLabel("文章とPDFで開始する").check();
+  await page
+    .getByRole("button", { name: "レポートを作成", exact: true })
+    .click();
+  await page.waitForURL(/\/admin\/reports\/[a-f0-9-]+$/);
+  const editorUrl = page.url();
+  const secret = "PRIVATE_REFLECTION_CANARY_2026";
+  await page.locator(".reflection-private summary").click();
+  await page.getByLabel("管理者専用メモ").fill(secret);
+  await page.getByRole("button", { name: "入力を保存", exact: true }).click();
+  await expect(page.locator(".monthly-input [role=status]")).toBeVisible();
+  await page.reload();
+  await page.locator(".reflection-private summary").click();
+  await expect(page.getByLabel("管理者専用メモ")).toHaveValue(secret);
+  await page
+    .getByLabel("今月あったこと")
+    .fill("架空の新しい講座を開講し、運営を改善しました。");
+  await page
+    .getByLabel("売上が変わった理由", { exact: true })
+    .fill("既存顧客の追加契約が売上増加に寄与しました。");
+  await page
+    .getByLabel("利益が変わった理由", { exact: true })
+    .fill("採用費用が一時的に増えました。");
+  await page
+    .getByLabel("AIが事業・業務にもたらした変化")
+    .fill("動画制作でAIを試用中です。削減時間は未計測です。");
+  await page
+    .getByLabel("来月以降の見通しと打ち手")
+    .fill("来月は継続率を確認する予定です。");
+  await page
+    .getByRole("button", { name: "文章からサマリーの下書きを作成" })
+    .click();
+  await expect(page.locator(".monthly-input [role=status]")).toContainText(
+    "下書きを作成",
+  );
+  await expect(page.getByLabel("数字の変化理由（Why It Changed）")).toHaveValue(
+    /既存顧客/,
+  );
+  await expect(page.getByLabel("Executive Summary 本文")).not.toHaveValue(
+    new RegExp(secret),
+  );
+  await page.setViewportSize({ width: 375, height: 900 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+  ).toBe(false);
+  await page.screenshot({
+    path: "artifacts/reflection-mobile.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({
+    path: "artifacts/reflection-desktop.png",
+    fullPage: true,
+  });
+  const investor = await browser.newContext();
+  const investorPage = await investor.newPage();
+  await investorPage.goto("http://127.0.0.1:3100/login");
+  await investorPage
+    .getByRole("button", { name: "株主としてデモを見る" })
+    .click();
+  await investorPage.waitForURL(/\/reports\/2026-/);
+  expect(
+    (
+      await investor.request.get("http://127.0.0.1:3100/reports/2026-12")
+    ).status(),
+  ).toBe(404);
+  // Clearing a reason and regenerating must remove the previous public text.
+  await page.getByLabel("売上が変わった理由", { exact: true }).fill("");
+  await page.getByLabel("利益が変わった理由", { exact: true }).fill("");
+  await page.getByLabel("AIが事業・業務にもたらした変化").fill("");
+  await page
+    .getByRole("button", { name: "文章からサマリーの下書きを作成" })
+    .click();
+  await expect(
+    page.getByLabel("数字の変化理由（Why It Changed）"),
+  ).not.toHaveValue(/既存顧客/);
+  await page
+    .getByLabel("売上が変わった理由", { exact: true })
+    .fill("販売単価の見直しが売上の変化につながりました。");
+  await page
+    .getByRole("button", { name: "文章からサマリーの下書きを作成" })
+    .click();
+  await expect(page.getByLabel("数字の変化理由（Why It Changed）")).toHaveValue(
+    /販売単価/,
+  );
+  await page
+    .getByLabel("CEO コメント", { exact: true })
+    .fill("運営の改善を続け、進捗を報告します。");
+  await page.getByRole("button", { name: "変更を保存", exact: true }).click();
+  await expect(page.getByText("保存しました。", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "レビューへ提出" }).click();
+  await page.getByRole("button", { name: "内容を確認して承認" }).click();
+  await page.getByRole("button", { name: "株主へ公開" }).click();
+  await expect(
+    page.getByText("公開しました。株主画面で確認できます。"),
+  ).toBeVisible();
+  const response = await investorPage.goto(
+    "http://127.0.0.1:3100/reports/2026-12",
+  );
+  expect(await response!.text()).not.toContain(secret);
+  await expect(investorPage.locator("#drivers")).toContainText(
+    "販売単価の見直し",
+  );
+  await expect(investorPage.locator("#summary")).toContainText("見通し・予定");
+  await page.goto(editorUrl);
+  await page.getByRole("button", { name: "改訂版を作成" }).click();
+  await page.waitForURL(
+    (url) =>
+      url.href !== editorUrl && url.pathname.startsWith("/admin/reports/"),
+  );
+  await page.locator(".reflection-private summary").click();
+  await expect(page.getByLabel("管理者専用メモ")).toHaveValue(secret);
+  await investor.close();
+});

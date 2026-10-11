@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Shell } from "@/components/shell";
 import { ReportView } from "@/components/report/report-view";
 import { requireActor } from "@/lib/server/auth";
+import { isCloudMockPreview } from "@/lib/server/environment";
 import {
   getPublishedReport,
   listPublishedReports,
@@ -30,7 +31,7 @@ export default async function ReportPage({
   const versions = archive.filter((r) => r.period === period);
   return (
     <Shell role={actor.role} report>
-      <div className="report-navigation">
+      <div className="report-navigation investor-report-navigation">
         <span>
           <span className="live-dot" />
           株主限定 · Monthly Report
@@ -66,7 +67,7 @@ export default async function ReportPage({
           </div>
         )}
       </div>
-      <ReportView report={report} />
+      <ReportView report={report} browserPrint={isCloudMockPreview()} />
     </Shell>
   );
 }

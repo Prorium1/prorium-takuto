@@ -3,7 +3,10 @@ import { useActionState, useId, useState } from "react";
 import { Plus, Save } from "lucide-react";
 import { reportOperationAction } from "@/app/actions";
 import type { ReportVersion } from "@/lib/domain/types";
+import { SummaryReview } from "./summary-review";
 import type { ContentEdit } from "@/lib/domain/validation";
+import { briefingTopics } from "@/lib/domain/briefing";
+import { EventEditor } from "./event-editor";
 
 function Field({
   label,
@@ -84,6 +87,8 @@ function EditorFields({ report }: { report: ReportVersion }) {
     summaryOutlook: c.summary.outlook,
     financialAnalysis: c.financialAnalysis,
     highlights: c.highlights,
+    briefing: c.briefing ?? [],
+    eventSpotlight: c.eventSpotlight ?? null,
     forward: c.forward,
     risks: c.risks,
     ceoQuote: c.ceo.quote,
@@ -100,6 +105,14 @@ function EditorFields({ report }: { report: ReportVersion }) {
         name="payload"
         value={JSON.stringify({
           ...edit,
+          eventSpotlight: edit.eventSpotlight
+            ? {
+                ...edit.eventSpotlight,
+                outcomes: edit.eventSpotlight.outcomes
+                  .map((value) => value.trim())
+                  .filter(Boolean),
+              }
+            : null,
           summaryPoints: pointsText
             .split("\n")
             .map((point) => point.trim())
@@ -108,6 +121,23 @@ function EditorFields({ report }: { report: ReportVersion }) {
       />
       <section className="editor-section">
         <h2>01 · Executive Summary</h2>
+        <SummaryReview
+          content={{
+            ...c,
+            summary: {
+              headline: edit.headline,
+              text: edit.summary,
+              points: pointsText
+                .split("\n")
+                .map((p) => p.trim())
+                .filter(Boolean),
+              outlook: edit.summaryOutlook,
+            },
+            financialAnalysis: edit.financialAnalysis,
+            risks: edit.risks,
+            forward: edit.forward,
+          }}
+        />
         <Field
           label="見出し"
           value={edit.headline}
@@ -120,7 +150,7 @@ function EditorFields({ report }: { report: ReportVersion }) {
           onChange={(summary) => update({ summary })}
         />
         <Field
-          label="Financial Analysis"
+          label="数字の変化理由（Why It Changed）"
           multiline
           value={edit.financialAnalysis}
           onChange={(financialAnalysis) => update({ financialAnalysis })}
@@ -275,6 +305,114 @@ function EditorFields({ report }: { report: ReportVersion }) {
           Highlightを追加
         </button>
       </section>
+      <section className="editor-section">
+        <h2>04A · Investor Briefing</h2>
+        <p>
+          株主に伝える事実をテーマ別に記録します。将来情報は分類を選び、未入力のテーマは株主画面に表示しません。
+        </p>
+        {briefingTopics.map((topic) => {
+          const stories = edit.briefing.filter(
+            (story) => story.topic === topic.key,
+          );
+          return (
+            <details className="editor-briefing-topic" key={topic.key}>
+              <summary>
+                {topic.label}
+                <span>
+                  {stories.length ? `${stories.length} 件` : "未入力"}
+                </span>
+              </summary>
+              <p>{topic.prompt}</p>
+              {stories.map((story) => (
+                <div className="editor-subcard" key={story.id}>
+                  <div className="editor-subcard-top">
+                    <span>{topic.label}</span>
+                    <button
+                      type="button"
+                      className="remove-button"
+                      onClick={() =>
+                        update({
+                          briefing: edit.briefing.filter(
+                            (item) => item.id !== story.id,
+                          ),
+                        })
+                      }
+                    >
+                      削除
+                    </button>
+                  </div>
+                  <Field
+                    label="見出し"
+                    value={story.title}
+                    onChange={(title) =>
+                      update({
+                        briefing: patchItems(edit.briefing, story.id, {
+                          title,
+                        }),
+                      })
+                    }
+                  />
+                  <div className="form-field">
+                    <label htmlFor={`story-kind-${story.id}`}>情報の種類</label>
+                    <select
+                      id={`story-kind-${story.id}`}
+                      value={story.kind}
+                      onChange={(event) =>
+                        update({
+                          briefing: patchItems(edit.briefing, story.id, {
+                            kind: event.target.value as typeof story.kind,
+                          }),
+                        })
+                      }
+                    >
+                      <option value="Actual">Actual · 実績</option>
+                      <option value="Committed">Committed · 確約済み</option>
+                      <option value="Forecast">Forecast · 見込み</option>
+                      <option value="Pipeline">Pipeline · 進行中</option>
+                    </select>
+                  </div>
+                  <Field
+                    label="株主に伝える内容"
+                    multiline
+                    value={story.body}
+                    onChange={(body) =>
+                      update({
+                        briefing: patchItems(edit.briefing, story.id, { body }),
+                      })
+                    }
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                className="button secondary"
+                disabled={edit.briefing.length >= 24}
+                onClick={() =>
+                  update({
+                    briefing: [
+                      ...edit.briefing,
+                      {
+                        id: crypto.randomUUID(),
+                        topic: topic.key,
+                        kind: "Actual",
+                        title: "",
+                        body: "",
+                      },
+                    ],
+                  })
+                }
+              >
+                <Plus size={14} />
+                {topic.label}を追加
+              </button>
+            </details>
+          );
+        })}
+      </section>
+      <EventEditor
+        event={edit.eventSpotlight ?? null}
+        onChange={(eventSpotlight) => update({ eventSpotlight })}
+      />
       <section className="editor-section">
         <h2>07 · Forward Indicators</h2>
         <p>

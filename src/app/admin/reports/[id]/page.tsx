@@ -13,8 +13,14 @@ import { periodLabel } from "@/lib/domain/finance";
 
 import { MonthlyUpdateForm } from "@/components/admin/monthly-update";
 import { FinancialEntryForm } from "@/components/admin/financial-entry";
+import { FreeeContextForm } from "@/components/admin/freee-context-form";
 import { DocumentUploadForm } from "@/components/admin/document-upload";
-import { isMockEnvironment } from "@/lib/server/environment";
+import { EventPreparationCard } from "@/components/admin/event-preparation-card";
+import { MonthlyBasisCorrection } from "@/components/admin/monthly-basis-correction";
+import {
+  isMockEnvironment,
+  isCloudMockPreview,
+} from "@/lib/server/environment";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -33,7 +39,11 @@ export default async function AdminReportPage({
     getAdminStore(actor),
   ]);
   if (!report) notFound();
-  if (preview === "1")
+  const legacyBasis =
+    report.content.financial.source === "freee" &&
+    report.content.financial.plBasis !== "monthly-net-v2" &&
+    report.state !== "published";
+  if (preview === "1" && !legacyBasis)
     return (
       <Shell role={actor.role} report>
         <Link className="admin-back" href={`/admin/reports/${id}`}>
@@ -41,6 +51,33 @@ export default async function AdminReportPage({
           編集へ戻る
         </Link>
         <ReportView report={report} preview />
+      </Shell>
+    );
+  if (isCloudMockPreview())
+    return (
+      <Shell role={actor.role}>
+        <Link className="admin-back" href="/admin/reports">
+          <ArrowLeft size={13} />
+          すべてのレポート
+        </Link>
+        <div className="page-heading">
+          <span className="eyebrow">MONTHLY REFLECTION · DEMO</span>
+          <h1>{periodLabel(report.period)}</h1>
+          <p>架空の出来事を入力して、株主向け下書きを確認できます。</p>
+        </div>
+        <MonthlyUpdateForm
+          key={report.id}
+          report={report}
+          notes=""
+          aiEnabled={false}
+          cloudPreview
+        />
+        <Link
+          className="button secondary"
+          href={`/admin/reports/${id}?preview=1`}
+        >
+          サンプルレポートを見る
+        </Link>
       </Shell>
     );
   return (
@@ -54,10 +91,28 @@ export default async function AdminReportPage({
         <h1>{periodLabel(report.period)}</h1>
         <p>Monthly Shareholder Report</p>
       </div>
-      <WorkflowControls report={report} />
+      {!isMockEnvironment() &&
+        report.period === "2026-08" &&
+        report.state !== "published" &&
+        !report.content.eventSpotlight && (
+          <EventPreparationCard report={report} />
+        )}
+      {legacyBasis ? (
+        <MonthlyBasisCorrection report={report} />
+      ) : report.contextRequired ? (
+        <div className="preview-banner">
+          freeeの会計数値を非公開下書きに保存しました。固定費と増減理由の入力後にレビューへ進めます。
+        </div>
+      ) : (
+        <WorkflowControls report={report} />
+      )}
+      {report.contextRequired && !legacyBasis && (
+        <FreeeContextForm report={report} />
+      )}
       {report.state !== "published" && (
         <>
           <MonthlyUpdateForm
+            key={report.id}
             report={report}
             notes={
               store.monthlyInputs?.find((n) => n.reportId === id)?.notes || ""
@@ -67,7 +122,9 @@ export default async function AdminReportPage({
             }
           />
           <DocumentUploadForm report={report} mock={isMockEnvironment()} />
-          {!isMockEnvironment() && <FinancialEntryForm report={report} />}
+          {!isMockEnvironment() && !report.contextRequired && !legacyBasis && (
+            <FinancialEntryForm report={report} />
+          )}
         </>
       )}
       <AnalysisDraftView

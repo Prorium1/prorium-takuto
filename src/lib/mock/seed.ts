@@ -3,6 +3,20 @@ import { contentHash } from "../domain/workflow";
 import { compareYoY, margin } from "../domain/finance";
 
 const augustContent: ReportContent = {
+  eventSpotlight: {
+    title: "イベントレポート（デザインサンプル）",
+    occurredOn: "2026-06-01",
+    summary:
+      "架空の開催例です。大会の規模だけでなく、事業上の意味、参加者の反応、次の成長につながる施策をまとめるための表示サンプルです。実際の大会情報ではありません。",
+    outcomes: [
+      "参加者に届けた価値を、確認済みの実績で伝える。",
+      "会場で得た発見を、次のサービス改善につなげる。",
+    ],
+    nextAction:
+      "大会資料と完成版動画を確認した後、経営者が内容を編集・承認します。",
+    videoUrl: "",
+    videoTitle: "",
+  },
   financial: {
     id: "snapshot-2026-08-mock",
     period: "2026-08",
@@ -80,6 +94,36 @@ const augustContent: ReportContent = {
   },
   financialAnalysis:
     "売上の伸びを上回る利益成長を実現。営業利益率は10.5%から16.0%へ改善しました。AIによる制作・運用コストの削減と固定費の吸収が寄与した一方、新規事業への先行投資を継続しています。",
+  briefing: [
+    {
+      id: "11111111-1111-4111-8111-111111111111",
+      topic: "development",
+      kind: "Actual",
+      title: "学習体験の改善を継続",
+      body: "サンプル: 月次の利用行動を確認し、受講開始までの導線を改善しました。成果は次月の継続率で検証します。",
+    },
+    {
+      id: "22222222-2222-4222-8222-222222222222",
+      topic: "market",
+      kind: "Forecast",
+      title: "市場の変化をどう捉えるか",
+      body: "サンプル: AIを活用した制作需要の広がりを見込み、品質と納期の両立を競争上の焦点として検討しています。",
+    },
+    {
+      id: "33333333-3333-4333-8333-333333333333",
+      topic: "asks",
+      kind: "Pipeline",
+      title: "次の対話につながる紹介",
+      body: "サンプル: 導入課題を持つ企業との対話機会をご紹介いただけると幸いです。案件化前のご相談も歓迎します。",
+    },
+    {
+      id: "44444444-4444-4444-8444-444444444444",
+      topic: "pr",
+      kind: "Actual",
+      title: "新しい取り組みを公開",
+      body: "サンプル: 今月発表した取り組みの内容と、顧客にとっての価値を短く伝えます。実際の発表内容は管理者が入力してください。",
+    },
+  ],
   revenueDrivers: [
     {
       label: "既存事業",

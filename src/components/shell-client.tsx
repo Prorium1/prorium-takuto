@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -30,6 +30,15 @@ export const reportSections = [
   ["risks", "Risks & Actions"],
   ["ceo", "CEO Commentary"],
 ];
+const mobileQuery = "(max-width: 900px)";
+function subscribeMobile(callback: () => void) {
+  const media = window.matchMedia(mobileQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+const getMobile = () => window.matchMedia(mobileQuery).matches;
+const getServerMobile = () => false;
+
 export function ShellClient({
   children,
   role,
@@ -43,7 +52,83 @@ export function ShellClient({
 }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("summary");
+  const sidebarRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useSyncExternalStore(
+    subscribeMobile,
+    getMobile,
+    getServerMobile,
+  );
   const admin = path.startsWith("/admin");
+
+  useEffect(() => {
+    if (!report) return;
+    const sections = reportSections
+      .map(([id]) => document.getElementById(id))
+      .filter((section): section is HTMLElement => section !== null);
+    let frame: number | null = null;
+    function updateReadingPosition() {
+      frame = null;
+      const readingLine = window.innerHeight * 0.4;
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top > readingLine) break;
+        current = section;
+      }
+      if (current) setActiveSection(current.id);
+    }
+    function scheduleUpdate() {
+      if (frame === null) frame = requestAnimationFrame(updateReadingPosition);
+    }
+    scheduleUpdate();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, [path, report]);
+
+  useEffect(() => {
+    if (!open || !isMobile) return;
+    const trigger = menuRef.current;
+    const sidebar = sidebarRef.current;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    // Focus after the drawer becomes visible and the workspace becomes inert.
+    const focusFrame = requestAnimationFrame(() => {
+      sidebar
+        ?.querySelector<HTMLElement>("a, button")
+        ?.focus({ preventScroll: true });
+    });
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Tab" || !sidebar) return;
+      const targets = [
+        ...sidebar.querySelectorAll<HTMLElement>(
+          "a[href], button:not([disabled])",
+        ),
+      ].filter((element) => element.getClientRects().length > 0);
+      const first = targets[0];
+      const last = targets.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = originalOverflow;
+      trigger?.focus({ preventScroll: true });
+    };
+  }, [isMobile, open]);
 
   return (
     <div className="app-shell">
@@ -57,7 +142,13 @@ export function ShellClient({
           onClick={() => setOpen(false)}
         />
       )}
-      <aside className={`sidebar ${open ? "is-open" : ""}`}>
+      <aside
+        id="portal-navigation"
+        ref={sidebarRef}
+        className={`sidebar ${open ? "is-open" : ""}`}
+        inert={isMobile && !open}
+        aria-label="株主ポータル ナビゲーション"
+      >
         <Link
           href="/dashboard"
           className="brand-link"
@@ -75,7 +166,11 @@ export function ShellClient({
         <span className="nav-label">SHAREHOLDER PORTAL</span>
         <nav className="primary-nav" aria-label="メインナビゲーション">
           <Link
-            className={!admin && path !== "/reports" ? "active" : ""}
+            className={
+              path === "/dashboard" || path.startsWith("/reports/")
+                ? "active"
+                : ""
+            }
             href="/dashboard"
             onClick={() => setOpen(false)}
           >
@@ -102,12 +197,22 @@ export function ShellClient({
           {role === "admin" && (
             <>
               <span className="nav-label admin-nav-label">MANAGEMENT</span>
-              <Link href="/admin/investors" onClick={() => setOpen(false)}>
+              <Link
+                className={path === "/admin/investors" ? "active" : ""}
+                href="/admin/investors"
+                onClick={() => setOpen(false)}
+              >
                 <ShieldCheck size={18} />
                 <span>Investor Access</span>
               </Link>
               <Link
-                className={admin && path !== "/admin/import" ? "active" : ""}
+                className={
+                  admin &&
+                  path !== "/admin/import" &&
+                  path !== "/admin/investors"
+                    ? "active"
+                    : ""
+                }
                 href="/admin"
                 onClick={() => setOpen(false)}
               >
@@ -130,7 +235,16 @@ export function ShellClient({
             <span className="nav-label">IN THIS REPORT</span>
             <nav aria-label="レポート目次">
               {reportSections.map(([id, name], i) => (
-                <a href={`#${id}`} key={id} onClick={() => setOpen(false)}>
+                <a
+                  href={`#${id}`}
+                  key={id}
+                  className={activeSection === id ? "current" : ""}
+                  aria-current={activeSection === id ? "location" : undefined}
+                  onClick={() => {
+                    setActiveSection(id);
+                    setOpen(false);
+                  }}
+                >
                   <span>{String(i + 1).padStart(2, "0")}</span>
                   {name}
                 </a>
@@ -159,16 +273,26 @@ export function ShellClient({
           </form>
         </div>
       </aside>
-      <div className="workspace">
+      <div className="workspace" inert={isMobile && open}>
         <header className="topbar">
           <div className="breadcrumb">
             <button
+              ref={menuRef}
               className="mobile-menu icon-button"
               aria-label="メニューを開く"
+              aria-expanded={open}
+              aria-controls="portal-navigation"
               onClick={() => setOpen(true)}
             >
               <Menu size={20} />
             </button>
+            <Link
+              className="mobile-brand"
+              href="/dashboard"
+              aria-label="Prorium 最新のレポート"
+            >
+              <Brand />
+            </Link>
             <span>Investor Relations</span>
             <span className="breadcrumb-slash">/</span>
             <strong>

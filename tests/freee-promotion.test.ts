@@ -1,0 +1,349 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { PGlite } from "@electric-sql/pglite";
+import { emptyReport } from "../src/lib/domain/monthly";
+import { buildPendingFreeeDraftContent } from "../src/lib/domain/freee-draft";
+
+test("an email-authenticated admin can promote a confirmed stage while investors cannot", async () => {
+  const db = new PGlite();
+  const company = "11111111-1111-1111-1111-111111111111";
+  const admin = "22222222-2222-2222-2222-222222222222";
+  const investor = "33333333-3333-3333-3333-333333333333";
+  const actor = async (id: string, aal = "aal2") =>
+    db.exec(
+      `reset role; set role authenticated; select set_config('request.jwt.claim.sub','${id}',false); select set_config('request.jwt.claims','{"aal":"${aal}"}',false);`,
+    );
+  try {
+    await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$; create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb $$; grant usage on schema auth to authenticated,service_role; grant execute on function auth.uid(),auth.jwt() to authenticated,service_role;
+      create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}'); alter table storage.objects enable row level security; grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;`);
+    for (const file of [
+      "database/schema.sql",
+      "database/production.sql",
+      "supabase/migrations/20261010025805_email_only_admin_access.sql",
+      "supabase/migrations/20261009012909_freee_connection.sql",
+      "supabase/migrations/20261009021638_freee_staging.sql",
+      "supabase/migrations/20261009022645_promote_freee_stage.sql",
+    ])
+      await db.exec(await readFile(file, "utf8"));
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20261009031730_briefing_stories.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20261009031746_event_spotlight.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        "supabase/migrations/20261010033622_freee_context_gate.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(await readFile("supabase/migrations/20261011113944_executive_finance_gateway.sql","utf8"));
+    await db.exec(
+      `insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now());`,
+    );
+    await db.exec(
+      `insert into public.companies(id,name) values ('${company}','Prorium'); insert into private.admin_memberships(user_id,company_id) values ('${admin}','${company}');`,
+    );
+    const candidate = {
+      period: "2026-08",
+      currency: "JPY",
+      source: "freee", plBasis: "monthly-net-v2",
+      revenue: { current: 100, previous: 80 },
+      operatingProfit: { current: 20, previous: 10 },
+      ordinaryProfit: { current: 22, previous: 11 },
+      cash: { current: 50, previous: 40 },
+      assets: 300,
+      liabilities: 100,
+      equity: 200,
+      monthlyFixedCosts: null,
+    };
+    const provenance = {
+      period: "2026-08",
+      closeConfirmed: false,
+      mappingVersion: "synthetic-test",
+    };
+    const stage = await db.query<{ id: string }>(
+      "insert into private.freee_staged_financials(company_id,period,freee_company_id,candidate,provenance) values($1,'2026-08-01',11486508,$2::jsonb,$3::jsonb) returning id",
+      [company, JSON.stringify(candidate), JSON.stringify(provenance)],
+    );
+    const stageId = stage.rows[0].id;
+    const content = emptyReport("2026-08", company).content;
+    content.financial = {
+      ...content.financial,
+      available: true,
+      source: "freee", plBasis: "monthly-net-v2",
+      revenue: { current: 100, previous: 80, status: "要確認" },
+      operatingProfit: { current: 20, previous: 10, status: "要確認" },
+      ordinaryProfit: { current: 22, previous: 11, status: "要確認" },
+      cash: { current: 50, previous: 40, status: "要確認" },
+      assets: 300,
+      liabilities: 100,
+      equity: 200,
+      monthlyFixedCosts: 10,
+    };
+    content.revenueDrivers = [
+      {
+        label: "経営者確認",
+        amount: 20,
+        description: "Synthetic documented revenue reason",
+      },
+    ];
+    content.profitDrivers = [
+      {
+        label: "経営者確認",
+        amount: 10,
+        description: "Synthetic documented profit reason",
+      },
+    ];
+    await actor(admin, "aal1");
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage($1,$2::jsonb,false,true,true)",
+        [stageId, JSON.stringify(content)],
+      ),
+      /confirmation/i,
+    );
+    await actor(investor);
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)",
+        [stageId, JSON.stringify(content)],
+      ),
+      /MFA|Admin/i,
+    );
+    await actor(admin, "aal1");
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage($1,$2::jsonb,false,true,true)",
+        [stageId, JSON.stringify(content)],
+      ),
+      /confirmation/i,
+    );
+    const wrong = structuredClone(content);
+    wrong.financial.revenue.current = 101;
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)",
+        [stageId, JSON.stringify(wrong)],
+      ),
+      /mismatch/i,
+    );
+    await db.exec("reset role");
+    const partial = await db.query<{ id: string }>(
+      "insert into private.freee_staged_financials(company_id,period,freee_company_id,candidate,provenance) values($1,'2026-09-01',11486508,$2::jsonb,$3::jsonb) returning id",
+      [
+        company,
+        JSON.stringify({
+          ...candidate,
+          period: "2026-09",
+          completeness: "month-to-date",
+        }),
+        JSON.stringify({ ...provenance, period: "2026-09" }),
+      ],
+    );
+    await actor(admin, "aal1");
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)",
+        [partial.rows[0].id, JSON.stringify(content)],
+      ),
+      /Incomplete month/i,
+    );
+    const promoted = await db.query<{
+      id:string;
+      revision:number;
+      state: string;
+      financial_snapshot_id: string;
+    }>(
+      "select * from public.ir_promote_freee_stage($1,$2::jsonb,true,true,true)",
+      [stageId, JSON.stringify(content)],
+    );
+    assert.equal(promoted.rows[0].state, "draft");
+    const snapshot = await db.query<{ import_job_id: string; source: string }>(
+      "select import_job_id,source from public.financial_snapshots where id=$1",
+      [promoted.rows[0].financial_snapshot_id],
+    );
+    assert.equal(snapshot.rows[0].source, "freee");
+    assert.ok(snapshot.rows[0].import_job_id);
+    await assert.rejects(
+      db.query("update public.financial_snapshots set data='{}' where id=$1", [
+        promoted.rows[0].financial_snapshot_id,
+      ]),
+      /permission|immutable/i,
+    );
+    await db.exec("reset role");
+    const monthlySource={period:"2026-08",basis:"monthly-net-v2",source:"freee",retrievedAt:"2026-09-01T00:00:00Z",monthly:{revenue:90,operatingProfit:-5,ordinaryProfit:-4},previousYear:{revenue:70,operatingProfit:-8,ordinaryProfit:-7}};
+    await db.query("insert into private.executive_financials(company_id,period,payload) values($1,'2026-08-01',$2)",[company,JSON.stringify(monthlySource)]);
+    await db.query("insert into private.executive_gateway(company_id,token_hash) values($1,$2)",[company,"a".repeat(64)]);
+    await db.query("insert into private.freee_connections(company_id,freee_company_id,token_ciphertext,expires_at,connected_by) values($1,1234,$2,now()+interval '1 hour',$3)",[company,"mock-encrypted-token".repeat(3),admin]);
+    await actor(investor);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),investor]),/permission denied/);
+    await assert.rejects(db.query("select public.ir_correct_freee_month($1,$2,true)",[promoted.rows[0].id,promoted.rows[0].revision]),/Admin|MFA/);
+    await actor(admin,"aal1");
+    await assert.rejects(db.query("select public.ir_correct_freee_month($1,$2,false)",[promoted.rows[0].id,promoted.rows[0].revision]),/confirmation/i);
+    await db.query("select public.ir_correct_freee_month($1,$2,true)",[promoted.rows[0].id,promoted.rows[0].revision]);
+    const corrected=(await db.query<{content:typeof content;context_required:boolean;financial_snapshot_id:string}>("select content,context_required,financial_snapshot_id from public.report_versions where id=$1",[promoted.rows[0].id])).rows[0];
+    assert.equal(corrected.content.financial.revenue.current,90);assert.equal(corrected.content.financial.operatingProfit.current,-5);assert.equal(corrected.content.financial.cash.current,50);assert.equal(corrected.content.financial.plBasis,"monthly-net-v2");assert.equal(corrected.context_required,true);assert.notEqual(corrected.financial_snapshot_id,promoted.rows[0].financial_snapshot_id);
+    assert.equal((await db.query<{data:typeof content.financial}>("select data from public.financial_snapshots where id=$1",[promoted.rows[0].financial_snapshot_id])).rows[0].data.revenue.current,100);
+    await db.exec("reset role;set role service_role;");
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["b".repeat(64),admin]),/access denied/i);
+    await db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),admin]);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'acquire',$2)",["a".repeat(64),investor]),/already running/i);
+    await assert.rejects(db.query("select public.ir_executive_gateway($1,'release',$2)",["a".repeat(64),investor]),/lease/i);
+    await db.query("select public.ir_executive_gateway($1,'release',$2)",["a".repeat(64),admin]);
+    await db.exec("reset role");
+    const pendingCandidate = { ...candidate, period: "2026-07" };
+    const pendingProvenance = {
+      ...provenance,
+      period: "2026-07",
+      retrievedAt: "2026-10-09T00:00:00.000Z",
+      cashAccountIds: { current: [100], previous: [100] },
+    };
+    const pendingStage = await db.query<{ id: string }>(
+      "insert into private.freee_staged_financials(company_id,period,freee_company_id,candidate,provenance) values($1,'2026-07-01',11486508,$2::jsonb,$3::jsonb) returning id",
+      [
+        company,
+        JSON.stringify(pendingCandidate),
+        JSON.stringify(pendingProvenance),
+      ],
+    );
+    const pendingId = pendingStage.rows[0].id;
+    const pendingContent = buildPendingFreeeDraftContent(
+      {
+        id: pendingId,
+        period: "2026-07",
+        candidate: pendingCandidate,
+        provenance: pendingProvenance,
+      },
+      company,
+    );
+    pendingContent.summary.text = "Synthetic management summary for review";
+    pendingContent.ceo.message = "Synthetic CEO commentary for review";
+    await actor(admin, "aal1");
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_promote_freee_stage_pending($1,$2::jsonb,false,true,true)",
+        [pendingId, JSON.stringify(pendingContent)],
+      ),
+      /confirmation/i,
+    );
+    const pending = await db.query<{
+      id: string;
+      revision: number;
+      context_required: boolean;
+      state: string;
+      content: typeof pendingContent;
+      financial_snapshot_id: string;
+    }>(
+      "select * from public.ir_promote_freee_stage_pending($1,$2::jsonb,true,true,true)",
+      [pendingId, JSON.stringify(pendingContent)],
+    );
+    assert.equal(pending.rows[0].context_required, true);
+    const eventContent = structuredClone(pending.rows[0].content);
+    eventContent.eventSpotlight = {
+      title: "Synthetic event",
+      occurredOn: "2026-06-02",
+      summary: "Synthetic event summary",
+      outcomes: [],
+      nextAction: "",
+      videoUrl: "https://www.youtube.com/watch?v=abcdefghijk",
+      videoTitle: "Synthetic film",
+    };
+    await actor(investor);
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_save_report($1,$2,$3::jsonb,'human-authored',null)",
+        [
+          pending.rows[0].id,
+          pending.rows[0].revision,
+          JSON.stringify(eventContent),
+        ],
+      ),
+      /MFA|Admin/i,
+    );
+    await actor(admin, "aal1");
+    const withEvent = await db.query<{
+      revision: number;
+      context_required: boolean;
+      state: string;
+      content: typeof pendingContent;
+      financial_snapshot_id: string;
+    }>(
+      "select * from public.ir_save_report($1,$2,$3::jsonb,'human-authored',null)",
+      [
+        pending.rows[0].id,
+        pending.rows[0].revision,
+        JSON.stringify(eventContent),
+      ],
+    );
+    assert.deepEqual(
+      withEvent.rows[0].content.financial,
+      pending.rows[0].content.financial,
+    );
+    assert.equal(
+      withEvent.rows[0].financial_snapshot_id,
+      pending.rows[0].financial_snapshot_id,
+    );
+    assert.equal(withEvent.rows[0].context_required, true);
+    assert.equal(withEvent.rows[0].state, "draft");
+    assert.deepEqual(
+      withEvent.rows[0].content.eventSpotlight,
+      eventContent.eventSpotlight,
+    );
+    pending.rows[0].revision = withEvent.rows[0].revision;
+    await assert.rejects(
+      db.query("select * from public.ir_transition_report($1,$2,'review')", [
+        pending.rows[0].id,
+        pending.rows[0].revision,
+      ]),
+      /context|required|check constraint/i,
+    );
+    await actor(investor);
+    await assert.rejects(
+      db.query(
+        "select * from public.ir_complete_freee_context($1,$2,$3,$4,$5)",
+        [
+          pending.rows[0].id,
+          pending.rows[0].revision,
+          12,
+          "Synthetic revenue reason confirmed by management",
+          "Synthetic profit reason confirmed by management",
+        ],
+      ),
+      /MFA|Admin/i,
+    );
+    await actor(admin, "aal1");
+    const complete = await db.query<{
+      revision: number;
+      context_required: boolean;
+      content: typeof pendingContent;
+    }>("select * from public.ir_complete_freee_context($1,$2,$3,$4,$5)", [
+      pending.rows[0].id,
+      pending.rows[0].revision,
+      12,
+      "Synthetic revenue reason confirmed by management",
+      "Synthetic profit reason confirmed by management",
+    ]);
+    assert.equal(complete.rows[0].context_required, false);
+    assert.equal(complete.rows[0].content.financial.monthlyFixedCosts, 12);
+    const reviewed = await db.query<{ state: string }>(
+      "select * from public.ir_transition_report($1,$2,'review')",
+      [pending.rows[0].id, complete.rows[0].revision],
+    );
+    assert.equal(reviewed.rows[0].state, "review");
+    await actor(investor);
+    assert.equal(
+      (await db.query("select * from public.report_versions")).rows.length,
+      0,
+    );
+  } finally {
+    await db.close();
+  }
+});

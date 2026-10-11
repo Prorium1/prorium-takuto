@@ -5,6 +5,8 @@ import { ReportTable } from "@/components/admin/report-table";
 import { AuditList } from "@/components/admin/audit-list";
 import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReports, getAdminStore } from "@/lib/server/repository";
+import { periodLabel } from "@/lib/domain/finance";
+import styles from "./overview.module.css";
 
 export const dynamic = "force-dynamic";
 export default async function AdminPage() {
@@ -13,52 +15,81 @@ export default async function AdminPage() {
     getAdminReports(actor),
     getAdminStore(actor),
   ]);
+  const draft = reports.find((report) => report.state === "draft");
   return (
     <Shell role={actor.role}>
-      <div className="admin-head">
-        <div className="page-heading">
-          <span className="eyebrow">MANAGEMENT WORKSPACE</span>
-          <h1>Report Management</h1>
-          <p>正確なデータを、伝わるレポートへ。</p>
-        </div>
-        <Link href="/admin/reports" className="button primary">
-          レポートを管理
-          <ArrowRight size={15} />
-        </Link>
-      </div>
-      <div className="admin-counts">
-        {[
-          ["公開済み", reports.filter((r) => r.state === "published").length],
-          [
-            "レビュー・承認待ち",
-            reports.filter((r) => ["review", "approved"].includes(r.state))
-              .length,
-          ],
-          ["Draft", reports.filter((r) => r.state === "draft").length],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="admin-count">
-            <span>{label}</span>
-            <strong>{value}</strong>
+      <div className={styles.overview}>
+        <header className={styles.hero}>
+          <div>
+            <span className={styles.eyebrow}>PRORIUM / INVESTOR RELATIONS</span>
+            <h1>レポート管理</h1>
+            <p>月次の振り返りを、株主に伝わるレポートへ。</p>
           </div>
-        ))}
+          <div className={styles.heroAction}>
+            {draft && (
+              <span>
+                {periodLabel(draft.period)} ·{" "}
+                {draft.contextRequired
+                  ? "振り返りの入力待ち"
+                  : "下書きを編集中"}
+              </span>
+            )}
+            <Link
+              href={draft ? `/admin/reports/${draft.id}` : "/admin/reports"}
+              className="button primary"
+            >
+              {draft ? "下書きを編集" : "レポートを管理"}
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </header>
+        <div className={styles.counts} aria-label="レポートの状況">
+          {[
+            ["公開済み", reports.filter((r) => r.state === "published").length],
+            [
+              "確認・承認待ち",
+              reports.filter((r) => ["review", "approved"].includes(r.state))
+                .length,
+            ],
+            ["下書き", reports.filter((r) => r.state === "draft").length],
+          ].map(([label, value]) => (
+            <div key={String(label)} className={styles.count}>
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+        <section
+          className={styles.panel}
+          aria-labelledby="monthly-reports-heading"
+        >
+          <div className={styles.panelHeading}>
+            <div>
+              <span className={styles.eyebrow}>MONTHLY REPORTS</span>
+              <h2 id="monthly-reports-heading">月次レポート</h2>
+            </div>
+            <Link className={styles.importLink} href="/admin/import">
+              <Upload size={16} />
+              データ取込
+            </Link>
+          </div>
+          <ReportTable reports={reports} />
+        </section>
+        <details className={styles.activity}>
+          <summary>
+            <div>
+              <h2>最近の操作</h2>
+              <p>ログイン・編集・公開の履歴</p>
+            </div>
+            <span className={styles.activityToggle}>
+              履歴を見る <span aria-hidden="true">＋</span>
+            </span>
+          </summary>
+          <div className={styles.activityBody}>
+            <AuditList events={store.audit} />
+          </div>
+        </details>
       </div>
-      <section className="admin-panel">
-        <div className="panel-heading">
-          <h2>Monthly Reports</h2>
-          <Link className="text-button" href="/admin/import">
-            <Upload size={13} />
-            Import
-          </Link>
-        </div>
-        <ReportTable reports={reports} />
-      </section>
-      <section className="admin-panel">
-        <div className="panel-heading">
-          <h2>Audit Log</h2>
-          <span>管理操作・公開・PDF出力の記録</span>
-        </div>
-        <AuditList events={store.audit} />
-      </section>
     </Shell>
   );
 }

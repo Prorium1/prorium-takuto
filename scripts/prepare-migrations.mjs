@@ -1,13 +1,15 @@
-import { readFile, writeFile, readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 
-// Only for these initial, unapplied CLI-generated migrations. Once deployed,
-// changes require a NEW `supabase migration new ...` migration.
+// These initial migrations are applied to the dedicated IR project.
+// Keep this script read-only; any change requires a NEW migration.
 const pairs = [
   ["database/schema.sql", "prorium_report_baseline"],
   ["database/production.sql", "prorium_production_monthly_ir"],
 ];
 const directory = "supabase/migrations";
+if (!process.argv.includes("--check"))
+  throw new Error("Initial migrations are already applied. Create a new migration for changes.");
 const files = await readdir(directory);
 for (const [source, name] of pairs) {
   const matches = files.filter((file) => file.endsWith(`_${name}.sql`));
@@ -21,13 +23,7 @@ for (const [source, name] of pairs) {
     (await readFile(source, "utf8"))
       .replace(/^begin;\s*$/gm, "")
       .replace(/^commit;\s*$/gm, "");
-  if (process.argv.includes("--check")) {
-    if ((await readFile(destination, "utf8")) !== sql)
-      throw new Error(
-        `Unapplied migration differs from reviewed source: ${destination}`,
-      );
-  } else await writeFile(destination, sql);
-  console.log(
-    `${process.argv.includes("--check") ? "Verified" : "Prepared"}: ${destination}`,
-  );
+  if ((await readFile(destination, "utf8")) !== sql)
+    throw new Error(`Applied migration differs from reviewed source: ${destination}`);
+  console.log(`Verified: ${destination}`);
 }

@@ -7,55 +7,70 @@ import { ProductionLogin } from "./production-login";
 export function LoginForm({
   mockEnabled,
   productionEnabled = false,
+  googleEnabled = false,
 }: {
   mockEnabled: boolean;
   productionEnabled?: boolean;
+  googleEnabled?: boolean;
 }) {
   const [state, action, pending] = useActionState(loginAction, {});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const passwordForm = (
+    <form action={action} className="login-form">
+      <label>
+        メールアドレス
+        <input
+          type="email"
+          name="email"
+          autoComplete="username"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          disabled={!mockEnabled && !productionEnabled}
+        />
+      </label>
+      <label>
+        パスワード
+        <input
+          type="password"
+          name="password"
+          autoComplete="current-password"
+          placeholder="パスワードを入力"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          disabled={!mockEnabled && !productionEnabled}
+        />
+      </label>
+      {state.error && (
+        <p className="form-error" role="alert">
+          {state.error}
+        </p>
+      )}
+      <button
+        className="button primary"
+        disabled={pending || (!mockEnabled && !productionEnabled)}
+      >
+        {pending ? "認証中…" : "ログイン"}
+        <ArrowRight size={17} />
+      </button>
+    </form>
+  );
   return (
     <>
-      <form action={action} className="login-form">
-        <label>
-          メールアドレス
-          <input
-            type="email"
-            name="email"
-            autoComplete="username"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={!mockEnabled && !productionEnabled}
-          />
-        </label>
-        <label>
-          パスワード
-          <input
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            placeholder="パスワードを入力"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={!mockEnabled && !productionEnabled}
-          />
-        </label>
-        {state.error && (
-          <p className="form-error" role="alert">
-            {state.error}
-          </p>
-        )}
-        <button
-          className="button primary"
-          disabled={pending || (!mockEnabled && !productionEnabled)}
-        >
-          {pending ? "認証中…" : "ログイン"}
-          <ArrowRight size={17} />
-        </button>
-      </form>
+      {productionEnabled && !mockEnabled ? (
+        <>
+          <ProductionLogin googleEnabled={googleEnabled} />
+          <details className="login-password-alternative">
+            <summary>パスワードでログインする場合</summary>
+            {passwordForm}
+          </details>
+        </>
+      ) : (
+        passwordForm
+      )}
       {mockEnabled ? (
         <div className="demo-entry">
           <div className="demo-divider">
@@ -77,13 +92,11 @@ export function LoginForm({
             </button>
           </form>
         </div>
-      ) : productionEnabled ? (
-        <ProductionLogin />
-      ) : (
+      ) : !productionEnabled ? (
         <p className="form-error">
           本番認証は未接続です。Mock環境で起動してください。
         </p>
-      )}
+      ) : null}
       <div className="login-secure">
         <LockKeyhole size={13} />
         アクセス権を付与された株主・管理者専用

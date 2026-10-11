@@ -2,13 +2,13 @@
 
 ## 現在の状態
 
-コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番ログイン画面はHTTP 200、nonce CSP付きで応答し、未認証PDF取得は401で拒否しました。本番URLは https://prorium-shareholder-ir.vercel.app 。現在はVercelチームのDeployment Protectionを維持しています。Supabase専用DBはまだ作成・接続しておらず、Migration適用、認証メール配送、実際のAI API呼び出し、本番の月次運用は未検証です。投資家向け利用は開始できません。
+コード、SQL、Migration、ローカル検証を用意しています。VercelのIR専用プロジェクトを新設し、非公開のソース転送でPreviewとProductionをビルドしました。本番URLは https://prorium-shareholder-ir.vercel.app 。VercelチームのDeployment Protectionを維持しています。Shimei.AI組織の専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` にfreee非公開ステージと下書き昇格処理を含む6件のMigrationを適用し、RLSとStorage設定を検査しました。Vercel Productionには専用DBのURL・公開用キー・freeeのOAuth設定を登録済みです。初期管理者の招待レコードは登録済みですが、本人の初回ログインとMFAは未完了です。freeeコネクター経由で今期11月から9月の月次と10月9日までの暫定値を本番DBの非公開ステージに保存しました。取込候補は締め・科目の確認待ちで、レポート本文・株主公開版には反映されていません。管理者は `/admin/import` で締め・科目・固定費・増減理由を確認すると、完了月のみ非公開の下書きSnapshotへ反映できます。
 
-Supabaseの「Shimei.AI」組織、Vercelの「prorium」チームへのIR専用環境の新設は承認済みです。初期管理者メールも受領し、Git管理外の初期設定SQLを準備しました。既存サービスは変更しません。現在のSupabase接続ツールでは新設費用の取得APIが利用できないため、Dashboardで料金を確認して専用プロジェクトを作成する手順を依頼しています。
+Supabaseの「Shimei.AI」組織、Vercelの「prorium」チームにIR専用環境があります。既存サービスは変更しません。Supabase接続ツールの新設費用取得APIが利用できなかったため、プロジェクト作成と料金確認はDashboardで行いました。
 
 Vercelの管理画面: https://vercel.com/prorium/prorium-shareholder-ir 。専用プロジェクトIDは `prj_RD97hbuPh4DU5Go4MwYZXInpjeQk`。Vercelでのソース公開設定は無効とし、Deployment Protectionを維持しています。GitHubの接続先はPublicです。ユーザーからコード公開の承認を受領し、確認済みの115ファイルを `main` に反映しました。Git連携によるProductionビルドもREADYです。公開対象はアプリの実装・SQL・Mockのみ。初期管理者設定、実際の財務情報、PDF、環境変数、APIキーをGitへ追加しません。
 
-PreviewのMockデータ保存はローカルファイルを使用するため、サーバーレス環境での永続的な編集・公開フローは動作保証しません。今回の外部Preview検証はログイン画面の表示とヘッダーのみです。月次更新・資料管理の実運用は専用Supabaseへ接続したProductionで確認します。
+2026-10-08の変更では、Vercel Previewを保存しない確認用デモにしました。Previewでは架空の固定データだけを読み、Repositoryで全書き込みを拒否します。振り返りの文章整理はブラウザ内で行い、入力・非公開メモを送信・永続保存しません。実AIは未接続です。PDFはブラウザの印刷・PDF保存を利用します。月次更新・資料管理の実運用は専用Supabaseへ接続したProductionで確認します。設定・確認手順は [cloud-preview.md](cloud-preview.md) を参照してください。
 
 ## 環境の分離
 
@@ -18,21 +18,27 @@ DevelopmentとPreviewはMockのみ。本番と別の環境変数スコープに�
 
 ## DB・Storageの設定
 
-1. 確認済みの組織に専用Supabaseプロジェクトを作成し、リージョンと費用を確認します。
-2. CLIで作成済みの次のMigrationを順番に適用します。既存サービスのDBに適用しないでください。
-   - `supabase/migrations/20261006003326_prorium_report_baseline.sql`
-   - `supabase/migrations/20261006003327_prorium_production_monthly_ir.sql`
+1. 専用Supabaseプロジェクト `acpwmxehprpcdyrsbfqe` は東京リージョンに作成済みです。
+2. 次のMigrationを順番に適用済みです。既存サービスのDBに適用しないでください。
+   - `supabase/migrations/20261009010730_prorium_report_baseline.sql`
+   - `supabase/migrations/20261009010747_prorium_production_monthly_ir.sql`
+   - `supabase/migrations/20261009010930_lock_down_auto_rls_helper.sql`
+   - `supabase/migrations/20261009012909_freee_connection.sql`
+   - `supabase/migrations/20261009021638_freee_staging.sql`
+   - `supabase/migrations/20261009022645_promote_freee_stage.sql`
 3. RLSと権限のAdvisorを実行します。`private` スキーマをData APIへ公開しません。公開スキーマには明示的なGRANTを使用します。
 4. `ir-financial-documents` がprivate、PDFのみ、最大4 MiBであることを確認します。StorageオブジェクトのUPDATE/DELETE権限はアプリに与えません。
 5. Backup/PITR、保持期間、DBアクセス担当を会社の運用に合わせて設定します。自動バックアップがStorageの実ファイルまで復元するとは仮定せず、ファイルのバックアップ・復元も確認します。
 
-SQL原稿と初期Migrationの一致は `npm run db:migrations:check` で検査します。まだどこにも適用していない初期Migrationの準備だけに `npm run db:migrations:prepare` を使用します。適用後の変更はCLIで新しいMigrationを作成してください。既に適用したMigrationを上書きしません。
+SQL原稿と初期Migrationの一致は `npm run db:migrations:check` で検査します。適用済みMigrationの変更・再生成は禁止です。次の変更は新しいMigrationで管理します。Supabase接続ツールが割り当てたDB上の管理番号に、リポジトリのファイル名を揃えました。
+
+2026-10-09の確認では、14件のIRテーブルすべてでRLSが有効、匿名ロールには公開レポートテーブルへの直接SELECT権限がなく、PDF用Storage bucketは非公開・4 MiB上限・PDF限定です。Supabaseの自動RLS設定で作られた `public.rls_auto_enable()` の匿名・認証済みユーザーからの実行権限は3件目のMigrationで取り消しました。Security Advisorの残り2件は、RLSを有効にしたままポリシーを置かない管理者専用の `private` テーブルです。会社レコードはVercel Productionに設定済みの会社IDで登録済みです。財務データとレポートは未登録です。
 
 `supabase/config.toml` はローカル開発用です。リモートの認証設定には自動反映されないため、次項を本番Dashboard/APIで設定します。
 
 ## 初期管理者と認証
 
-管理者の確認済みメールを受け取ってから、次のコマンドで初期設定SQLを生成します。メールはシェルの安全な環境変数入力で渡し、Gitへ保存しません。
+管理者の確認済みメールを受け取ってから、次のコマンドで初期設定SQLを生成します。`PRORIUM_COMPANY_ID` はVercel Productionの既存設定と同じUUIDを使用します。メールはシェルの安全な環境変数入力で渡し、Gitへ保存しません。
 
 ```bash
 # PRORIUM_INITIAL_ADMIN_EMAILを安全に設定してから実行
@@ -51,6 +57,8 @@ Supabase Authを以下のように設定します。
 - Authのメール送信制限、再送間隔、必要に応じたCAPTCHAを設定します。
 
 初期管理者が登録メールからログインし、認証アプリでMFAを登録します。AAL1では管理者ロールの確認とMFA設定のみ可能です。財務データ・原文・編集操作はAAL2で取得できます。
+
+Supabase標準の確認メールは `/auth/v1/verify` へ遷移します。メール送信は implicit flow とし、`/auth/callback` から `/auth/complete` へフラグメントを保って移動します。クライアントはフラグメントを即座に履歴から消し、トークンを同一オリジンのServer Actionに送信します。サーバーがSupabaseで本人を検証し、HttpOnly Cookieへセッションを保存し、確認済みメールの招待とMFAを要求します。メールリンクは一度だけ使用できます。リンクを開けない場合のみ、ログイン画面でリンクを開かずにコピーし、`verifyOtp` の代替フォームを使用します。サーバーは専用SupabaseプロジェクトのURL・トークン形式・種別を検証します。リンクやトークンをチャット・Issue・ログに貼らないでください。
 
 `/admin/investors` で株主のメールを追加できます。株主にはIRのログインURLを案内し、本人がメールリンクでログインします。この管理画面は招待メールを自動送信しません。権限を取り消すと、現在のDBの権限に基づきレポート・資料へのアクセスを拒否します。
 
@@ -92,10 +100,13 @@ PDF生成は `APP_ORIGIN` の印刷ページを同じ利用者のCookieで取得
 
 ## 毎月の作業
 
-1. 対象月を作成し、「今月あったこと」を入力して保存します。
-2. サマリーの下書きを生成。良かった点・課題・変化の理由・来月の予定を確認し、文章とCEOコメントを編集します。AIの出力も必ず人が確認します。
+ローカルに追加した振り返り機能と現在の接続状況は [月次振り返り](./monthly-reflection.md) を参照してください。追加分はまだ本番にデプロイしていません。
+
+1. 対象月を作成し、出来事・売上/利益の変化理由・課題と対策・AI効果・来月の見通しを入力して保存します。未検証の見立ては専用欄へ、AIにも株主にも渡したくない内容は「非公開メモ」へ記入します。
+2. サマリーと「Why It Changed」の下書きを生成。良かった点・課題・変化の理由・来月の予定を確認し、文章とCEOコメントを編集します。AIの出力も必ず人が確認します。
    本文に加え、要点と見通しも編集・削除できます。生成した下書きには入力原文が引用されるため、非公開情報がすべての表示箇所から除かれていることを確認します。
 3. freeeなどからP/L、B/S、残高試算表をPDFで出力して添付します。対象月、単月／累計／期末、説明を明示します。
+   freee OAuth接続の設定手順は [freee連携](./freee-integration.md) に記載しています。接続だけでは財務KPIの自動取込は始まりません。
 4. 必要なら財務KPIと前年同月の数値、増減理由を入力します。未入力のKPIは表示しません。
 5. プレビュー → レビュー → 承認 → 公開。編集・添付変更は承認を解除します。
 6. 修正はMinor/Major改訂を作成し、同じ流れで公開します。旧版や旧PDFを置き換えません。

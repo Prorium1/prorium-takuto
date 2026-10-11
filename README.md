@@ -15,6 +15,8 @@ npm run dev
 
 <http://localhost:3000/login> のデモボタンから株主・管理者の画面を確認できます。
 
+2026-10-08に、8月版のMock UIを現環境で再検証しました。データ出典・JST更新時刻の表示、AI生成方法の表記、ゼロ・赤字・減少時の比較チャート、キーボード・タッチ操作を改善しています。[今回の設計と差分](docs/superpowers/specs/2026-10-08-phase1-investor-readiness.md) / [最新の検証結果](docs/phase1-readiness.md)。
+
 | Demo identity | Email                    | Password     |
 | ------------- | ------------------------ | ------------ |
 | Investor      | investor@prorium.example | prorium-demo |
@@ -59,11 +61,12 @@ npm run dev
 npm run check
 npm run build
 npm run test:e2e
+npm run test:cloud-preview
 ```
 
-型検査、Lint、16件のDomain/Repository/Postgres RLSテスト、Migration一致チェック、8件のBrowserテストで確認しています。Browserテストは3100番ポートと一時データを使い、本番に接続しません。詳細と検証の限界は [検証結果](docs/production-verification.md) を参照してください。
+型検査、Lint、24件のDomain/Repository/Postgres RLSテスト、9件の表示回帰テスト、Migration一致チェック、11件のBrowserテスト、2件のクラウドPreview用Browserテストで確認しています。通常のBrowserテストは3100番ポートと一時データ、クラウド用は3200番ポートと保存しない架空データを使い、本番に接続しません。詳細は [検証結果](docs/phase1-readiness.md)、[クラウドPreviewの動作と制約](docs/cloud-preview.md) を参照してください。
 
-Mockデータは `.data/mock-store.json` に保存します。本番はSupabaseに永続化し、このローカルファイルを使いません。
+ローカルのMockデータは `.data/mock-store.json` に保存します。クラウドPreviewでは保存を行いません。本番はSupabaseに永続化し、このローカルファイルを使いません。
 
 ```bash
 # ローカルのビルド版を架空データで確認する場合だけ

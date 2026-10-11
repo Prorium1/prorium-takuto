@@ -1,12 +1,10 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  Bot,
-  Check,
   CheckCircle2,
-  CircleDot,
   Database,
   Layers,
+  PlayCircle,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -18,8 +16,13 @@ import { KpiGrid } from "./kpi";
 import { TrendChart } from "./trend-chart";
 import { DriverBridge } from "./driver-bridge";
 import { PdfButton } from "./pdf-button";
+import { ReportProvenance } from "./report-provenance";
+import { ExecutiveSummary } from "./executive-summary";
+import { InvestorBriefing } from "./investor-briefing";
+import { EventSpotlight } from "./event-spotlight";
 import { DocumentList } from "@/components/document-list";
 import { reportAttribution } from "@/lib/domain/provenance";
+import { eventVideo } from "@/lib/domain/event-video";
 
 function SectionHeading({
   number,
@@ -72,10 +75,12 @@ export function ReportView({
   report,
   preview = false,
   print = false,
+  browserPrint = false,
 }: {
   report: ReportVersion;
   preview?: boolean;
   print?: boolean;
+  browserPrint?: boolean;
 }) {
   const c = report.content;
   const f = c.financial;
@@ -84,12 +89,17 @@ export function ReportView({
   const month = Number(report.period.slice(5));
   const year = Number(report.period.slice(0, 4));
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const hasEventVideo =
+    c.eventSpotlight && eventVideo(c.eventSpotlight.videoUrl);
   return (
     <article className={`monthly-report ${print ? "print-report" : ""}`}>
       {preview && (
         <div className="preview-banner">
           <ShieldCheck size={16} />
-          管理者プレビュー · {report.state} · 株主には公開されていません
+          管理者プレビュー · {report.state} ·{" "}
+          {report.contextRequired
+            ? "固定費・増減理由の入力待ち"
+            : "株主には公開されていません"}
         </div>
       )}
       <div className="report-heading">
@@ -101,21 +111,43 @@ export function ReportView({
             </span>
           </div>
           <h1>
-            {periodLabel(report.period)}
+            <span className="report-title">Monthly Report</span>
+            <span className="report-period">{periodLabel(report.period)}</span>
             <span
               className={`badge ${report.state === "published" ? "badge-green" : "badge-purple"}`}
             >
               <span className="badge-dot" />
-              {report.state === "published" ? "Published" : "Preview"}
+              {report.state === "published" ? "公開済み" : "プレビュー"}
             </span>
           </h1>
-          <p>
-            株式会社Prorium <span>·</span> 月次株主レポート
-          </p>
+          <p>数字と現場で読む、Proriumの現在地。</p>
         </div>
-        {!preview && !print && (
-          <PdfButton period={report.period} version={report.version} />
-        )}
+        <div className="report-heading-side">
+          <div className="issue-folio" aria-hidden="true">
+            <span>{year} / ISSUE</span>
+            <strong>{String(month).padStart(2, "0")}</strong>
+          </div>
+          {hasEventVideo && !print && (
+            <a className="report-film-link" href="#event">
+              <PlayCircle size={17} />
+              <span>
+                現場の映像を見る
+                <small>
+                  {Number(c.eventSpotlight!.occurredOn.slice(5, 7))}
+                  月開催の大会・イベント
+                </small>
+              </span>
+              <ArrowUpRight size={14} />
+            </a>
+          )}
+          {!preview && !print && (
+            <PdfButton
+              period={report.period}
+              version={report.version}
+              browserPrint={browserPrint}
+            />
+          )}
+        </div>
       </div>
       <div className="report-meta">
         <span>
@@ -147,92 +179,25 @@ export function ReportView({
           <a href="#documents">財務資料を見る →</a>
         </div>
       )}
-      <div className="automation-strip">
-        <div>
-          <Database size={15} />
-          <span>
-            Financial Data
-            <small>
-              {f.isMock
-                ? "サンプル同期済み"
-                : f.available === false
-                  ? "未入力"
-                  : f.source === "freee"
-                    ? "freee同期"
-                    : "管理者入力"}
-              <Check size={11} />
-            </small>
-          </span>
-        </div>
-        <div>
-          <Sparkles size={15} />
-          <span>
-            Analysis
-            <small>{reportAttribution(report).label}</small>
-          </span>
-        </div>
-        <div>
-          <ShieldCheck size={15} />
-          <span>
-            Management Review
-            <small>
-              {report.approvedBy ? "Approved" : "レビュー待ち"}
-              {report.approvedBy && <Check size={11} />}
-            </small>
-          </span>
-        </div>
-        <div>
-          <CircleDot size={15} />
-          <span>
-            Published
-            <small>
-              {report.publishedAt ? formatDate(report.publishedAt) : "未公開"}
-            </small>
-          </span>
-        </div>
-      </div>
-      <section id="summary" className="report-section summary-section">
-        <div className="executive-card">
-          <div className="executive-top">
-            <span className="section-kicker">
-              <span>01</span>EXECUTIVE SUMMARY · 今月のサマリー
-            </span>
-            <span className="ai-badge">
-              <Sparkles size={12} />
-              {report.analysis === "not-generated"
-                ? f.isMock
-                  ? "Mock summary · Analysis pending"
-                  : "Management summary"
-                : report.approvedBy
-                  ? f.isMock
-                    ? "AI assisted · Human reviewed"
-                    : "Management reviewed"
-                  : report.analysis === "generated-ai" || f.isMock
-                    ? "AI assisted · Review pending"
-                    : "Management draft · Review pending"}
-            </span>
-          </div>
-          <div className="executive-content">
-            <div>
-              <h2>{c.summary.headline}</h2>
-              <p>{c.summary.text}</p>
-              <div className="executive-outlook">
-                <ArrowUpRight size={16} />
-                <span>{c.summary.outlook}</span>
-              </div>
-            </div>
-            <div className="executive-takeaways">
-              <span className="eyebrow">AT A GLANCE</span>
-              {c.summary.points.map((point, i) => (
-                <div key={point}>
-                  <span>0{i + 1}</span>
-                  <p>{point}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ExecutiveSummary report={report} />
+      <ReportProvenance report={report} />
+      <nav className="report-chapter-nav" aria-label="レポートの目次">
+        <span>IN THIS REPORT</span>
+        <a href="#performance">財務報告</a>
+        <a href="#drivers">数字が変わった理由</a>
+        <a href="#business">事業報告</a>
+        {c.eventSpotlight && <a href="#event">大会・イベント</a>}
+        {!!c.briefing?.length && <a href="#briefing">Proriumの今</a>}
+        <a href="#ai">AIの売上・効率</a>
+        <a href="#risks">リスク</a>
+      </nav>
+      {c.eventSpotlight && !print && (
+        <EventSpotlight
+          event={c.eventSpotlight}
+          period={report.period}
+          print={false}
+        />
+      )}
       <section id="performance" className="report-section">
         <SectionHeading
           number="02"
@@ -258,7 +223,9 @@ export function ReportView({
                   {(currentMargin - oldMargin).toFixed(1)}pt <small>YoY</small>
                 </span>
               </div>
-              <p>{c.financialAnalysis}</p>
+              <p>
+                営業利益率は営業利益を売上高で割った値です。前年同月との収益性の変化を示しています。
+              </p>
             </div>
           </>
         ) : (
@@ -273,6 +240,15 @@ export function ReportView({
           title="Why It Changed"
           subtitle="数字の変化には、事業の理由がある。"
         />
+        {c.financialAnalysis &&
+          c.financialAnalysis !== "財務資料をご確認ください。" && (
+            <div className="management-explanation">
+              <span className="eyebrow">
+                MANAGEMENT PERSPECTIVE · 経営者の説明
+              </span>
+              <p>{c.financialAnalysis}</p>
+            </div>
+          )}
         {f.available !== false ? (
           <>
             <div className="two-column">
@@ -310,15 +286,9 @@ export function ReportView({
         <div className="business-grid">
           {c.highlights.map((h, i) => (
             <article className="business-card" key={h.id}>
-              <div className={`business-icon business-icon-${i % 3}`}>
-                {i % 3 === 0 ? (
-                  <Layers size={22} />
-                ) : i % 3 === 1 ? (
-                  <TrendingUp size={22} />
-                ) : (
-                  <Bot size={22} />
-                )}
-              </div>
+              <span className="business-index" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <span className="business-unit">{h.business_unit}</span>
               <h3>{h.title}</h3>
               <div className="business-metric">
@@ -337,6 +307,14 @@ export function ReportView({
           ))}
         </div>
       </section>
+      <InvestorBriefing stories={c.briefing ?? []} />
+      {c.eventSpotlight && print && (
+        <EventSpotlight
+          event={c.eventSpotlight}
+          period={report.period}
+          print={print}
+        />
+      )}
       <section id="ai" className="report-section">
         <SectionHeading
           number="05"
@@ -443,16 +421,22 @@ export function ReportView({
                   </strong>
                   <span className="badge badge-green">月末現預金</span>
                 </div>
-                <p>
-                  月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
-                  <b>
-                    {f.monthlyFixedCosts > 0
-                      ? (f.cash.current / f.monthlyFixedCosts).toFixed(1)
-                      : "—"}
-                    か月分
-                  </b>
-                  の現預金。将来の資金繰りを保証する値ではなく、現在の固定費との単純比較です。
-                </p>
+                {report.contextRequired ? (
+                  <p>
+                    月次固定費と現預金との比較は、経営者の入力を待っています。
+                  </p>
+                ) : (
+                  <p>
+                    月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
+                    <b>
+                      {f.monthlyFixedCosts > 0
+                        ? (f.cash.current / f.monthlyFixedCosts).toFixed(1)
+                        : "—"}
+                      か月分
+                    </b>
+                    の現預金。将来の資金繰りを保証する値ではなく、現在の固定費との単純比較です。
+                  </p>
+                )}
               </article>
               <article className="balance-card">
                 <div>
@@ -595,7 +579,6 @@ export function ReportView({
             <h3>{c.ceo.quote}</h3>
             <p>{c.ceo.message}</p>
             <div className="ceo-signature">
-              <span className="ceo-avatar">P.</span>
               <div>
                 <strong>{c.ceo.name}</strong>
                 <span>{c.ceo.title}</span>

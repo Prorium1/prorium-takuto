@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import { emptyReport, structureMonthlyNotes } from "../src/lib/domain/monthly";
 
-test("production RPCs enforce MFA, grants, transactional publication and private document snapshots", async () => {
+test("confirmed admins can manage with an email session while grants and snapshots stay protected", async () => {
   const db = new PGlite();
   const company = "11111111-1111-1111-1111-111111111111",
     admin = "22222222-2222-2222-2222-222222222222",
@@ -19,34 +19,46 @@ test("production RPCs enforce MFA, grants, transactional publication and private
  create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]); create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text,metadata jsonb default '{}'); alter table storage.objects enable row level security; grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;`);
     await db.exec(await readFile("database/schema.sql", "utf8"));
     await db.exec(await readFile("database/production.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261010025805_email_only_admin_access.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261009031730_briefing_stories.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261009012909_freee_connection.sql", "utf8"));
+    await db.exec(await readFile("supabase/migrations/20261009021638_freee_staging.sql", "utf8"));
     await db.exec(
       `insert into auth.users values ('${admin}','owner@example.test',now()),('${investor}','investor@example.test',now()),('${stranger}','stranger@example.test',now()); insert into public.companies(id,name) values ('${company}','Prorium'); insert into private.admin_memberships(user_id,company_id) values ('${admin}','${company}');`,
     );
     const initial = emptyReport("2026-10", company).content;
     await actor(admin, "aal1");
-    const identity = await db.query<{ value: { role: string } }>(
+    await db.query("select public.ir_save_freee_connection($1,11486508,$2,now()+interval '1 hour')", [company, "a".repeat(60)]);
+    const identity = await db.query<{ value: { role: string; needsMfa: boolean } }>(
       `select public.ir_current_actor($1) as value`,
       [company],
     );
     assert.equal(identity.rows[0].value.role, "admin");
-    await assert.rejects(
-      db.query(`select public.ir_create_report($1,$2,$3::jsonb)`, [
-        company,
-        "2026-10",
-        JSON.stringify(initial),
-      ]),
-      /MFA|Admin/i,
+    assert.equal(identity.rows[0].value.needsMfa, false);
+    await db.exec(`reset role; update auth.users set email_confirmed_at=null where id='${admin}';`);
+    await actor(admin, "aal1");
+    const unconfirmed = await db.query<{ value: unknown }>(
+      "select public.ir_current_actor($1) as value",
+      [company],
     );
-    await db.exec(`select set_config('request.jwt.claims','{}',false);`);
+    assert.equal(unconfirmed.rows[0].value, null);
     await assert.rejects(
-      db.query(`select * from public.ir_create_report($1,$2,$3::jsonb)`, [
-        company,
-        "2026-10",
-        JSON.stringify(initial),
-      ]),
-      /MFA|Admin/i,
+      db.query("select public.ir_freee_connection_status($1)", [company]),
+      /Admin/i,
     );
+    await db.exec(`reset role; update auth.users set email_confirmed_at=now() where id='${admin}';`);
     await actor(admin);
+    await db.query("select public.ir_save_freee_connection($1,11486508,$2,now()+interval '1 hour')", [company, "a".repeat(60)]);
+    const freeeStatus = await db.query<{ status: { connected: boolean } }>("select public.ir_freee_connection_status($1) as status", [company]);
+    assert.equal(freeeStatus.rows[0].status.connected, true);
+    await actor(investor, "aal1");
+    await assert.rejects(db.query("select public.ir_freee_connection_status($1)", [company]), /MFA|Admin/i);
+    await assert.rejects(db.query("select * from private.freee_connections"), /permission denied/i);
+    await assert.rejects(db.query("select * from private.freee_staged_financials"), /permission denied/i);
+    await assert.rejects(db.query("select * from public.ir_list_freee_staged($1)", [company]), /MFA|Admin/i);
+    await actor(admin);
+    const staged = await db.query("select * from public.ir_list_freee_staged($1)", [company]);
+    assert.equal(staged.rows.length, 0);
     const malformed = emptyReport("2026-09", company).content;
     delete malformed.financial.available;
     await assert.rejects(

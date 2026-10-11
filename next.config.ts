@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: { useTypeScriptCli: false },
   distDir: process.env.NEXT_DIST_DIR || ".next",
   serverExternalPackages: ["playwright-core", "@sparticuz/chromium"],
   outputFileTracingIncludes: {
@@ -10,6 +11,18 @@ const nextConfig: NextConfig = {
     ],
   },
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        port: "",
+        pathname: "/vi/*/hqdefault.jpg",
+        search: "",
+      },
+    ],
+    qualities: [75],
+  },
   devIndicators: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   async headers() {

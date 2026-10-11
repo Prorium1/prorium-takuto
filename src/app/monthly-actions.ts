@@ -4,11 +4,13 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReport } from "@/lib/server/repository";
 import { isMockEnvironment } from "@/lib/server/environment";
+import { applyFinancialEntry } from "@/lib/domain/monthly";
 import {
-  monthlyNotesSchema,
-  structureMonthlyNotes,
-  applyFinancialEntry,
-} from "@/lib/domain/monthly";
+  decodeReflection,
+  encodeReflection,
+  reflectionSchema,
+  structureReflection,
+} from "@/lib/domain/reflection";
 import { prepareMonthlySummary } from "@/lib/server/monthly";
 import type { ActionResult } from "./actions";
 import { saveContent } from "@/lib/server/updates";
@@ -25,7 +27,10 @@ export async function monthlyUpdateAction(
       .int()
       .positive()
       .parse(form.get("revision"));
-    const notes = monthlyNotesSchema.parse(form.get("notes"));
+    const reflection = form.has("reflection")
+      ? reflectionSchema.parse(JSON.parse(String(form.get("reflection"))))
+      : decodeReflection(String(form.get("notes") || ""));
+    const notes = encodeReflection(reflection);
     const report = await getAdminReport(id, actor);
     if (!report || report.state === "published")
       throw new Error("編集可能なレポートを選択してください。");
@@ -37,12 +42,18 @@ export async function monthlyUpdateAction(
     if (mode !== "save") {
       const result =
         mode === "generate"
-          ? await prepareMonthlySummary(report.period, notes)
+          ? await prepareMonthlySummary(
+              report.period,
+              reflection,
+              report.content.financial,
+            )
           : {
-              summary: structureMonthlyNotes(report.period, notes),
+              ...structureReflection(report.period, reflection),
               method: "editorial" as const,
             };
       content.summary = result.summary;
+      content.financialAnalysis =
+        result.financialAnalysis || "財務資料をご確認ください。";
       method = result.method;
     }
     await saveContent(
@@ -54,7 +65,7 @@ export async function monthlyUpdateAction(
         ? report.analysis
         : method === "openai"
           ? "generated-ai"
-          : "human-authored",
+          : humanEditAnalysis(report.analysis),
       notes,
     );
     revalidatePath(`/admin/reports/${id}`);
@@ -69,7 +80,7 @@ export async function monthlyUpdateAction(
     return {
       error:
         error instanceof z.ZodError
-          ? "今月の出来事を10〜12,000文字で入力してください。"
+          ? "振り返りの入力形式・各項目の文字数上限を確認してください。"
           : error instanceof Error
             ? error.message
             : "保存に失敗しました。",

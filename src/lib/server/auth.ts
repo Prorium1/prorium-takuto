@@ -39,14 +39,13 @@ export async function requireActor(): Promise<Actor> {
 export async function requireAdmin(): Promise<Actor> {
   const actor = await requireActor();
   if (actor.role !== "admin") notFound();
-  if (actor.needsMfa) redirect("/account/security");
   return actor;
 }
 export async function setSession(actor: Actor) {
   (await cookies()).set(SESSION_COOKIE, signSession(actor, sessionKey()), {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.INTERNAL_APP_ORIGIN?.startsWith("https:") ?? false,
+    secure: process.env.VERCEL === "1" || (process.env.INTERNAL_APP_ORIGIN?.startsWith("https:") ?? false),
     path: "/",
     maxAge: 3600,
   });

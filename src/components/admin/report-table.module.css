@@ -1,0 +1,91 @@
+.desktop {
+  max-width: 100%;
+}
+.mobile {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.empty {
+  color: #596571;
+  font-size: 12px;
+  line-height: 1.9;
+}
+@media (max-width: 700px) {
+  .desktop {
+    display: none;
+  }
+  .mobile {
+    display: grid;
+    gap: 12px;
+  }
+  .mobile > li {
+    min-width: 0;
+  }
+  .card {
+    display: block;
+    padding: 18px 16px 0;
+    border: 1px solid #e0e7ef;
+    border-radius: 9px;
+    background: #f9fbfd;
+    overflow-wrap: anywhere;
+  }
+  .cardHeading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .cardHeading > strong {
+    color: #203547;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .cardHeading > span {
+    font-size: 11px;
+    color: #667582;
+  }
+  .status {
+    margin-top: 9px;
+  }
+  .status > span {
+    font-size: 10px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    white-space: normal;
+  }
+  .facts {
+    margin: 17px 0 14px;
+    display: grid;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .facts > div {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .facts dt {
+    color: #677685;
+  }
+  .facts dd {
+    margin: 0;
+    color: #344e64;
+  }
+  .cardAction {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #e0e7ef;
+    min-height: 46px;
+    color: #2463a6;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .card:hover {
+    border-color: #b7cbe0;
+    background: #f2f7fc;
+  }
+}

@@ -1,0 +1,372 @@
+/* Reading hierarchy for the investor brief and its editorial workflow. */
+.summary-reading-label {
+  display: block;
+  color: #526778;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.executive-lead {
+  min-width: 0;
+}
+.executive-lead p {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.executive-takeaways h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #294556;
+}
+.executive-takeaways h3 > span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  font-weight: 400;
+  margin-top: 5px;
+  color: #536a7a;
+}
+.executive-takeaways ol {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+.executive-takeaways li {
+  display: flex;
+  gap: 13px;
+  padding: 12px 0;
+  border-top: 1px solid #d3dde3;
+}
+.executive-takeaways li > span {
+  color: #456c8b;
+  font-size: 10px;
+  padding-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.executive-takeaways li p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.summary-context {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #fff;
+  border-top: 1px solid #d5dfe5;
+}
+.summary-context > div {
+  min-width: 0;
+  padding: 24px 26px 16px;
+}
+.summary-context > div + div {
+  border-left: 1px solid #dce1e4;
+}
+.summary-context-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #536778;
+  margin-bottom: 12px;
+}
+.summary-context h3 {
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.summary-context p {
+  color: #4b5d6c;
+  font-size: 12px;
+  line-height: 1.9;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+.summary-context .summary-risk-action {
+  margin-top: 9px;
+}
+.summary-risk-action > span {
+  font-size: 10px;
+  color: #415d72;
+  margin-right: 8px;
+  font-weight: 600;
+}
+.summary-context a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 11px;
+  color: #245e8d;
+  margin-top: 6px;
+}
+.summary-context a:hover,
+.summary-reading-nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.summary-reading-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 25px;
+  padding: 5px 26px;
+  border-top: 1px solid #dce1e4;
+  background: #fff;
+}
+.summary-reading-nav > span {
+  font-size: 10px;
+  color: #61717e;
+}
+.summary-reading-nav a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 11px;
+  color: #315776;
+}
+.reflection-method {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  margin: 25px 0;
+  padding: 20px 0;
+  border-block: 1px solid var(--line);
+  gap: 18px;
+}
+.reflection-method li {
+  display: flex;
+  gap: 12px;
+}
+.reflection-method li > span {
+  font-size: 11px;
+  color: #2463a6;
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.reflection-method strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.reflection-method p {
+  font-size: 11px;
+  color: #596571;
+  line-height: 1.7;
+  margin: 6px 0 0;
+}
+.reflection-coverage {
+  margin-bottom: 28px;
+}
+.reflection-coverage > p {
+  color: #596571;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.reflection-coverage > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.reflection-coverage a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #d5dce1;
+  font-size: 11px;
+  color: #415465;
+  border-radius: 3px;
+}
+.reflection-coverage a small {
+  font-size: 10px;
+  color: #5d6872;
+}
+.reflection-coverage a[data-filled="true"] {
+  background: #eff5f1;
+  border-color: #cadccf;
+}
+.reflection-coverage a[data-filled="true"] small {
+  color: #246047;
+}
+.reflection-coverage a:hover {
+  border-color: #2463a6;
+}
+.reflection-fields textarea {
+  scroll-margin-top: 110px;
+}
+.summary-review {
+  background: #f4f6f7;
+  border-left: 2px solid #2463a6;
+  padding: 20px 22px;
+  margin: 18px 0 25px;
+}
+.summary-review-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.summary-review-heading strong {
+  font-size: 14px;
+  color: #243e52;
+}
+.summary-review-heading > span {
+  font-size: 11px;
+  color: #5a6974;
+  font-variant-numeric: tabular-nums;
+}
+.summary-review > p {
+  font-size: 12px;
+  line-height: 1.9;
+  margin: 10px 0 0;
+  color: #52616e;
+}
+.summary-review ul {
+  padding: 0;
+  margin: 15px 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.summary-review li {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #52616e;
+}
+.summary-review li strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #385066;
+}
+.summary-review li > span {
+  display: block;
+  margin-top: 2px;
+}
+.summary-review details {
+  border-top: 1px solid #d7dfe4;
+  margin-top: 15px;
+  padding-top: 3px;
+}
+.summary-review summary {
+  display: list-item;
+  cursor: pointer;
+  font-size: 12px;
+  color: #314f66;
+  padding: 13px 0;
+  min-height: 44px;
+}
+.summary-review ol {
+  padding-left: 20px;
+  margin: 4px 0 12px;
+}
+.summary-review .summary-review-ready {
+  color: #285d49;
+}
+/* Review instructions must remain legible, including in nested editor cards. */
+.admin-back,
+.workflow-info,
+.admin-info,
+.panel-heading > span,
+.editor-section > p,
+.editor-section label,
+.editor-subcard-top,
+.save-bar span {
+  color: #536171;
+}
+.workflow-step:not(.current):not(.done) {
+  color: #606b78;
+}
+.editor-section label,
+.editor-section > p,
+.workflow-info,
+.save-bar span {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.remove-button {
+  color: #835653;
+  min-height: 44px;
+  min-width: 44px;
+}
+@media screen and (max-width: 700px) {
+  .summary-reading-label {
+    margin-bottom: 9px;
+    font-size: 10px;
+  }
+  .executive-takeaways li {
+    padding: 13px 0;
+  }
+  .summary-context {
+    grid-template-columns: 1fr;
+  }
+  .summary-context > div {
+    padding: 22px 18px 15px;
+  }
+  .summary-context > div + div {
+    border-left: 0;
+    border-top: 1px solid #dce1e4;
+  }
+  .summary-context h3 {
+    font-size: 15px;
+  }
+  .summary-context p {
+    font-size: 13px;
+  }
+  .summary-reading-nav {
+    padding: 10px 18px;
+    gap: 0 18px;
+  }
+  .summary-reading-nav > span {
+    width: 100%;
+    padding: 8px 0;
+  }
+  .reflection-method {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .reflection-method p {
+    margin-top: 3px;
+  }
+  .summary-review {
+    padding: 17px 15px;
+  }
+}
+@media print {
+  .summary-reading-label,
+  .summary-reading-nav {
+    display: none;
+  }
+  .summary-context {
+    break-inside: avoid;
+  }
+  .summary-context > div {
+    padding: 10px 12px;
+  }
+  .summary-context h3 {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .summary-context p {
+    font-size: 9px;
+    line-height: 1.65;
+  }
+  .summary-context-label {
+    font-size: 8px;
+    margin-bottom: 7px;
+  }
+  .summary-context a {
+    display: none;
+  }
+  .executive-takeaways h3 {
+    font-size: 10px;
+  }
+  .executive-takeaways li {
+    padding: 6px 0;
+    gap: 8px;
+  }
+}

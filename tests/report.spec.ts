@@ -65,6 +65,13 @@ test("investors see all nine sections and only published versions", async ({
     "Pipeline",
   ]);
   await expect(page.locator(".mock-badge")).toContainText("MOCK DATA");
+  await expect(page.locator(".source-provenance")).toContainText(
+    "Synthetic freee fixture",
+  );
+  await expect(page.locator(".source-provenance time")).toHaveText(
+    "2026/09/05 10:30 JST",
+  );
+  await expect(page.locator(".ai-badge")).toContainText("Mock analysis");
   for (const route of [
     "/admin",
     "/admin/import",
@@ -87,8 +94,16 @@ test("charts, archive and responsive navigation work without overflow", async ({
 }) => {
   await demo(page, "investor");
   await page.getByRole("button", { name: "営業利益", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "営業利益", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "3か月", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "3か月", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".chart-card .table-wrap")).toBeHidden();
   await page.getByRole("button", { name: "数値を見る" }).click();
+  await expect(page.locator(".chart-card .table-wrap")).toBeVisible();
   await expect(page.locator(".chart-card tbody tr")).toHaveCount(3);
   await expect(page.locator(".chart-stat")).toContainText("8.42");
   for (const width of [1440, 768, 375, 320]) {
@@ -105,6 +120,40 @@ test("charts, archive and responsive navigation work without overflow", async ({
   await page.goto("/reports");
   await expect(page.locator(".archive-card")).toHaveCount(3);
   await expect(page.locator(".archive-grid")).not.toContainText("2026年9月");
+});
+test("chart months can be selected with keyboard and touch", async ({
+  page,
+  browser,
+}) => {
+  await demo(page, "investor");
+  const june = page.getByRole("button", {
+    name: "6月の売上高 48.20百万円",
+    exact: true,
+  });
+  await june.focus();
+  await page.keyboard.press("Enter");
+  await expect(june).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".chart-stat")).toContainText("48.20");
+  await page.keyboard.press("Tab");
+  await expect(page.locator(".chart-stat")).toContainText("50.80");
+  const touchContext = await browser.newContext({
+    viewport: { width: 375, height: 900 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  try {
+    const touch = await touchContext.newPage();
+    await demo(touch, "investor");
+    await touch
+      .getByRole("button", { name: "6月の売上高 48.20百万円", exact: true })
+      .tap();
+    await expect(touch.locator(".chart-stat")).toContainText("48.20");
+    await expect(touch.locator(".source-provenance")).toContainText(
+      "freee未接続",
+    );
+  } finally {
+    await touchContext.close();
+  }
 });
 test("PDF is a real authorized multi-page export with mock attribution", async ({
   page,
@@ -192,7 +241,9 @@ test("admin creates, edits, generates, approves, publishes and revises without c
   await page.goto("/admin/import");
   await page.getByRole("button", { name: "MockデータをImport" }).click();
   await expect(page.getByRole("status")).toContainText("新しいSnapshot");
-  await expect(page.locator(".data-table")).toContainText("Validated");
+  await expect(page.getByRole("table", { name: "取り込み履歴" })).toContainText(
+    "Validated",
+  );
   await investor.goto("/reports/2026-10?version=v1.0");
   expect(await investor.locator(".executive-content").innerText()).toBe(
     oldSummary,

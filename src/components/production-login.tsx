@@ -1,20 +1,48 @@
 "use client";
 import { useActionState } from "react";
-import { sendLoginLinkAction } from "@/app/auth-actions";
-export function ProductionLogin() {
+import {
+  confirmEmailLinkAction,
+  sendLoginLinkAction,
+  startGoogleLoginAction,
+} from "@/app/auth-actions";
+export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
   const [state, action, pending] = useActionState(sendLoginLinkAction, {});
+  const [googleState, googleAction, googlePending] = useActionState(
+    startGoogleLoginAction,
+    {},
+  );
+  const [confirmState, confirm, confirming] = useActionState(
+    confirmEmailLinkAction,
+    {},
+  );
   return (
     <div className="demo-entry">
+      {googleEnabled && (
+        <>
+          <form action={googleAction} className="login-form">
+            <button className="button secondary" disabled={googlePending}>
+              {googlePending ? "Googleに接続中…" : "Googleでログイン"}
+            </button>
+          </form>
+          {googleState.error && (
+            <p role="alert" className="form-error">
+              {googleState.error}
+            </p>
+          )}
+        </>
+      )}
       <div className="demo-divider">
-        <span>INVITATION ONLY</span>
+        <span>{googleEnabled ? "またはメールでログイン" : "メールでログイン"}</span>
       </div>
-      <p>登録されたメールアドレスへ認証リンクを送信します。</p>
+      <p>
+        登録済みのメールアドレスを入力し、届いた最新のメールのリンクを一度開くとログインできます。
+      </p>
       <form action={action} className="login-form">
         <label>
           認証リンクの送信先
           <input name="email" type="email" autoComplete="email" required />
         </label>
-        <button className="button secondary" disabled={pending}>
+        <button className="button primary" disabled={pending}>
           {pending ? "送信中…" : "認証リンクを受け取る"}
         </button>
       </form>
@@ -26,6 +54,31 @@ export function ProductionLogin() {
       {state.success && (
         <p role="status" className="form-success">
           {state.success}
+        </p>
+      )}
+      <details className="login-password-alternative">
+        <summary>メールのリンクが開けない場合</summary>
+        <p>まだ開いていない最新のリンクだけをコピーしてください。開いた後のリンクは再利用できません。</p>
+        <form action={confirm} className="login-form email-confirmation-form">
+          <label>
+            メールの認証リンクを貼り付ける
+            <input
+              name="confirmationLink"
+              type="url"
+              autoComplete="off"
+              maxLength={5000}
+              placeholder="メール内のリンクをコピーして貼り付け"
+              required
+            />
+          </label>
+          <button className="button secondary" disabled={confirming}>
+            {confirming ? "確認中…" : "リンクを確認してログイン"}
+          </button>
+        </form>
+      </details>
+      {confirmState.error && (
+        <p role="alert" className="form-error">
+          {confirmState.error}
         </p>
       )}
     </div>

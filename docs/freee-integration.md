@@ -1,8 +1,25 @@
 # freee / AI integration boundary
 
-Current state: synthetic adapter only. No OAuth, API access, webhook, live sync, production financial data or live AI requests are implemented or configured.
+Current financial ingestion: the IR site's production-only OAuth authorization-code flow and encrypted credential storage are implemented. The administrator connected the IR app on October 10, 2026; the dedicated production database contains one encrypted connection. An earlier read-only freee retrieval validated company, date, `up_to_date`, integer-yen totals and balance-sheet equality, and staged non-public candidate aggregates in the dedicated production IR database. No real financial data was written into development, Git, Preview or a published report. Scheduled live sync is not implemented. The administrator-confirmed flow can promote a complete month into an immutable, unpublished draft snapshot after management enters fixed costs and the reasons for revenue and profit changes. No month has been promoted yet.
+
+The production-only staging contains November 2025 through September 2026 as full calendar months and October 2026 only through October 9 as an explicitly incomplete month-to-date comparison. Every row remains `pending-review` with `closeConfirmed=false`. The candidate cash mapping uses freee account names/IDs and must be checked by management. Monthly fixed costs, business drivers and AI attribution were not inferred. The dedicated admin pages can inspect candidate values after the admin signs in; investors cannot select the staging table. October's incomplete month is rejected by the promotion RPC. The administrator indicated that August 2026 accounting is confirmed and will add fixed costs and variance reasons in the admin UI later; other months still require explicit accounting confirmation.
+
+## OAuth setup required before first connection
+
+1. In [freee app management](https://app.secure.freee.co.jp/developers/applications), open the new IR-only accounting app. Confirm read-only accounting permissions and register `https://prorium-shareholder-ir.vercel.app/api/integrations/freee/callback` as its callback URL. The expected Prorium freee company ID is `11486508`; confirm this in the authorization screen before granting access.
+2. `FREEE_CLIENT_ID` and `FREEE_CLIENT_SECRET` are now registered as Sensitive entries in the [Vercel IR project](https://vercel.com/prorium/prorium-shareholder-ir/settings/environment-variables) **Production** environment; their values have not been read back or verified by an authorization exchange. `FREEE_COMPANY_ID=11486508` and a generated `FREEE_TOKEN_ENCRYPTION_KEY` are also in Production. Never put any secret in Git, chat, Preview or Development.
+3. The reviewed `20261009012909_freee_connection.sql` migration is applied to the dedicated IR Supabase project. It creates a private, RLS-protected table and admin-only RPCs; neither investors nor the Data API can read the credential ciphertext.
+4. The administrator signed in and selected `freeeを接続` at `/admin/import`. OAuth state is a short-lived HttpOnly cookie, the selected company must match `FREEE_COMPANY_ID`, and the refresh/access tokens are AES-256-GCM encrypted before DB storage. No token is displayed in the UI.
+
+**Connection is not import.** The dashboard reports OAuth status only. Do not describe the connection as automatic data sync until the accounting mapping and scheduled job below are implemented and verified with production data. Published reports never sync automatically.
+
+A confirmed accounting month can now enter a private draft with `context_required=true`. The three accounting attestations are mandatory. Fixed costs and management's revenue/profit explanations can be entered later through the admin report; a database constraint blocks review, approval and publication while they are missing. Investor reads remain limited to published versions. The provisional fixed-cost zero is not displayed as a real fixed-cost measurement in admin preview.
+
+Monthly reflection now has a server-only OpenAI Responses adapter and a deterministic editorial fallback. Its production key is not configured and no live request has been verified. See [monthly reflection and activation status](./monthly-reflection.md) for the implemented flow and remaining setup.
 
 ## Financial ingestion
+
+The official [freee accounting OpenAPI schema](https://github.com/freee/freee-api-schema) confirms that `GET /api/1/reports/trial_pl` and `GET /api/1/reports/trial_bs` accept `company_id`, `start_date` and `end_date`. The response includes `up_to_date`, the requested dates, company ID, account-item IDs and integer-yen balances. A pure validator now checks the exact calendar month, company, freshness and integer amounts against synthetic tests before account mapping. It does not retrieve live data or create a report.
 
 `FinancialImportProvider` is the contract; `SyntheticFreeeProvider` exercises validation and immutable snapshot creation. The future freee provider belongs in `src/lib/server/integrations/`, never client components.
 
@@ -29,7 +46,7 @@ Generation writes Draft only. A human reviews the complete report, approves its 
 
 ## Production activation
 
-Replace both the mock authentication and mock storage adapters before exposing confidential reports. Use invite-only Supabase Auth, MFA for admins, server-verified identity, active grant lookup and environment-separated Supabase projects. Apply the proposed schema as a generated migration in development and validate with the real Supabase Data API/JWT configuration before staging. Provision admin memberships through a trusted backend only.
+Production authentication and storage adapters use Supabase Auth and the dedicated IR project. Keep invite-only access, confirmed administrator email, server-verified identity, active grant lookup and environment-separated Supabase projects. Provision admin memberships through a trusted backend only. Verify the administrator's accounting confirmations before promoting the staged data.
 
 Use a production nonce CSP, HTTPS-only session cookies, session revocation checks, rate limiting, transactional optimistic concurrency, private export storage, backups and restore verification. Production jobs must have a verified acting admin for review/approval/publication; avoid using a service-role query for investor reads. Credentials live in deployment secret stores, never Git or `NEXT_PUBLIC_*`.
 

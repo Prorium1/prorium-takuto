@@ -1,0 +1,649 @@
+/* Investor experience: restrained colour, clear numbers and a film-led field report.
+   Financial contents remain unchanged; screen treatment stays out of the A4 export. */
+@media screen {
+  .monthly-report .report-heading {
+    padding: 22px 0 28px;
+    align-items: flex-end;
+  }
+  .monthly-report .report-heading::before {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      #2463a6 0%,
+      #8d88b8 32%,
+      #dfe8ee 72%,
+      transparent
+    );
+  }
+  .monthly-report .report-title {
+    font-family: "Inter Variable", sans-serif;
+    font-size: clamp(38px, 3.9vw, 58px);
+    letter-spacing: -2.8px;
+    font-weight: 550;
+    line-height: 1.12;
+  }
+  .monthly-report .report-heading h1 {
+    row-gap: 14px;
+  }
+  .monthly-report .report-period {
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .monthly-report .report-heading h1 .badge {
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 9px;
+  }
+  .monthly-report .issue-folio > strong {
+    font-family: "Inter Variable", sans-serif;
+    font-size: 74px;
+    font-weight: 350;
+    color: #bfd0df;
+    letter-spacing: -5px;
+  }
+  .monthly-report .report-heading-side {
+    gap: 12px;
+  }
+  .report-film-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: #245c8b;
+    font-size: 11px;
+  }
+  .report-film-link small {
+    display: block;
+    font-size: 9px;
+    color: #596c7b;
+    margin-top: 2px;
+  }
+  .report-film-link:hover {
+    color: #16394f;
+  }
+  .monthly-report .kpi-grid {
+    margin-top: 20px;
+    padding: 0;
+    border: 1px solid #dbe4ed;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .monthly-report .kpi-card,
+  .monthly-report .kpi-card:first-child,
+  .monthly-report .kpi-card:last-child {
+    padding: 24px 22px;
+  }
+  .monthly-report .kpi-card:first-child {
+    background: #f5f8fc;
+  }
+  .monthly-report .kpi-card + .kpi-card {
+    border-color: #e3eaf0;
+  }
+  .monthly-report .kpi-value {
+    font-size: clamp(31px, 2.8vw, 44px);
+    font-weight: 500;
+    letter-spacing: -1.8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .monthly-report .kpi-status {
+    color: #536778;
+    font-size: 9px;
+    border: 0;
+    background: #f0f4f7;
+    padding: 3px 6px;
+    border-radius: 4px;
+  }
+  .monthly-report .executive-card {
+    border-radius: 12px;
+    border: 1px solid #d7e2ec;
+    overflow: hidden;
+    background: linear-gradient(115deg, #eff5fc, #f6f7fc 65%, #f9fafc);
+  }
+  .monthly-report .executive-top {
+    padding: 20px 26px 0;
+  }
+  .monthly-report .executive-content {
+    padding: 24px 26px 30px;
+  }
+  .monthly-report .executive-content h2 {
+    font-size: clamp(23px, 2.25vw, 31px);
+    letter-spacing: -0.6px;
+    line-height: 1.55;
+  }
+  .monthly-report .executive-lead > p {
+    font-size: 13px;
+    line-height: 1.95;
+  }
+  .monthly-report .summary-context {
+    background: #ffffffd9;
+  }
+  .monthly-report .summary-context > div {
+    padding: 24px 26px 18px;
+  }
+  .monthly-report .summary-reading-nav {
+    padding-block: 10px;
+    background: #fff;
+  }
+  .monthly-report .report-chapter-nav {
+    border-bottom: 0;
+    margin: 28px 0 0;
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 0 4px;
+    overflow: visible;
+  }
+  .monthly-report .report-chapter-nav a {
+    min-height: 44px;
+    padding: 0 10px;
+  }
+  .monthly-report .report-chapter-nav > span {
+    margin-right: 16px;
+  }
+  .monthly-report .section-heading h2 {
+    font-size: clamp(23px, 2.3vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.7px;
+  }
+  .monthly-report .business-card {
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #dce5ed;
+    border-top: 3px solid #2463a6;
+    padding: 27px 24px 0;
+  }
+  .monthly-report .business-card:nth-child(2) {
+    border-top-color: #7d80a9;
+  }
+  .monthly-report .business-card:nth-child(3) {
+    border-top-color: #5c8d9b;
+  }
+  .monthly-report .business-metric strong {
+    font-weight: 500;
+    letter-spacing: -1px;
+  }
+  .monthly-report .briefing-story {
+    border-radius: 9px;
+    border-color: #e2e8ee;
+    background: #f8fafc;
+  }
+  .monthly-report #ai {
+    border-radius: 12px;
+    background: linear-gradient(120deg, #142a3f, #203750 75%, #323c59);
+  }
+  .monthly-report .ai-impact-card {
+    border-radius: 9px;
+  }
+  .monthly-report .event-spotlight {
+    margin-top: 30px;
+    padding: 0;
+    color: #203547;
+    background: #fff;
+    border: 1px solid #d8e3ed;
+    border-radius: 12px;
+    scroll-margin-top: 26px;
+  }
+  .event-masthead {
+    padding: 19px 26px;
+    border-bottom: 1px solid #e1e8ee;
+    color: #5c6f80;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+  .event-masthead > span:first-child {
+    color: #2463a6;
+    font-weight: 600;
+  }
+  .event-masthead-jp {
+    color: #5c6f80;
+    font-weight: 400;
+    margin-left: 8px;
+    letter-spacing: 0;
+  }
+  .event-layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 30px;
+    align-items: start;
+    padding: 26px;
+  }
+  .event-media,
+  .event-editorial {
+    min-width: 0;
+  }
+  .event-kicker {
+    color: #536d83;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+  .event-editorial h2 {
+    color: #1d3549;
+    font-size: clamp(22px, 2.15vw, 31px);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.45;
+    margin: 12px 0 22px;
+    overflow-wrap: anywhere;
+  }
+  .event-summary-label {
+    display: block;
+    font-size: 10px;
+    color: #577186;
+    margin-bottom: 8px;
+  }
+  .event-editorial > p {
+    color: #4a6174;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .event-video-stage,
+  .event-date-art {
+    border: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    color: #fff;
+    background: #182d43;
+  }
+  .event-video-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent calc(25% - 1px),
+      #ffffff07 calc(25% - 1px),
+      #ffffff07 25%
+    );
+    pointer-events: none;
+  }
+  .event-play {
+    display: block;
+    padding: 0;
+  }
+  .event-poster {
+    object-fit: cover;
+    transition: transform 0.45s ease;
+  }
+  .event-video-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0b172b40, transparent 40%, #0b172bba);
+  }
+  .event-video-overline {
+    position: absolute;
+    left: 20px;
+    top: 18px;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-shadow: 0 1px 5px #102035;
+  }
+  .event-play-icon {
+    position: absolute;
+    left: calc(50% - 29px);
+    top: calc(50% - 29px);
+    width: 58px;
+    height: 58px;
+    border: 1px solid #ffffffe5;
+    background: #142b4b55;
+    backdrop-filter: blur(8px);
+    color: #fff;
+  }
+  .event-play:hover .event-poster {
+    transform: scale(1.025);
+  }
+  .event-play:hover .event-play-icon {
+    transform: scale(1.05);
+  }
+  .event-play > span.event-video-caption {
+    position: absolute;
+    inset: auto 20px 18px;
+    text-align: left;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    max-height: none;
+    overflow: visible;
+  }
+  .event-video-caption small {
+    font-size: 9px;
+    color: #dfebf8;
+    margin-top: 4px;
+  }
+  .event-video-mobile-label {
+    display: none;
+  }
+  .event-video-close {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: #13263acc;
+    border: 1px solid #ffffff66;
+    z-index: 2;
+  }
+  .event-video-link {
+    color: #2463a6;
+    font-size: 10px;
+    min-height: 36px;
+    margin-top: 4px;
+  }
+  .event-video-notice {
+    color: #637787;
+    font-size: 9px;
+  }
+  .event-date-art > span {
+    color: #c7d7e9;
+  }
+  .event-date-art strong {
+    font-size: clamp(48px, 5vw, 74px);
+  }
+  .event-results {
+    padding: 0 26px;
+  }
+  .event-results h3 {
+    padding-top: 20px;
+    border-top: 1px solid #dce5ed;
+    font-size: 11px;
+    font-weight: 600;
+    color: #334f66;
+  }
+  .event-results h3 span {
+    color: #6b7e8e;
+    font-weight: 400;
+    font-size: 8px;
+    letter-spacing: 0.09em;
+    margin-left: 12px;
+  }
+  .event-outcomes {
+    border: 0;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .event-outcomes li {
+    min-width: 0;
+    padding: 20px 22px 24px 0;
+  }
+  .event-outcomes li > span {
+    color: #2463a6;
+  }
+  .event-outcomes p {
+    color: #344e64;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .event-next {
+    margin: 0 26px;
+    padding: 20px 0;
+    border-top: 1px solid #dce5ed;
+  }
+  .event-next > span {
+    color: #2463a6;
+  }
+  .event-next p {
+    color: #3e566a;
+  }
+  .event-pending-outcomes {
+    margin: 0 26px 22px;
+    border-top: 1px solid #e1e8ee;
+    padding-top: 18px;
+    color: #607585;
+    font-size: 11px;
+  }
+  .event-preparation {
+    background: #fff;
+    border: 1px solid #d8e3ed;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .event-preparation h2 {
+    font-size: 18px;
+    margin: 8px 0;
+    color: #223c51;
+  }
+  .event-preparation > p {
+    font-size: 12px;
+    color: #536b7f;
+    line-height: 1.9;
+    margin-bottom: 18px;
+  }
+  .event-preparation details > summary {
+    cursor: pointer;
+    padding: 12px 0;
+    font-size: 12px;
+    color: #2463a6;
+  }
+  .event-preparation form {
+    margin-top: 18px;
+  }
+  .event-preparation form > .button {
+    width: 100%;
+    min-height: 48px;
+    justify-content: space-between;
+    white-space: normal;
+    text-align: left;
+    gap: 12px;
+  }
+}
+@media screen and (max-width: 1050px) {
+  .monthly-report .kpi-card,
+  .monthly-report .kpi-card:first-child,
+  .monthly-report .kpi-card:last-child {
+    padding: 22px;
+  }
+  .monthly-report .kpi-card:nth-child(odd) {
+    border-left: 0;
+  }
+  .monthly-report .kpi-card:nth-child(n + 3) {
+    border-top: 1px solid #e3eaf0;
+  }
+}
+@media screen and (max-width: 800px) {
+  .event-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+@media screen and (max-width: 700px) {
+  .monthly-report .report-title {
+    font-size: clamp(32px, 8.9vw, 48px);
+    letter-spacing: -1.7px;
+  }
+  .monthly-report .report-heading {
+    padding: 14px 0 16px;
+  }
+  .investor-report-navigation {
+    margin-bottom: 12px;
+  }
+  .monthly-report .report-heading-side {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .monthly-report .report-heading p {
+    font-size: 11px;
+    max-width: none;
+    width: auto;
+    margin-top: 8px;
+  }
+  .monthly-report .report-heading h1 {
+    row-gap: 10px;
+  }
+  .monthly-report .report-meta {
+    padding-block: 10px;
+  }
+  .monthly-report .kpi-grid {
+    margin-top: 16px;
+  }
+  .monthly-report .kpi-card,
+  .monthly-report .kpi-card:first-child,
+  .monthly-report .kpi-card:last-child {
+    padding: 14px;
+  }
+  .monthly-report .kpi-label {
+    font-size: 12px;
+  }
+  .monthly-report .kpi-value,
+  .monthly-report .kpi-card:nth-child(4) .kpi-value {
+    font-size: clamp(27px, 7.7vw, 36px);
+    letter-spacing: -1.1px;
+    margin: 15px 0 10px;
+  }
+  .monthly-report .kpi-comparison {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .monthly-report .kpi-status {
+    grid-column: 1 / -1;
+    width: fit-content;
+    margin-left: 0;
+    font-size: 8px;
+  }
+  .monthly-report .executive-top {
+    padding: 18px 20px 0;
+  }
+  .monthly-report .executive-content {
+    padding: 20px;
+    gap: 24px;
+  }
+  .monthly-report .executive-content h2 {
+    font-size: 24px;
+  }
+  .monthly-report .executive-lead > p {
+    font-size: 12px;
+  }
+  .monthly-report .summary-context > div {
+    padding: 20px;
+  }
+  .monthly-report .summary-reading-nav {
+    padding: 10px 20px;
+  }
+  .monthly-report .report-chapter-nav a {
+    font-size: 10px;
+    padding: 0 9px;
+  }
+  .monthly-report .event-spotlight {
+    margin-top: 24px;
+  }
+  .event-masthead {
+    padding: 17px 20px;
+    gap: 7px;
+  }
+  .event-layout {
+    padding: 20px;
+    gap: 22px;
+  }
+  .event-video-overline {
+    top: 13px;
+    left: 14px;
+    font-size: 8px;
+  }
+  .event-play > span.event-video-caption {
+    inset: auto 14px 13px;
+    font-size: 11px;
+  }
+  .event-play-icon {
+    width: 44px;
+    height: 44px;
+    left: calc(50% - 22px);
+    top: calc(50% - 22px);
+  }
+  .event-play-icon svg {
+    width: 19px;
+  }
+  .event-video-caption small {
+    font-size: 8px;
+  }
+  .event-video-title {
+    display: none;
+  }
+  .event-video-mobile-label {
+    display: block;
+  }
+  .event-editorial h2 {
+    font-size: 25px;
+    margin-bottom: 18px;
+  }
+  .event-results {
+    padding: 0 20px;
+  }
+  .event-outcomes {
+    grid-template-columns: 1fr;
+  }
+  .event-outcomes li {
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+    padding: 16px 0;
+  }
+  .event-outcomes p {
+    margin: 0;
+  }
+  .event-next {
+    margin-inline: 20px;
+    gap: 10px;
+  }
+  .event-pending-outcomes {
+    margin-inline: 20px;
+  }
+  .event-preparation {
+    padding: 20px 16px;
+  }
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .monthly-report .event-spotlight,
+    .monthly-report .business-card {
+      animation: investor-arrive ease-out both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+    @keyframes investor-arrive {
+      from {
+        opacity: 0.75;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .event-play .event-poster {
+    transition: none;
+  }
+  .event-play:hover .event-poster,
+  .event-play:hover .event-play-icon {
+    transform: none;
+  }
+}
+@media print {
+  .report-film-link,
+  .event-preparation {
+    display: none;
+  }
+  .event-results h3 {
+    font-size: 9pt;
+  }
+  .event-results h3 span,
+  .event-summary-label,
+  .event-pending-outcomes {
+    font-size: 8pt;
+  }
+}
