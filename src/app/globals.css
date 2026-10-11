@@ -4370,3 +4370,17 @@ small {
 .financial-documents-section {
   margin-top: 48px;
 }
+.login-platform-entry {
+  margin: 24px 0;
+}
+.login-platform-entry .button {
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+}
+.login-platform-entry .login-helper {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
