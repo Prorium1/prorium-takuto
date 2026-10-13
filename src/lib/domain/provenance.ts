@@ -1,5 +1,17 @@
 import type { FinancialSnapshot, ReportVersion } from "./types";
 
+export function financialBasis(financial: FinancialSnapshot) {
+  if (financial.available === false || financial.source === "not-entered")
+    return { label: "財務KPI未入力", monthly: false };
+  if (
+    !financial.isMock &&
+    financial.source === "freee" &&
+    financial.plBasis !== "monthly-net-v2"
+  )
+    return { label: "集計基準の確認待ち", monthly: false };
+  return { label: "単月実績 / 前年同月比", monthly: true };
+}
+
 export function financialProvenance(financial: FinancialSnapshot) {
   const available =
     financial.available !== false && financial.source !== "not-entered";

@@ -166,16 +166,12 @@ export function ShellClient({
         <span className="nav-label">SHAREHOLDER PORTAL</span>
         <nav className="primary-nav" aria-label="メインナビゲーション">
           <Link
-            className={
-              path === "/dashboard" || path.startsWith("/reports/")
-                ? "active"
-                : ""
-            }
+            className={path === "/dashboard" ? "active" : ""}
             href="/dashboard"
             onClick={() => setOpen(false)}
           >
             <LayoutDashboard size={18} />
-            <span>Monthly Report</span>
+            <span>株主ダッシュボード</span>
             <span className="nav-dot" />
           </Link>
           <Link

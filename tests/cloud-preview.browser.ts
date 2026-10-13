@@ -43,7 +43,7 @@ test("cloud investor only sees published fixtures and can print the report", asy
 }) => {
   await page.goto("/login");
   await page.getByRole("button", { name: "株主としてデモを見る" }).click();
-  await page.waitForURL(/\/reports\/20\d{2}-\d{2}$/);
+  await page.waitForURL(/\/dashboard$/);
   await page.goto("/reports/2026-08");
   await expect(page.getByText("確認用デモ", { exact: true })).toBeVisible();
   await page.evaluate(() => {
@@ -68,7 +68,7 @@ test("solid chart and event layout remain readable on desktop and mobile", async
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/login");
   await page.getByRole("button", { name: "株主としてデモを見る" }).click();
-  await page.waitForURL(/\/reports\/20\d{2}-\d{2}$/);
+  await page.waitForURL(/\/dashboard$/);
   await page.goto("/reports/2026-08");
   await expect(page.locator(".chart-series")).toHaveCount(2);
   expect(

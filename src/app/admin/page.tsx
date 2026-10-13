@@ -19,6 +19,10 @@ export default async function AdminPage() {
   return (
     <Shell role={actor.role}>
       <div className={styles.overview}>
+        <nav className="ir-audience-nav" aria-label="経営者と投資家の画面">
+          <span aria-current="page">経営者用 · 編集・承認・公開</span>
+          <Link href="/dashboard">投資家向け公開レポートを見る →</Link>
+        </nav>
         <header className={styles.hero}>
           <div>
             <span className={styles.eyebrow}>PRORIUM / INVESTOR RELATIONS</span>

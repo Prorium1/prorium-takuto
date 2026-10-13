@@ -52,7 +52,7 @@ test("owner publishes a monthly narrative and private statements; investors can 
   await investorPage
     .getByRole("button", { name: "株主としてデモを見る" })
     .click();
-  await investorPage.waitForURL(/\/reports\/2026-/);
+  await investorPage.waitForURL(/\/dashboard$/);
   expect(
     (await investor.request.get(`http://127.0.0.1:3100${href}`)).status(),
   ).toBe(404);
@@ -207,7 +207,7 @@ test("monthly reflection saves privately, regenerates reasons and requires revie
   await investorPage
     .getByRole("button", { name: "株主としてデモを見る" })
     .click();
-  await investorPage.waitForURL(/\/reports\/2026-/);
+  await investorPage.waitForURL(/\/dashboard$/);
   expect(
     (
       await investor.request.get("http://127.0.0.1:3100/reports/2026-12")
