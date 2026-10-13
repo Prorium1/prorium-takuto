@@ -7,7 +7,7 @@ test("mobile navigation isolates focus, closes on Escape, and reflects the readi
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto("/login");
   await page.getByRole("button", { name: "株主としてデモを見る" }).click();
-  await page.waitForURL(/\/reports\/20\d{2}-\d{2}$/);
+  await page.waitForURL(/\/dashboard$/);
   await page.goto("/reports/2026-08");
   const trigger = page.getByRole("button", { name: "メニューを開く" });
   const firstSection = page.getByRole("link", {

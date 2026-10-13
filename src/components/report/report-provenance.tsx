@@ -20,7 +20,7 @@ export function ReportProvenance({ report }: { report: ReportVersion }) {
         <div>
           <Database size={15} />
           <span>
-            Financial Data
+            財務データ
             <small>
               {data.status}
               {data.available && <Check size={11} />}
@@ -30,15 +30,15 @@ export function ReportProvenance({ report }: { report: ReportVersion }) {
         <div>
           <Sparkles size={15} />
           <span>
-            Analysis<small>{reportAttribution(report).label}</small>
+            文章・分析<small>{reportAttribution(report).label}</small>
           </span>
         </div>
         <div>
           <ShieldCheck size={15} />
           <span>
-            Management Review
+            経営者の確認
             <small>
-              {report.approvedBy ? "Approved" : "レビュー待ち"}
+              {report.approvedBy ? "承認済み" : "レビュー待ち"}
               {report.approvedBy && <Check size={11} />}
             </small>
           </span>
@@ -46,7 +46,7 @@ export function ReportProvenance({ report }: { report: ReportVersion }) {
         <div>
           <CircleDot size={15} />
           <span>
-            Published
+            公開日
             <small>
               {report.publishedAt
                 ? new Date(report.publishedAt).toLocaleDateString("ja-JP", {
@@ -62,10 +62,10 @@ export function ReportProvenance({ report }: { report: ReportVersion }) {
       </div>
       <div className="source-provenance">
         <span>
-          Data source <strong>{data.source}</strong>
+          データ元 <strong>{data.source}</strong>
         </span>
         <span>
-          Updated at{" "}
+          取得・入力日時{" "}
           {data.updatedAt ? (
             <time dateTime={data.updatedAt}>
               {formatReportTimestamp(data.updatedAt)}

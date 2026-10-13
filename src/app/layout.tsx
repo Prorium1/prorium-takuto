@@ -9,6 +9,7 @@ import "./briefing.css";
 import "./report-motion.css";
 import "./event.css";
 import "./investor-experience.css";
+import "./dashboard-clarity.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {

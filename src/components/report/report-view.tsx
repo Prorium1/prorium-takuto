@@ -21,7 +21,7 @@ import { ExecutiveSummary } from "./executive-summary";
 import { InvestorBriefing } from "./investor-briefing";
 import { EventSpotlight } from "./event-spotlight";
 import { DocumentList } from "@/components/document-list";
-import { reportAttribution } from "@/lib/domain/provenance";
+import { financialBasis, reportAttribution } from "@/lib/domain/provenance";
 import { eventVideo } from "@/lib/domain/event-video";
 
 function SectionHeading({
@@ -157,7 +157,7 @@ export function ReportView({
         <span>
           {f.available === false
             ? "月次サマリー / 添付財務資料"
-            : "単月実績 / 前年同月比"}
+            : financialBasis(f).label}
         </span>
         <span>JPY</span>
         <span className="report-version">

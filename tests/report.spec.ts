@@ -7,9 +7,7 @@ async function demo(page: Page, role: "investor" | "admin") {
       name: role === "admin" ? "管理者デモを開く" : "株主としてデモを見る",
     })
     .click();
-  await page.waitForURL(
-    role === "admin" ? "**/admin" : /\/reports\/20\d{2}-\d{2}$/,
-  );
+  await page.waitForURL(role === "admin" ? "**/admin" : /\/dashboard$/);
   if (role === "investor") await page.goto("/reports/2026-08");
 }
 test("anonymous users cannot read any protected page or PDF", async ({
@@ -43,7 +41,7 @@ test("login rejects invalid credentials and recognizes the investor account", as
   );
   await page.getByLabel("パスワード").fill("prorium-demo");
   await page.getByRole("button", { name: "ログイン", exact: true }).click();
-  await expect(page).toHaveURL(/\/reports\/2026-08$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 });
 test("investors see all nine sections and only published versions", async ({
   page,
@@ -52,13 +50,25 @@ test("investors see all nine sections and only published versions", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await demo(page, "investor");
   await expect(page.locator(".kpi-card")).toHaveCount(4);
-  await expect(page.locator("section.report-section")).toHaveCount(9);
+  for (const id of [
+    "summary",
+    "performance",
+    "drivers",
+    "business",
+    "ai",
+    "position",
+    "forward",
+    "risks",
+    "ceo",
+  ]) {
+    await expect(page.locator(`#${id}`)).toHaveCount(1);
+  }
   await expect(page.locator(".kpi-card").first()).toContainText("52.64");
   await expect(page.locator(".kpi-card").first()).toContainText("+31.6%");
   await expect(
     page.getByRole("heading", { name: "AI Transformation", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".indicator-kind")).toHaveText([
+  await expect(page.locator("#forward .indicator-kind")).toHaveText([
     "Actual",
     "Committed",
     "Forecast",
@@ -174,7 +184,19 @@ test("PDF is a real authorized multi-page export with mock attribution", async (
   });
   await page.goto("/reports/2026-08/print");
   await expect(page.locator(".print-header")).toContainText("MOCK DATA");
-  await expect(page.locator("section.report-section")).toHaveCount(9);
+  for (const id of [
+    "summary",
+    "performance",
+    "drivers",
+    "business",
+    "ai",
+    "position",
+    "forward",
+    "risks",
+    "ceo",
+  ]) {
+    await expect(page.locator(`#${id}`)).toHaveCount(1);
+  }
 });
 test("admin creates, edits, generates, approves, publishes and revises without changing the prior version", async ({
   page,
@@ -249,7 +271,10 @@ test("admin creates, edits, generates, approves, publishes and revises without c
     oldSummary,
   );
   await page.goto("/admin");
-  await expect(page.locator(".admin-panel").last()).toContainText("revision");
+  await page.getByText("最近の操作", { exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "改訂版を作成", exact: true }),
+  ).toBeVisible();
   await investorContext.close();
 });
 test("tampered session cookies cannot be used to escalate privileges", async ({
