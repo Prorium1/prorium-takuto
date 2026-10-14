@@ -80,6 +80,31 @@ function mapVersion(row: Row): ReportVersion {
   };
 }
 const selection = "*,reports!inner(company_id,period)";
+export async function getReportPreparation(
+  actor: Actor,
+): Promise<import("../domain/report-preparation").ReportPreparation[]> {
+  const client = await productionClient(actor, true);
+  const { data, error } = await client
+    .from("report_versions")
+    .select(
+      "id,version,state,context_required,reports!inner(company_id,period)",
+    )
+    .eq("reports.company_id", actor.companyId)
+    .neq("state", "published");
+  databaseError(error);
+  return (data || [])
+    .map((row) => {
+      const r = row as unknown as Row;
+      return {
+        id: String(r.id),
+        version: String(r.version),
+        state: r.state as ReportVersion["state"],
+        contextRequired: Boolean(r.context_required),
+        period: String((r.reports as Row).period).slice(0, 7),
+      };
+    })
+    .sort((a, b) => b.period.localeCompare(a.period));
+}
 export async function listPublishedReports(actor: Actor) {
   const client = await productionClient(actor);
   const { data, error } = await client
@@ -226,15 +251,24 @@ export async function saveContent(
   notes?: string,
 ) {
   const client = await productionClient(actor, true);
-  const { error } = await client.rpc("ir_save_report", {
-    p_id: id,
-    p_revision: revision,
-    p_content: content,
-    p_analysis: analysis,
-    p_notes: notes ?? null,
-  });
+  const { data, error } = await client
+    .rpc("ir_save_report", {
+      p_id: id,
+      p_revision: revision,
+      p_content: content,
+      p_analysis: analysis,
+      p_notes: notes ?? null,
+    })
+    .select(selection)
+    .single();
   databaseError(error);
-  return (await getAdminReport(id, actor))!;
+  // Use the committed row. A later SELECT can return another administrator's
+  // revision while this editor still holds the content from its own save.
+  if (!data)
+    throw new Error(
+      "保存結果を確認できませんでした。画面を再読み込みしてください。",
+    );
+  return mapVersion(data as Row);
 }
 export async function mutateReport(
   id: string,

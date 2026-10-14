@@ -3,6 +3,28 @@ import { contentHash } from "../domain/workflow";
 import { compareYoY, margin } from "../domain/finance";
 
 const augustContent: ReportContent = {
+  ownership: {
+    asOf: "2026-08-31",
+    basis: "issued-shares",
+    display: "named",
+    issuedShares: 1000,
+    sourceLabel: "Mockの確認用名簿",
+    notes: "すべて架空の株主構成です。",
+    rows: [
+      {
+        group: "founder",
+        name: "Mock 創業株主A",
+        shareClass: "普通株式",
+        shares: 550,
+      },
+      {
+        group: "fund",
+        name: "Mock 投資家B",
+        shareClass: "普通株式",
+        shares: 450,
+      },
+    ],
+  },
   eventSpotlight: {
     title: "イベントレポート（デザインサンプル）",
     occurredOn: "2026-06-01",

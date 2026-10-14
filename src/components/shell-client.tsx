@@ -13,6 +13,7 @@ import {
   Menu,
   ShieldCheck,
   Upload,
+  PieChart,
   X,
 } from "lucide-react";
 import { logoutAction } from "@/app/actions";
@@ -171,7 +172,7 @@ export function ShellClient({
             onClick={() => setOpen(false)}
           >
             <LayoutDashboard size={18} />
-            <span>株主ダッシュボード</span>
+            <span>株主ポータル</span>
             <span className="nav-dot" />
           </Link>
           <Link
@@ -180,7 +181,7 @@ export function ShellClient({
             onClick={() => setOpen(false)}
           >
             <Archive size={18} />
-            <span>Report Archive</span>
+            <span>月次レポート</span>
           </Link>
           <Link
             href="/documents"
@@ -188,7 +189,15 @@ export function ShellClient({
             onClick={() => setOpen(false)}
           >
             <FileText size={18} />
-            <span>Financial Documents</span>
+            <span>財務資料・PDF</span>
+          </Link>
+          <Link
+            href="/shareholders"
+            className={path === "/shareholders" ? "active" : ""}
+            onClick={() => setOpen(false)}
+          >
+            <PieChart size={18} />
+            <span>株主構成</span>
           </Link>
           {role === "admin" && (
             <>
@@ -199,13 +208,14 @@ export function ShellClient({
                 onClick={() => setOpen(false)}
               >
                 <ShieldCheck size={18} />
-                <span>Investor Access</span>
+                <span>投資家のアクセス権</span>
               </Link>
               <Link
                 className={
                   admin &&
                   path !== "/admin/import" &&
-                  path !== "/admin/investors"
+                  path !== "/admin/investors" &&
+                  path !== "/admin/shareholders"
                     ? "active"
                     : ""
                 }
@@ -213,7 +223,15 @@ export function ShellClient({
                 onClick={() => setOpen(false)}
               >
                 <ShieldCheck size={18} />
-                <span>Report Management</span>
+                <span>レポート編集・公開</span>
+              </Link>
+              <Link
+                href="/admin/shareholders"
+                className={path === "/admin/shareholders" ? "active" : ""}
+                onClick={() => setOpen(false)}
+              >
+                <PieChart size={18} />
+                <span>株主構成を登録</span>
               </Link>
               <Link
                 className={path === "/admin/import" ? "active" : ""}
@@ -221,7 +239,7 @@ export function ShellClient({
                 onClick={() => setOpen(false)}
               >
                 <Upload size={18} />
-                <span>Data Import</span>
+                <span>財務データの取込</span>
               </Link>
             </>
           )}
