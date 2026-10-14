@@ -12,6 +12,8 @@ import {
   type ShareholderGroup,
 } from "@/lib/domain/ownership";
 import { OwnershipView } from "@/components/ownership-view";
+import type { OwnershipImport } from "@/lib/domain/ownership-import";
+import { formatReportTimestamp } from "@/lib/domain/provenance";
 type InputRow = {
   group: ShareholderGroup;
   name: string;
@@ -30,14 +32,19 @@ export function OwnershipForm({
   initial,
   mock = false,
   cloudPreview = false,
+  imported = null,
+  initialUnsaved = false,
 }: {
   id: string;
   revision: number;
   initial: OwnershipSnapshot | null;
   mock?: boolean;
   cloudPreview?: boolean;
+  imported?: OwnershipImport | null;
+  initialUnsaved?: boolean;
 }) {
-  const [dirty, setDirty] = useState(false);
+  const [dirty, setDirty] = useState(initialUnsaved);
+  const [confirmed, setConfirmed] = useState(false);
   const [expectedRevision, setExpectedRevision] = useState(revision);
   const [state, action, pending] = useActionState<
     OwnershipActionState,
@@ -120,9 +127,29 @@ export function OwnershipForm({
     })),
   };
   const preview = validOwnership(payload);
+  function markDirty() {
+    setDirty(true);
+    setConfirmed(false);
+  }
+  function loadImported() {
+    if (
+      !imported ||
+      (dirty &&
+        !window.confirm("未保存の入力を、取得済みの株主名簿で置き換えますか？"))
+    )
+      return;
+    const s = imported.snapshot;
+    setAsOf(s.asOf);
+    setIssued(String(s.issuedShares));
+    setDisplay(s.display);
+    setSource(s.sourceLabel);
+    setNotes(s.notes);
+    setRows(s.rows.map((row) => ({ ...row, shares: String(row.shares) })));
+    markDirty();
+  }
   function changeRow(i: number, key: keyof InputRow, value: string) {
     setRows((old) => old.map((r, n) => (n === i ? { ...r, [key]: value } : r)));
-    setDirty(true);
+    markDirty();
   }
   return (
     <div className="ownership-form-layout">
@@ -132,6 +159,37 @@ export function OwnershipForm({
         <input type="hidden" name="ownership" value={JSON.stringify(payload)} />
         <fieldset disabled={pending}>
           <legend>株主へ公開する株主構成を入力</legend>
+          {imported && (
+            <section
+              className="ownership-source-import"
+              aria-label="取得済みの株主名簿"
+            >
+              <span className="portal-chip">
+                {mock
+                  ? "Mockの取得サンプル · 未接続"
+                  : "smartround · 管理者専用"}
+              </span>
+              <h2>取得済みの株主名簿</h2>
+              <p>
+                基準日 {imported.snapshot.asOf} · 発行済{" "}
+                {imported.snapshot.issuedShares.toLocaleString("ja-JP")}株
+              </p>
+              <p>取得日時 {formatReportTimestamp(imported.retrievedAt)}</p>
+              <p>
+                名簿を取り込んだ時点の情報です。元資料を確認して、下書きへ保存してください。
+              </p>
+              <p>
+                公開する名称・株主区分も確認してください。元データの区分が未設定の場合は「その他」で取り込みます。
+              </p>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={loadImported}
+              >
+                取得した名簿を読み込む
+              </button>
+            </section>
+          )}
           <p className="ownership-form-note">
             株主名簿・資本政策表で確認した発行済株式を入力します。下書きの保存だけでは公開されません。
           </p>
@@ -159,7 +217,7 @@ export function OwnershipForm({
                     shares: "450",
                   },
                 ]);
-                setDirty(true);
+                markDirty();
               }}
             >
               架空のサンプルを入れる
@@ -174,7 +232,7 @@ export function OwnershipForm({
                 value={asOf}
                 onChange={(e) => {
                   setAsOf(e.target.value);
-                  setDirty(true);
+                  markDirty();
                 }}
               />
             </label>
@@ -189,7 +247,7 @@ export function OwnershipForm({
                 value={issued}
                 onChange={(e) => {
                   setIssued(e.target.value);
-                  setDirty(true);
+                  markDirty();
                 }}
               />
             </label>
@@ -199,7 +257,7 @@ export function OwnershipForm({
                 value={display}
                 onChange={(e) => {
                   setDisplay(e.target.value as "grouped" | "named");
-                  setDirty(true);
+                  markDirty();
                 }}
               >
                 <option value="named">氏名・法人名と保有状況を表示</option>
@@ -214,7 +272,7 @@ export function OwnershipForm({
                 value={source}
                 onChange={(e) => {
                   setSource(e.target.value);
-                  setDirty(true);
+                  markDirty();
                 }}
                 placeholder="確認した株主名簿・資本政策表の名称"
               />
@@ -276,7 +334,7 @@ export function OwnershipForm({
                   aria-label={`${i + 1}行目を削除`}
                   onClick={() => {
                     setRows((old) => old.filter((_, n) => n !== i));
-                    setDirty(true);
+                    markDirty();
                   }}
                 >
                   削除
@@ -290,7 +348,7 @@ export function OwnershipForm({
             disabled={rows.length >= 40}
             onClick={() => {
               setRows((old) => [...old, blank()]);
-              setDirty(true);
+              markDirty();
             }}
           >
             内訳を追加
@@ -317,12 +375,19 @@ export function OwnershipForm({
               value={notes}
               onChange={(e) => {
                 setNotes(e.target.value);
-                setDirty(true);
+                markDirty();
               }}
             />
           </label>
           <label className="ownership-confirm">
-            <input type="checkbox" name="confirmed" value="yes" required />
+            <input
+              type="checkbox"
+              name="confirmed"
+              value="yes"
+              required
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+            />
             元資料と数値を照合し、この表示範囲を株主へ公開する内容として確認しました。
           </label>
           <button

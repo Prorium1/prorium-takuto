@@ -9,6 +9,7 @@ import {
 } from "@/lib/server/environment";
 import { validOwnership } from "@/lib/domain/ownership";
 import { periodLabel } from "@/lib/domain/finance";
+import { getOwnershipImport } from "@/lib/server/ownership-import";
 export const dynamic = "force-dynamic";
 export default async function AdminShareholdersPage({
   searchParams,
@@ -17,10 +18,15 @@ export default async function AdminShareholdersPage({
 }) {
   const actor = await requireAdmin();
   const { report: id } = await searchParams;
-  const reports = (await getAdminReports(actor)).filter(
-    (r) => r.state === "draft",
-  );
+  const [allReports, imported] = await Promise.all([
+    getAdminReports(actor),
+    getOwnershipImport(actor)
+      .then((data) => ({ data, error: false }))
+      .catch(() => ({ data: null, error: true })),
+  ]);
+  const reports = allReports.filter((r) => r.state === "draft");
   const report = id ? reports.find((r) => r.id === id) : reports[0];
+  const savedOwnership = validOwnership(report?.content.ownership);
   return (
     <Shell role={actor.role}>
       <Link className="admin-back" href="/dashboard">
@@ -31,6 +37,11 @@ export default async function AdminShareholdersPage({
         <h1>株主構成を登録</h1>
         <p>確認した名簿から、株主へ見せる内容を整理します。</p>
       </div>
+      {imported.error && (
+        <p className="form-error" role="alert">
+          取得済みの名簿を読み込めませんでした。入力済みの内容を確認するか、手入力で進められます。
+        </p>
+      )}
       {report ? (
         <>
           <form className="document-filters">
@@ -54,7 +65,9 @@ export default async function AdminShareholdersPage({
             key={report.id}
             id={report.id}
             revision={report.revision}
-            initial={validOwnership(report.content.ownership)}
+            initial={savedOwnership || imported.data?.snapshot || null}
+            imported={imported.data}
+            initialUnsaved={!savedOwnership && Boolean(imported.data)}
             mock={isMockEnvironment()}
             cloudPreview={isCloudMockPreview()}
           />
