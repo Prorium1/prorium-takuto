@@ -77,7 +77,7 @@ test("production RPC validates ownership and preserves tenant, draft, approval a
     await db.exec("reset role");
     await db.exec(
       await readFile(
-        "supabase/migrations/20261014041134_shareholder_ownership_snapshot.sql",
+        "supabase/migrations/20261014042611_shareholder_ownership_snapshot.sql",
         "utf8",
       ),
     );
