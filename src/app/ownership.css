@@ -296,6 +296,29 @@
   color: var(--muted);
   margin: 10px 0 18px;
 }
+.ownership-source-import {
+  margin: 8px 0 22px;
+  padding: 16px;
+  border: 1px solid #cbdcec;
+  border-radius: 10px;
+  background: #f4f8fc;
+}
+.ownership-source-import h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.ownership-source-import p {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 6px 0;
+}
+.ownership-source-import .button {
+  margin-top: 10px;
+  max-width: 100%;
+  white-space: normal;
+}
 .ownership-input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
