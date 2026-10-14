@@ -88,6 +88,7 @@ export type AIKpi = {
   description: string;
 };
 export type ReportContent = {
+  ownership?: import("./ownership").OwnershipSnapshot | null;
   eventSpotlight?: {
     title: string;
     occurredOn: string;

@@ -16,9 +16,11 @@ test("anonymous users cannot read any protected page or PDF", async ({
 }) => {
   for (const route of [
     "/dashboard",
+    "/shareholders",
     "/reports",
     "/reports/2026-08",
     "/admin",
+    "/admin/shareholders",
     "/admin/reports",
     "/admin/import",
     "/admin/reports/report-2026-09-v1-0",

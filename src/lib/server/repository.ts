@@ -9,6 +9,9 @@ async function backend() {
 export async function listPublishedReports(actor: Actor) {
   return (await backend()).listPublishedReports(actor);
 }
+export async function getReportPreparation(actor: Actor) {
+  return (await backend()).getReportPreparation(actor);
+}
 export async function getPublishedReport(
   period: string,
   actor: Actor,

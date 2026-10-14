@@ -23,6 +23,8 @@ import { EventSpotlight } from "./event-spotlight";
 import { DocumentList } from "@/components/document-list";
 import { financialBasis, reportAttribution } from "@/lib/domain/provenance";
 import { eventVideo } from "@/lib/domain/event-video";
+import { validOwnership } from "@/lib/domain/ownership";
+import { OwnershipView } from "@/components/ownership-view";
 
 function SectionHeading({
   number,
@@ -84,6 +86,7 @@ export function ReportView({
 }) {
   const c = report.content;
   const f = c.financial;
+  const ownership = validOwnership(c.ownership);
   const currentMargin = margin(f.operatingProfit.current, f.revenue.current);
   const oldMargin = margin(f.operatingProfit.previous, f.revenue.previous);
   const month = Number(report.period.slice(5));
@@ -478,6 +481,11 @@ export function ReportView({
           </p>
         )}
       </section>
+      {ownership && (
+        <section id="shareholders" className="report-section">
+          <OwnershipView snapshot={ownership} print={print} />
+        </section>
+      )}
       <section id="forward" className="report-section">
         <SectionHeading
           number="07"

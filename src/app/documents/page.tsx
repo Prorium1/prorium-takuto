@@ -2,6 +2,7 @@ import { Shell } from "@/components/shell";
 import { DocumentList } from "@/components/document-list";
 import { requireActor } from "@/lib/server/auth";
 import { listFinancialDocuments } from "@/lib/server/documents";
+import { listPublishedReports } from "@/lib/server/repository";
 import { DOCUMENT_CATEGORIES } from "@/lib/domain/documents";
 export const dynamic = "force-dynamic";
 export default async function DocumentsPage({
@@ -11,7 +12,14 @@ export default async function DocumentsPage({
 }) {
   const actor = await requireActor();
   const filter = await searchParams;
-  const documents = await listFinancialDocuments(actor);
+  const [allDocuments, reports] = await Promise.all([
+    listFinancialDocuments(actor),
+    listPublishedReports(actor),
+  ]);
+  const publicIds = new Set(
+    reports.flatMap((r) => (r.content.documents || []).map((d) => d.id)),
+  );
+  const documents = allDocuments.filter((d) => publicIds.has(d.id));
   const periods = [...new Set(documents.map((d) => d.period))].sort().reverse();
   const selected = documents.filter(
     (d) =>

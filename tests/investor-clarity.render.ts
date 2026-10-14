@@ -43,6 +43,6 @@ test("管理者に渡した一覧でも投資家ダッシュボードに未公�
   const empty = renderToStaticMarkup(
     createElement(InvestorDashboard, { reports: [draft] }),
   );
-  assert.match(empty, /最初の月次レポートを準備/);
+  assert.match(empty, /月次レポートはまだ公開/);
   assert.doesNotMatch(empty, /kpi-card|PRIVATE-DRAFT-CANARY/);
 });

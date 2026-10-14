@@ -121,6 +121,23 @@ export async function listPublishedReports(
       ),
   );
 }
+export async function getReportPreparation(
+  actor: Actor,
+): Promise<import("../domain/report-preparation").ReportPreparation[]> {
+  assertAdmin(actor);
+  return withStore((store) =>
+    store.reports
+      .filter((r) => r.companyId === actor.companyId && r.state !== "published")
+      .map((r) => ({
+        id: r.id,
+        period: r.period,
+        version: r.version,
+        state: r.state,
+        contextRequired: !!r.contextRequired,
+      }))
+      .sort((a, b) => b.period.localeCompare(a.period)),
+  );
+}
 export async function getPublishedReport(
   period: string,
   actor: Actor,
