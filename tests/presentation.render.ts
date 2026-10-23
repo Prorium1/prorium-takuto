@@ -5,6 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PresentationView } from "../src/components/report/presentation-view";
 import { augustReport } from "../src/lib/mock/seed";
 import { presentationSourceSchema } from "../src/lib/domain/presentation";
+import { ImageConfigContext } from "next/dist/shared/lib/image-config-context.shared-runtime";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
+import nextConfig from "../next.config";
 const source = {
   period: "2026-08",
   basis: "monthly-net-v2",
@@ -66,11 +69,15 @@ test("owner presentation shows verified monthly facts and unknowns without appro
     },
   ];
   const html = renderToStaticMarkup(
-    createElement(PresentationView, {
-      source: presentationSourceSchema.parse(source),
-      report,
-      ownership: report.content.ownership || null,
-    }),
+    createElement(
+      ImageConfigContext.Provider,
+      { value: { ...imageConfigDefault, ...nextConfig.images } },
+      createElement(PresentationView, {
+        source: presentationSourceSchema.parse(source),
+        report,
+        ownership: report.content.ownership || null,
+      }),
+    ),
   );
   assert.match(html, /説明用プレビュー/);
   assert.match(html, /未公開/);
