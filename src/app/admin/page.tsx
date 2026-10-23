@@ -31,6 +31,14 @@ export default async function AdminPage() {
           </div>
           <div className={styles.heroAction}>
             {draft && (
+              <Link
+                href={`/admin/reports/${draft.id}/present`}
+                className="button secondary"
+              >
+                説明用プレビューを開く
+              </Link>
+            )}
+            {draft && (
               <span>
                 {periodLabel(draft.period)} ·{" "}
                 {draft.contextRequired

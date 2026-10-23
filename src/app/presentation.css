@@ -1,0 +1,226 @@
+.presentation-page {
+  max-width: 1240px;
+  margin: auto;
+  padding: 24px 40px 64px;
+}
+.presentation-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 60px;
+}
+.presentation-topbar a {
+  font-size: 13px;
+  color: var(--muted);
+}
+.presentation-topbar img {
+  max-width: 160px;
+}
+.presentation-header {
+  margin-bottom: 36px;
+}
+.presentation-status {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #d6dfea;
+  border-radius: 6px;
+  background: #f3f6fa;
+  color: #4e6378;
+  font-size: 12px;
+  margin-bottom: 32px;
+}
+.presentation-header > .eyebrow {
+  display: block;
+}
+.presentation-header h1 {
+  font-size: clamp(30px, 5vw, 54px);
+  line-height: 1.3;
+  letter-spacing: -0.04em;
+  margin: 16px 0;
+}
+.presentation-header h1 span {
+  display: block;
+  font-weight: 400;
+  color: #647487;
+}
+.presentation-header > p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.presentation-source {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.presentation-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e5eb;
+  font-size: 13px;
+}
+.presentation-exact {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 10px 0;
+}
+.presentation-summary {
+  padding: 36px;
+  margin-top: 30px;
+  border-radius: 12px;
+  background: #edf3f8;
+  border: 1px solid #d9e4ed;
+}
+.presentation-summary h2 {
+  font-size: 26px;
+  line-height: 1.5;
+  margin: 16px 0;
+}
+.presentation-summary p {
+  line-height: 1.9;
+  max-width: 850px;
+}
+.presentation-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.presentation-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 550px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.presentation-table th,
+.presentation-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #e2e7eb;
+  text-align: right;
+  white-space: nowrap;
+}
+.presentation-table th:first-child {
+  text-align: left;
+}
+.presentation-table thead {
+  color: var(--muted);
+  background: #f5f7f9;
+}
+.presentation-note,
+.presentation-evidence {
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-top: 16px;
+}
+.presentation-evidence summary {
+  cursor: pointer;
+}
+.presentation-balances {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.presentation-balances > div {
+  border: 1px solid #dce3e8;
+  border-radius: 10px;
+  padding: 24px;
+}
+.presentation-balances span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.presentation-balances strong {
+  font-size: clamp(16px, 2vw, 25px);
+  font-variant-numeric: tabular-nums;
+}
+.presentation-pending {
+  padding: 28px;
+  border: 1px solid #dce3e8;
+  border-radius: 12px;
+  margin-top: 40px;
+}
+.presentation-pending h2 {
+  font-size: 22px;
+  margin: 16px 0;
+}
+.presentation-pending dt {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+.presentation-pending dd {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.presentation-footer {
+  border-top: 1px solid #dce3e8;
+  margin-top: 40px;
+  padding-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.presentation-report .report-section {
+  scroll-margin-top: 24px;
+}
+.presentation-report {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .presentation-page {
+    padding: 18px 18px 48px;
+  }
+  .presentation-topbar {
+    margin-bottom: 36px;
+  }
+  .presentation-topbar img {
+    max-width: 130px;
+  }
+  .presentation-header h1 {
+    font-size: 34px;
+  }
+  .presentation-summary {
+    padding: 24px;
+  }
+  .presentation-summary h2 {
+    font-size: 23px;
+  }
+  .presentation-balances {
+    grid-template-columns: 1fr;
+  }
+  .presentation-balances > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
+  }
+  .presentation-balances span {
+    margin: 0;
+  }
+  .presentation-pending {
+    padding: 22px;
+  }
+  .presentation-status {
+    font-size: 11px;
+  }
+}
+@media print {
+  .presentation-topbar a {
+    display: none;
+  }
+  .presentation-page {
+    padding: 0;
+  }
+  .presentation-summary,
+  .presentation-pending,
+  .kpi-card {
+    break-inside: avoid;
+  }
+}
