@@ -216,7 +216,16 @@ export function PresentationView({
       )}
       {report.content.eventSpotlight && (
         <EventSpotlight
-          event={report.content.eventSpotlight}
+          event={{
+            title: "大会・イベント映像",
+            occurredOn: report.content.eventSpotlight.occurredOn,
+            summary:
+              "管理画面に登録された参考映像です。大会の成果・事業への寄与は未確認です。",
+            outcomes: [],
+            nextAction: "",
+            videoUrl: report.content.eventSpotlight.videoUrl,
+            videoTitle: "登録された大会映像",
+          }}
           period={s.period}
           print={false}
         />

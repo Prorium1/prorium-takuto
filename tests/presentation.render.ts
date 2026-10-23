@@ -47,6 +47,15 @@ const source = {
 test("owner presentation shows verified monthly facts and unknowns without approval or cash comparison claims", () => {
   const report = structuredClone(augustReport);
   report.content.ceo.message = "PRIVATE-CEO-DRAFT";
+  report.content.eventSpotlight = {
+    title: "PRIVATE-EVENT-TITLE",
+    occurredOn: "2026-06-02",
+    summary: "PRIVATE-EVENT-PROSE",
+    outcomes: ["PRIVATE-EVENT-OUTCOME"],
+    nextAction: "PRIVATE-EVENT-NEXT",
+    videoUrl: "https://www.youtube.com/watch?v=abcdefghijk",
+    videoTitle: "PRIVATE-EVENT-VIDEO-TITLE",
+  };
   report.content.briefing = [
     {
       id: "private",
@@ -72,6 +81,6 @@ test("owner presentation shows verified monthly facts and unknowns without appro
   assert.match(html, /Mock 創業株主A/);
   assert.doesNotMatch(
     html,
-    /PRIVATE-CEO-DRAFT|PRIVATE-BUSINESS-DRAFT|経営確認済み|承認済み|AIによる効率化|か月分の現預金/,
+    /PRIVATE-CEO-DRAFT|PRIVATE-BUSINESS-DRAFT|PRIVATE-EVENT-|経営確認済み|承認済み|AIによる効率化|か月分の現預金/,
   );
 });
