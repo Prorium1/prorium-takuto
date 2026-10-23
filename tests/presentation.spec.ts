@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { augustReport } from "../src/lib/mock/seed";
 test("an owner can present a read-only monthly briefing with unknowns and an investor cannot open it", async ({
   page,
   browser,
@@ -6,6 +7,7 @@ test("an owner can present a read-only monthly briefing with unknowns and an inv
   await page.goto("/login");
   await page.getByRole("button", { name: "管理者デモを開く" }).click();
   await page.waitForURL("**/admin");
+  await page.goto(`/admin/reports/${augustReport.id}`);
   await page.getByRole("link", { name: "説明用プレビューを開く" }).click();
   await page.waitForURL(/\/present$/);
   await expect(
@@ -24,7 +26,7 @@ test("an owner can present a read-only monthly briefing with unknowns and an inv
     ),
   ).toBe(true);
   const presentationUrl = page.url();
-  await page.screenshot({path:"/tmp/prorium-presentation-mobile.png",fullPage:true});
+  await page.screenshot({ path: "/tmp/prorium-presentation-mobile.png" });
   const investor = await browser.newContext();
   try {
     const other = await investor.newPage();
