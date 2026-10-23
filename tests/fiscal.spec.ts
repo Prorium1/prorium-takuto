@@ -10,7 +10,18 @@ test("owner can compare fiscal trends and change a reference scenario without ch
   await expect(
     page.getByRole("heading", { name: /今期の現在地と、\s*着地への道筋。/ }),
   ).toBeVisible();
-  const actual = await page.locator(".fiscal-kpis").textContent();
+  await expect(page.locator(".fiscal-goal > strong")).toHaveText(
+    "600,000,000円",
+  );
+  await expect(
+    page.getByRole("heading", { name: "今期の経営サマリー" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "業務効率化と新規展開" }),
+  ).toBeVisible();
+  const actual = await page
+    .locator(".fiscal-kpis")
+    .evaluate((e) => e.textContent || "");
   const revenue = page.getByLabel("実績未取得分の月平均売上（円）");
   await revenue.fill("50000000");
   await expect(page.locator(".fiscal-reference")).toContainText(
@@ -53,6 +64,19 @@ test("owner can compare fiscal trends and change a reference scenario without ch
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  expect(
+    await page
+      .locator(".fiscal-kpis strong")
+      .first()
+      .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeGreaterThanOrEqual(30);
+  expect(
+    await page
+      .locator(".fiscal-kpis strong")
+      .first()
+      .evaluate((el) => Number.parseFloat(getComputedStyle(el).fontWeight)),
+  ).toBeGreaterThanOrEqual(700);
+  await expect(page.locator(".fiscal-kpis")).toContainText("434,500,000円");
   await page.screenshot({
     path: "/tmp/prorium-fiscal-mobile.png",
     fullPage: true,

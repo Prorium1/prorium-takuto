@@ -1,6 +1,6 @@
 import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 import type { FinancialSnapshot } from "@/lib/domain/types";
-import { millions, yoyPresentation } from "@/lib/domain/finance";
+import { yenAmount, yoyPresentation } from "@/lib/domain/finance";
 import {
   financialBasis,
   financialProvenance,
@@ -31,8 +31,8 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
             </div>
             <span className="kpi-en">{en}</span>
             <div className="kpi-value">
-              {millions(metric.current)}
-              <span>百万円</span>
+              {yenAmount(metric.current)}
+              <span>円</span>
             </div>
             <div className="kpi-comparison">
               <span
@@ -58,7 +58,7 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
             </div>
             <div className="kpi-baseline">
               {comparable ? "前年同月" : "比較値"}{" "}
-              <strong>{millions(metric.previous)}</strong> 百万円
+              <strong>{yenAmount(metric.previous)}</strong> 円
             </div>
             {yoy.note && <p className="comparison-note">{yoy.note}</p>}
             <details className="kpi-evidence">

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fiscalSourceSchema, fiscalSummary } from "../src/lib/domain/fiscal";
+import { mockManagementSummary } from "../src/lib/mock/fiscal-summary";
 const metric = (revenue: number, profit: number) => ({
   revenue,
   costOfSales: 200,
@@ -73,4 +74,59 @@ test("missing months, partial current months, mismatched prior figures and unbal
     { ...input, outlook: { ...input.outlook, targetRevenue: -1 } },
   ])
     assert.equal(fiscalSourceSchema.safeParse(bad).success, false);
+});
+test("owner commentary keeps business updates separate from accounting dates and preserves an unknown total school increase", () => {
+  const result = fiscalSourceSchema.parse({
+    ...input,
+    managementSummary: mockManagementSummary,
+  });
+  assert.deepEqual(result.managementSummary, mockManagementSummary);
+  assert.equal(result.managementSummary?.schoolLaunches.totalAdded, null);
+  assert.equal(result.months.at(-1)?.period, "2026-09");
+  assert.equal(
+    fiscalSourceSchema.safeParse({
+      ...input,
+      managementSummary: { ...mockManagementSummary, asOf: "2027-01-01" },
+    }).success,
+    false,
+  );
+  assert.equal(
+    fiscalSourceSchema.safeParse({
+      ...input,
+      managementSummary: {
+        ...mockManagementSummary,
+        schoolLaunches: {
+          ...mockManagementSummary.schoolLaunches,
+          confirmed: [
+            {
+              ...mockManagementSummary.schoolLaunches.confirmed[0],
+              period: "2024-01",
+            },
+          ],
+        },
+      },
+    }).success,
+    false,
+  );
+});
+test("net school growth can be below gross launches and distinct schools can share an evidence page", () => {
+  const summary = structuredClone(mockManagementSummary);
+  summary.schoolLaunches.confirmed.push({
+    ...summary.schoolLaunches.confirmed[0],
+    name: "Mock スクールB",
+  });
+  for (const netChange of [0, -1]) {
+    const source = fiscalSourceSchema.parse({
+      ...input,
+      managementSummary: {
+        ...summary,
+        schoolLaunches: { ...summary.schoolLaunches, totalAdded: netChange },
+      },
+    });
+    assert.equal(
+      source.managementSummary?.schoolLaunches.totalAdded,
+      netChange,
+    );
+    assert.equal(source.managementSummary?.schoolLaunches.confirmed.length, 2);
+  }
 });

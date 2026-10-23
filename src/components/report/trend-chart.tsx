@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowUpRight, ChevronDown, Minus } from "lucide-react";
 import type { FinancialSnapshot } from "@/lib/domain/types";
 import {
   financialChartScale,
-  millions,
+  yenAmount,
   yoyPresentation,
 } from "@/lib/domain/finance";
 
@@ -29,7 +29,7 @@ export function TrendChart({
     metric === "revenue" ? 20_000_000 : 3_000_000,
   );
   const x = (i: number) =>
-    points.length === 1 ? 439 : 64 + i * (750 / (points.length - 1));
+    points.length === 1 ? 439 : 155 + i * (650 / (points.length - 1));
   const line = (
     key: "revenue" | "profit" | "previousRevenue" | "previousProfit",
   ) =>
@@ -97,8 +97,8 @@ export function TrendChart({
             {selected.month}の{metric === "revenue" ? "売上高" : "営業利益"}
           </span>
           <strong>
-            {millions(selected[metric])}
-            <small>百万円</small>
+            {yenAmount(selected[metric])}
+            <small>円</small>
           </strong>
         </div>
         <span
@@ -132,10 +132,10 @@ export function TrendChart({
         </div>
       </div>
       <p className="chart-prior-value">
-        前年同月 <strong>{millions(selected[priorKey])}</strong> 百万円
+        前年同月 <strong>{yenAmount(selected[priorKey])}</strong> 円
         <span>
           差額 {yoy.delta > 0 ? "+" : ""}
-          {millions(yoy.delta)} 百万円
+          {yenAmount(yoy.delta)} 円
         </span>
       </p>
       {yoy.note && (
@@ -158,20 +158,20 @@ export function TrendChart({
             return (
               <g key={i}>
                 <line
-                  x1="64"
+                  x1="155"
                   x2="814"
                   y1={y(value)}
                   y2={y(value)}
                   stroke="#dce3ec"
                 />
                 <text
-                  x="40"
+                  x="145"
                   y={y(value) + 4}
                   textAnchor="end"
                   fill="#586c7b"
                   fontSize="11"
                 >
-                  {millions(value, 0)}
+                  {yenAmount(value)}
                 </text>
               </g>
             );
@@ -182,7 +182,7 @@ export function TrendChart({
               fill={`url(#${areaId})`}
             />
           )}
-          <line x1="64" x2="814" y1={y(0)} y2={y(0)} stroke="#d6dae4" />
+          <line x1="155" x2="814" y1={y(0)} y2={y(0)} stroke="#d6dae4" />
           <path
             d={line(priorKey)}
             fill="none"
@@ -241,7 +241,7 @@ export function TrendChart({
                 className="chart-point-target"
                 role="button"
                 tabIndex={0}
-                aria-label={`${p.month}の${metric === "revenue" ? "売上高" : "営業利益"} ${millions(p[metric])}百万円`}
+                aria-label={`${p.month}の${metric === "revenue" ? "売上高" : "営業利益"} ${yenAmount(p[metric])}円`}
                 aria-pressed={i === selectedIndex}
                 onPointerEnter={(event) => {
                   if (event.pointerType === "mouse") setHover(i);
@@ -267,7 +267,7 @@ export function TrendChart({
       </div>
       <div className="chart-footer">
         <span>
-          単位：百万円 ·{" "}
+          単位：円 ·{" "}
           {provisional ? "freee取込候補・会計確認待ち" : "単月実績"}
           {financial.isMock && " · Mock Data"}
         </span>
@@ -299,8 +299,8 @@ export function TrendChart({
               return (
                 <tr key={p.month}>
                   <td>{p.month}</td>
-                  <td>{millions(p[metric])}</td>
-                  <td>{millions(p[priorKey])}</td>
+                  <td>{yenAmount(p[metric])}</td>
+                  <td>{yenAmount(p[priorKey])}</td>
                   <td>
                     {comparison.label}
                     {comparison.note && (

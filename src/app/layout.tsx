@@ -13,6 +13,7 @@ import "./dashboard-clarity.css";
 import "./ownership.css";
 import "./presentation.css";
 import "./fiscal.css";
+import "./report-legibility.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {

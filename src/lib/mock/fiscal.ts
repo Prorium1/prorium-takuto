@@ -1,3 +1,4 @@
+import { mockManagementSummary } from "./fiscal-summary";
 import { fiscalSourceSchema } from "../domain/fiscal";
 const metric = (revenue: number, profit: number) => ({
   revenue,
@@ -14,6 +15,17 @@ export function mockFiscalSource(year: number) {
   }));
   return fiscalSourceSchema.parse({
     fiscalEndYear: year,
+    managementSummary: {
+      ...mockManagementSummary,
+      asOf: `${year}-10-23`,
+      schoolLaunches: {
+        ...mockManagementSummary.schoolLaunches,
+        confirmed: mockManagementSummary.schoolLaunches.confirmed.map((p) => ({
+          ...p,
+          period: `${year}-02`,
+        })),
+      },
+    },
     asOf: `${year}-10-23`,
     outlook: {
       targetRevenue: 600_000_000,

@@ -1,0 +1,499 @@
+/* Full-yen figures stay on one line; panels stack before their digits shrink. */
+.monthly-report,
+.presentation-page {
+  font-size: 18px;
+  font-weight: 550;
+  color: #1b2e3c;
+}
+.monthly-report .kpi-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.monthly-report .kpi-value,
+.monthly-report .kpi-card:nth-child(4) .kpi-value {
+  font-size: clamp(32px, 3.2vw, 44px);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+.monthly-report .kpi-value > span,
+.monthly-report .kpi-card:nth-child(4) .kpi-value > span {
+  font-size: 18px;
+  font-weight: 700;
+}
+.monthly-report .kpi-label,
+.monthly-report .kpi-baseline,
+.monthly-report .kpi-comparison,
+.monthly-report .kpi-status {
+  font-size: 16px;
+  font-weight: 650;
+}
+.monthly-report .kpi-en {
+  font-size: 13px;
+  font-weight: 650;
+}
+.monthly-report .section-heading h2,
+.monthly-report .summary-section h2,
+.presentation-header h1 {
+  font-weight: 750;
+}
+.monthly-report .section-heading p,
+.monthly-report .executive-lead p,
+.monthly-report .executive-takeaways p,
+.monthly-report .summary-context p,
+.monthly-report .business-card p,
+.monthly-report .risk-card p {
+  font-size: 18px;
+  font-weight: 550;
+  line-height: 1.9;
+}
+.monthly-report .chart-stat {
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.monthly-report .chart-stat strong {
+  font-size: 34px;
+  font-weight: 750;
+}
+.monthly-report .chart-stat strong small,
+.monthly-report .chart-prior-value,
+.monthly-report .chart-caption {
+  font-size: 16px;
+  font-weight: 600;
+}
+.monthly-report .driver-header {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.monthly-report .driver-header > span {
+  font-size: 22px;
+  font-weight: 750;
+}
+.monthly-report .bridge-endpoints strong {
+  font-size: 24px;
+  font-weight: 750;
+}
+.monthly-report .driver-row > div {
+  flex-wrap: wrap;
+}
+.monthly-report .driver-row p,
+.monthly-report .driver-row strong,
+.monthly-report .driver-row > div > span:last-child {
+  font-size: 16px;
+  font-weight: 600;
+}
+.monthly-report .driver-total strong {
+  font-size: 22px;
+  font-weight: 750;
+}
+.monthly-report .position-main strong {
+  font-size: clamp(30px, 3.2vw, 42px);
+  font-weight: 750;
+}
+.monthly-report .balance-card strong,
+.monthly-report .ai-metric strong {
+  font-size: 26px;
+  font-weight: 750;
+}
+.presentation-page .presentation-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.presentation-page .presentation-kpis strong {
+  font-size: 36px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.presentation-page .presentation-note,
+.presentation-page .presentation-source,
+.presentation-page .presentation-footer,
+.presentation-page .presentation-balances span {
+  font-size: 16px;
+  font-weight: 600;
+}
+.presentation-page .presentation-balances strong {
+  font-size: 24px;
+  font-weight: 750;
+}
+.fiscal-hero .eyebrow,
+.fiscal-section-heading > span {
+  font-size: 14px;
+  font-weight: 700;
+}
+.fiscal-hero h1 {
+  font-weight: 750;
+}
+.fiscal-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.fiscal-kpis article {
+  border-bottom: 1px solid #e1e7ed;
+}
+.fiscal-kpis article:nth-child(2) {
+  border-right: 0;
+}
+.fiscal-kpis article:nth-child(n + 3) {
+  border-bottom: 0;
+}
+.fiscal-kpis strong {
+  font-size: clamp(32px, 3.2vw, 44px);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+.fiscal-section-heading h2,
+.fiscal-landing-grid h3 {
+  font-weight: 750;
+}
+.fiscal-landing-grid dd {
+  font-size: 26px;
+  font-weight: 750;
+}
+.fiscal-svg-scroll text {
+  font-size: 15px;
+  font-weight: 650;
+}
+.fiscal-management-lead {
+  border-left: 4px solid #326bb0;
+  padding: 8px 0 8px 26px;
+  margin-bottom: 34px;
+}
+.fiscal-management-lead h3 {
+  font-size: 30px;
+  font-weight: 750;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+.fiscal-management-lead p {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.95;
+  margin: 0;
+}
+.fiscal-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 38px;
+}
+.fiscal-management-grid article {
+  padding: 32px 0;
+  border-top: 1px solid #dce4ec;
+  min-width: 0;
+}
+.fiscal-management-number {
+  font-size: 16px;
+  font-weight: 750;
+  color: #326bb0;
+}
+.fiscal-management-grid h3 {
+  font-size: 25px;
+  font-weight: 750;
+  line-height: 1.6;
+  margin: 12px 0 22px;
+}
+.fiscal-management-grid ul {
+  padding-left: 22px;
+  margin: 0;
+}
+.fiscal-management-grid li {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.95;
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+.fiscal-funding-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 20px;
+  border-left: 2px solid #c7d6e5;
+}
+.fiscal-funding-timeline strong {
+  font-size: 18px;
+  font-weight: 750;
+  color: #326bb0;
+}
+.fiscal-funding-timeline p {
+  margin: 6px 0 0;
+}
+.fiscal-school-count {
+  padding: 22px;
+  background: #f1f5f9;
+  margin: 24px 0;
+}
+.fiscal-school-count > span {
+  font-size: 16px;
+  font-weight: 650;
+}
+.fiscal-school-count > strong {
+  display: block;
+  font-size: 38px;
+  font-weight: 750;
+  margin: 10px 0;
+}
+.fiscal-school-count > p,
+.fiscal-school-note,
+.fiscal-summary-basis {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.9;
+}
+.fiscal-management details summary {
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.8;
+}
+.fiscal-management details ul {
+  margin-top: 18px;
+}
+.fiscal-management a {
+  font-size: 16px;
+  font-weight: 650;
+  color: #295f9a;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.fiscal-outlook-label {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6d548c;
+  margin-bottom: 20px;
+}
+.fiscal-summary-basis {
+  margin: 20px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid #dce4ec;
+}
+.fiscal-page .presentation-table {
+  font-size: 16px;
+  font-weight: 600;
+}
+.fiscal-page .ownership-view {
+  font-size: 17px;
+}
+.fiscal-page .ownership-table {
+  font-size: 16px;
+  font-weight: 600;
+}
+@media (max-width: 800px) {
+  .fiscal-management-grid {
+    grid-template-columns: 1fr;
+  }
+  .fiscal-hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .fiscal-goal {
+    max-width: 100%;
+  }
+  .fiscal-landing-grid dd {
+    font-size: 24px;
+  }
+}
+@media (max-width: 600px) {
+  .monthly-report .kpi-grid,
+  .presentation-page .presentation-kpis,
+  .fiscal-kpis {
+    grid-template-columns: 1fr;
+  }
+  .monthly-report .kpi-value,
+  .monthly-report .kpi-card:nth-child(4) .kpi-value {
+    font-size: 34px;
+  }
+  .monthly-report .bridge-endpoints {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .monthly-report .bridge-endpoints > svg {
+    display: none;
+  }
+  .monthly-report .chart-stat strong {
+    font-size: 30px;
+  }
+  .presentation-page .presentation-topbar {
+    margin-bottom: 26px;
+  }
+  .fiscal-status {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .fiscal-kpis article {
+    padding: 24px 20px;
+    border-right: 0;
+    border-bottom: 1px solid #e1e7ed;
+  }
+  .fiscal-kpis article:nth-child(3) {
+    border-bottom: 1px solid #e1e7ed;
+  }
+  .fiscal-kpis strong {
+    font-size: 36px;
+  }
+  .fiscal-goal {
+    grid-template-columns: minmax(0, 1fr) 100px;
+    padding: 22px;
+  }
+  .fiscal-goal > span,
+  .fiscal-goal > strong {
+    grid-column: 1/-1;
+  }
+  .fiscal-goal > strong {
+    font-size: 32px;
+  }
+  .fiscal-goal .fiscal-ring {
+    grid-column: 2;
+    grid-row: 3/5;
+    width: 100px;
+  }
+  .fiscal-goal > p {
+    grid-column: 1;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .fiscal-ring span {
+    font-size: 10px;
+  }
+  .fiscal-nav {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .fiscal-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px 8px;
+  }
+  .fiscal-timeline span {
+    font-size: 13px;
+  }
+  .fiscal-landing-grid article {
+    display: block;
+  }
+  .fiscal-landing-grid dd {
+    font-size: 26px;
+  }
+  .fiscal-management-lead {
+    padding-left: 18px;
+  }
+  .fiscal-management-lead h3 {
+    font-size: 26px;
+  }
+  .fiscal-management-grid h3 {
+    font-size: 24px;
+  }
+  .presentation-page .presentation-balances {
+    grid-template-columns: 1fr;
+  }
+  .fiscal-svg-scroll:after {
+    content: "横にスクロールして全体を確認 →";
+    display: block;
+    font-size: 14px;
+    font-weight: 650;
+    padding: 12px 4px;
+    color: #50647b;
+  }
+}
+@media (max-width: 360px) {
+  .monthly-report .kpi-value,
+  .monthly-report .kpi-card:nth-child(4) .kpi-value,
+  .fiscal-kpis strong {
+    font-size: 30px;
+  }
+  .fiscal-goal > strong {
+    font-size: 29px;
+  }
+  .fiscal-gap strong {
+    font-size: 24px;
+  }
+}
+.presentation-page .kpi-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.presentation-page .kpi-value {
+  font-size: 36px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.presentation-page .kpi-label,
+.presentation-page .kpi-comparison,
+.presentation-page .kpi-baseline {
+  font-size: 16px;
+  font-weight: 650;
+}
+@media (max-width: 600px) {
+  .presentation-page .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .presentation-page .kpi-value {
+    font-size: 34px;
+  }
+}
+.freee-review-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.freee-review-kpi strong {
+  font-size: 34px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+.freee-review-kpi strong small {
+  font-size: 17px;
+  font-weight: 700;
+}
+@media (max-width: 680px) {
+  .freee-review-kpis {
+    grid-template-columns: 1fr;
+  }
+  .freee-review-kpi strong {
+    font-size: 34px;
+  }
+  .freee-review-kpi {
+    border-right: 0;
+    border-bottom: 1px solid #e5eaf0;
+  }
+}
+.investor-dashboard .kpi-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.investor-dashboard .kpi-value,
+.investor-dashboard .kpi-card:nth-child(4) .kpi-value {
+  font-size: 36px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+.investor-dashboard .kpi-value > span,
+.investor-dashboard .kpi-card:nth-child(4) .kpi-value > span {
+  font-size: 17px;
+  font-weight: 700;
+}
+.investor-dashboard .kpi-label,
+.investor-dashboard .kpi-baseline {
+  font-size: 16px;
+  font-weight: 650;
+}
+@media (max-width: 600px) {
+  .investor-dashboard .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .investor-dashboard .kpi-value,
+  .investor-dashboard .kpi-card:nth-child(4) .kpi-value {
+    font-size: 34px;
+  }
+}
+@media (max-width: 360px) {
+  .investor-dashboard .kpi-value,
+  .investor-dashboard .kpi-card:nth-child(4) .kpi-value {
+    font-size: 30px;
+  }
+}
+.fiscal-goal > p b {
+  display: block;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .fiscal-ring > div span {
+    max-width: 90px;
+    white-space: normal;
+    font-size: 10px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}

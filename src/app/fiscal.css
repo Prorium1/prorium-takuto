@@ -1,6 +1,6 @@
 .fiscal-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 64px;
   align-items: center;
   padding: 15px 0 40px;
@@ -10,13 +10,13 @@
   border: 1px solid #d7e1eb;
   border-radius: 5px;
   padding: 7px 10px;
-  font-size: 11px;
+  font-size: 15px;
   color: #5d7187;
   margin-bottom: 30px;
 }
 .fiscal-hero h1 {
   font-size: clamp(36px, 5vw, 60px);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.32;
   letter-spacing: -0.045em;
   margin: 18px 0;
@@ -25,25 +25,25 @@
   color: #5d7899;
 }
 .fiscal-hero p {
-  font-size: 13px;
+  font-size: 17px;
   line-height: 1.9;
   color: var(--muted);
 }
 .fiscal-hero .fiscal-period {
   font-size: 17px;
   color: #253f56;
-  font-weight: 500;
+  font-weight: 650;
   margin-bottom: 16px;
 }
 .fiscal-goal {
   border: 1px solid #dbe3ec;
   border-radius: 14px;
-  background: linear-gradient(150deg, #f5f8fc, #fff);
+  background: #f5f8fc;
   padding: 24px;
   text-align: center;
 }
 .fiscal-goal > span {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--muted);
 }
 .fiscal-goal > strong {
@@ -53,8 +53,8 @@
   margin: 12px 0 0;
 }
 .fiscal-goal small {
-  font-size: 11px;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 700;
   margin-left: 4px;
 }
 .fiscal-ring {
@@ -84,16 +84,16 @@
 }
 .fiscal-ring b {
   font-size: 30px;
-  font-weight: 500;
+  font-weight: 650;
   letter-spacing: -1px;
 }
 .fiscal-ring span {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--muted);
 }
 .fiscal-goal p {
   margin: 0;
-  font-size: 12px;
+  font-size: 16px;
 }
 .fiscal-nav {
   display: flex;
@@ -102,7 +102,7 @@
   padding: 22px 0;
   border-top: 1px solid #dce4ec;
   border-bottom: 1px solid #dce4ec;
-  font-size: 12px;
+  font-size: 16px;
 }
 .fiscal-section {
   padding: 52px 0;
@@ -113,25 +113,25 @@
   margin-bottom: 28px;
 }
 .fiscal-section-heading > span {
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 1.5px;
   color: #73859a;
 }
 .fiscal-section-heading h2 {
   font-size: clamp(25px, 3vw, 34px);
-  font-weight: 500;
+  font-weight: 650;
   letter-spacing: -0.035em;
   line-height: 1.5;
   margin: 10px 0;
 }
 .fiscal-section-heading p {
-  font-size: 13px;
+  font-size: 17px;
   line-height: 1.9;
   color: var(--muted);
 }
 .fiscal-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid #dce4eb;
   border-radius: 12px;
   overflow: hidden;
@@ -145,26 +145,26 @@
   border-right: 0;
 }
 .fiscal-kpis article > span {
-  font-size: 12px;
+  font-size: 16px;
   color: #62788e;
 }
 .fiscal-kpis strong {
   display: block;
   font-size: clamp(25px, 3.3vw, 38px);
-  font-weight: 500;
+  font-weight: 650;
   letter-spacing: -1.5px;
   margin: 18px 0 12px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .fiscal-kpis strong small {
-  font-size: 10px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 700;
   margin-left: 3px;
   letter-spacing: 0;
 }
 .fiscal-kpis p {
-  font-size: 11px;
+  font-size: 15px;
   line-height: 1.8;
   color: #6b7a8a;
   overflow-wrap: anywhere;
@@ -191,12 +191,12 @@
   border-color: #a18abb;
 }
 .fiscal-timeline b {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 650;
 }
 .fiscal-timeline span {
   display: block;
-  font-size: 9px;
+  font-size: 14px;
   color: var(--muted);
   margin-top: 5px;
 }
@@ -211,12 +211,12 @@
   padding: 24px;
 }
 .fiscal-landing-grid article > span {
-  font-size: 10px;
+  font-size: 14px;
   color: #75859a;
 }
 .fiscal-landing-grid h3 {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 650;
   line-height: 1.7;
   margin: 12px 0 22px;
 }
@@ -224,7 +224,7 @@
   margin: 0;
 }
 .fiscal-landing-grid dt {
-  font-size: 11px;
+  font-size: 15px;
   color: #687e93;
   margin-top: 16px;
 }
@@ -235,7 +235,7 @@
   font-variant-numeric: tabular-nums;
 }
 .fiscal-landing-grid p {
-  font-size: 11px;
+  font-size: 15px;
   line-height: 1.8;
   color: var(--muted);
   margin-top: 20px;
@@ -254,18 +254,18 @@
   background: #f1f5f9;
 }
 .fiscal-gap span {
-  font-size: 12px;
+  font-size: 16px;
   color: #63798d;
 }
 .fiscal-gap strong {
   display: block;
   font-size: 26px;
-  font-weight: 500;
+  font-weight: 650;
   letter-spacing: -0.7px;
   margin: 14px 0;
 }
 .fiscal-gap p {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--muted);
   line-height: 1.8;
 }
@@ -284,16 +284,16 @@
 }
 .fiscal-simulation h3 {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px;
 }
 .fiscal-simulation p {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--muted);
   line-height: 1.8;
 }
 .fiscal-simulation label {
-  font-size: 12px;
+  font-size: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -316,7 +316,7 @@
   border-radius: 6px;
   padding: 10px 14px;
   font: inherit;
-  font-size: 12px;
+  font-size: 16px;
   cursor: pointer;
 }
 .fiscal-chart-controls {
@@ -332,7 +332,7 @@
   background: white;
   color: #63778b;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 16px;
 }
 .fiscal-chart-controls button[aria-pressed="true"] {
   background: #223d56;
@@ -353,18 +353,18 @@
 }
 .fiscal-chart-title h3 {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 650;
   margin: 0;
 }
 .fiscal-chart-title > span {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--muted);
 }
 .fiscal-legend {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  font-size: 11px;
+  font-size: 15px;
   color: #657c91;
   margin: 18px 0 5px;
 }
@@ -442,12 +442,12 @@
 .fiscal-data summary {
   padding: 20px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 17px;
   background: #f8fafc;
 }
 .fiscal-source-note {
   padding: 20px 0;
-  font-size: 12px;
+  font-size: 16px;
   color: var(--muted);
   line-height: 1.9;
 }
@@ -544,11 +544,11 @@
     font-size: 24px;
   }
   .fiscal-ring span {
-    font-size: 8px;
+    font-size: 14px;
   }
   .fiscal-goal > p {
     grid-column: 1;
-    font-size: 10px;
+    font-size: 14px;
   }
   .fiscal-section {
     padding: 36px 0;
@@ -568,7 +568,7 @@
     row-gap: 18px;
   }
   .fiscal-timeline span {
-    font-size: 9px;
+    font-size: 14px;
   }
   .fiscal-gap {
     grid-template-columns: 1fr;

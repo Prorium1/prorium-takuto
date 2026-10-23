@@ -41,6 +41,13 @@ test("fiscal source is tenant-admin only, projects aggregates only, excludes par
     );
     assert.ok(migration);
     await db.exec(await readFile(`supabase/migrations/${migration}`, "utf8"));
+    const summaryMigration = (await readdir("supabase/migrations")).find((n) =>
+      n.endsWith("_fiscal_management_summary.sql"),
+    );
+    assert.ok(summaryMigration);
+    await db.exec(
+      await readFile(`supabase/migrations/${summaryMigration}`, "utf8"),
+    );
     await db.query(
       "insert into private.fiscal_briefing_context(company_id,fiscal_end_year,context) values($1,$2,$3::jsonb)",
       [
@@ -49,6 +56,7 @@ test("fiscal source is tenant-admin only, projects aggregates only, excludes par
         JSON.stringify({
           previousFiscalYear: source.previousFiscalYear,
           outlook: source.outlook,
+          managementSummary: source.managementSummary,
           privateMemo: "PRIVATE-CONTEXT-CANARY",
         }),
       ],
@@ -115,9 +123,24 @@ test("fiscal source is tenant-admin only, projects aggregates only, excludes par
           months: unknown[];
           previousFiscalYear: unknown[];
           outlook: { targetRevenue: number };
+          managementSummary: unknown;
         };
       }>("select public.ir_get_fiscal_briefing($1,$2) as data", [company, year])
     ).rows[0].data;
+    assert.deepEqual(r.managementSummary, source.managementSummary);
+    await db.exec("reset role");
+    await db.query(
+      "update private.fiscal_briefing_context set context=context-'managementSummary' where company_id=$1 and fiscal_end_year=$2",
+      [company, year],
+    );
+    await actor(admin);
+    const legacy = (
+      await db.query<{ data: Record<string, unknown> }>(
+        "select public.ir_get_fiscal_briefing($1,$2) as data",
+        [company, year],
+      )
+    ).rows[0].data;
+    assert.equal(Object.hasOwn(legacy, "managementSummary"), false);
     assert.equal(r.months.length, 11);
     assert.equal(r.previousFiscalYear.length, 12);
     assert.equal(r.outlook.targetRevenue, source.outlook?.targetRevenue);

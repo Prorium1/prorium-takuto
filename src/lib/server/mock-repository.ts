@@ -348,7 +348,7 @@ export async function mutateReport(
             indicator.id === "actual" && indicator.kind === "Actual"
               ? {
                   ...indicator,
-                  value: `${(revenue.value / 1_000_000).toFixed(2)} 百万円`,
+                  value: `${revenue.value.toLocaleString("ja-JP")}円`,
                 }
               : indicator,
           );

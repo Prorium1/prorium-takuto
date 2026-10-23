@@ -107,7 +107,7 @@ const augustContent: ReportContent = {
     headline: "成長を、利益につなげる。",
     text: "既存事業の着実な成長に、SBAとAI事業が加わり、売上高は前年同月比31.6%増。AIによる業務効率化と固定費の吸収が進み、営業利益は2倍に拡大しました。成長投資を続けながら、収益性と財務の安定性を両立しています。",
     points: [
-      "売上高52.64百万円。既存事業と新規事業の双方が成長。",
+      "売上高52,640,000円。既存事業と新規事業の双方が成長。",
       "営業利益率16.0%。前年同月から5.5pt改善。",
       "AI関連売上比率18.0%。社内自動化による効率改善も進展。",
     ],
@@ -289,7 +289,7 @@ const augustContent: ReportContent = {
       id: "actual",
       kind: "Actual",
       title: "AI関連売上",
-      value: "9.48 百万円",
+      value: "9,480,000円",
       description: "8月に計上済みの売上。",
       timing: "2026年8月実績",
     },
@@ -466,7 +466,7 @@ export function mockReportForPeriod(period: string, factor = 1): ReportVersion {
   r.content.ai.revenue[0].value =
     Math.round((f.revenue.current * 0.18) / 1000) * 1000;
   r.content.ai.efficiency[0].value = Math.round(840_000 * factor);
-  r.content.summary.points[0] = `売上高${(f.revenue.current / 1e6).toFixed(2)}百万円。既存事業と新規事業の双方が成長。`;
+  r.content.summary.points[0] = `売上高${f.revenue.current.toLocaleString("ja-JP")}円。既存事業と新規事業の双方が成長。`;
   const revenueGrowth = compareYoY(
     f.revenue.current,
     f.revenue.previous,
@@ -480,7 +480,7 @@ export function mockReportForPeriod(period: string, factor = 1): ReportVersion {
   r.content.summary.text = `既存事業の着実な成長に、SBAとAI事業が加わり、売上高は前年同月比${revenueGrowth?.toFixed(1)}%増。AIによる業務効率化と固定費の吸収が進み、営業利益は${profitGrowth?.toFixed(1)}%増となりました。成長投資を続けながら、収益性と財務の安定性を両立しています。`;
   r.content.summary.points[1] = `営業利益率${profitMargin.toFixed(1)}%。前年同月から${(profitMargin - oldMargin).toFixed(1)}pt改善。`;
   r.content.financialAnalysis = `売上の伸びを上回る利益成長を実現。営業利益率は${oldMargin.toFixed(1)}%から${profitMargin.toFixed(1)}%へ改善しました。AIによる制作・運用コストの削減と固定費の吸収が寄与した一方、新規事業への先行投資を継続しています。`;
-  r.content.forward[0].value = `${(r.content.ai.revenue[0].value / 1e6).toFixed(2)} 百万円`;
+  r.content.forward[0].value = `${r.content.ai.revenue[0].value.toLocaleString("ja-JP")}円`;
   r.content.forward[0].description = `${month}月に計上済みの売上。`;
   r.content.forward[0].timing = `${period.slice(0, 4)}年${month}月実績`;
   r.content.ceo.message = r.content.ceo.message.replace("8月", `${month}月`);

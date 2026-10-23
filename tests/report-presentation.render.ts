@@ -122,7 +122,7 @@ test("zero and negative prior years display a signed delta with a comparison exp
       createElement(TrendChart, { financial: f }),
     );
     const kpi = renderToStaticMarkup(createElement(KpiGrid, { financial: f }));
-    const expectedDelta = previous === 0 ? "+2.00百万円" : "+3.00百万円";
+    const expectedDelta = previous === 0 ? "+2,000,000円" : "+3,000,000円";
     assert.ok(chart.includes(expectedDelta));
     assert.ok(kpi.includes(expectedDelta));
     assert.match(chart, /前年同月が0以下のため増減額/);
