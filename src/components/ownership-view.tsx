@@ -12,10 +12,12 @@ export function OwnershipView({
   snapshot,
   print = false,
   headingLevel = 2,
+  preview = false,
 }: {
   snapshot: OwnershipSnapshot;
   print?: boolean;
   headingLevel?: 1 | 2;
+  preview?: boolean;
 }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
   const rows = ownershipRows(snapshot);
@@ -103,8 +105,8 @@ export function OwnershipView({
         <table className="ownership-table">
           <caption>
             {snapshot.display === "named"
-              ? "公開された株主ごとの保有状況"
-              : "公開された株主区分ごとの保有状況"}
+              ? `${preview ? "基準日時点の" : "公開された"}株主ごとの保有状況`
+              : `${preview ? "基準日時点の" : "公開された"}株主区分ごとの保有状況`}
           </caption>
           <thead>
             <tr>

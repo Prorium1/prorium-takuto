@@ -208,7 +208,7 @@ export function PresentationView({
       </section>
       {ownership && (
         <section id="presentation-ownership" className="report-section">
-          <OwnershipView snapshot={ownership} />
+          <OwnershipView snapshot={ownership} preview />
           <p className="presentation-note">
             smartroundから取得した確認用の名簿です。未転換の新株予約権は発行済株式ベースの比率に含めていません。
           </p>
