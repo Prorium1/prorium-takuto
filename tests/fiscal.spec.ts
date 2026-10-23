@@ -19,6 +19,15 @@ test("owner can compare fiscal trends and change a reference scenario without ch
   await expect(
     page.getByRole("heading", { name: "業務効率化と新規展開" }),
   ).toBeVisible();
+  const funding = page.getByRole("figure", { name: "資金調達の時系列" });
+  await expect(funding).toBeVisible();
+  await expect(funding.getByRole("listitem")).toHaveCount(4);
+  await expect(
+    page.getByRole("figure", { name: "今後の成長方針の全体像" }),
+  ).toContainText("今後の方針・見通し");
+  await page
+    .locator("#fiscal-management")
+    .screenshot({ path: "/tmp/prorium-diagram-desktop.png" });
   const actual = await page
     .locator(".fiscal-kpis")
     .evaluate((e) => e.textContent || "");
@@ -83,6 +92,20 @@ test("owner can compare fiscal trends and change a reference scenario without ch
   });
   await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path: "/tmp/prorium-fiscal-mobile-fold.png" });
+  for (const width of [375, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    for (const figure of await page.locator(".fiscal-diagram").all()) {
+      expect(
+        await figure.evaluate((el) => el.scrollWidth <= el.clientWidth),
+      ).toBe(true);
+    }
+  }
+  await funding.screenshot({ path: "/tmp/prorium-diagram-mobile.png" });
   const investor = await browser.newContext();
   try {
     const other = await investor.newPage();
