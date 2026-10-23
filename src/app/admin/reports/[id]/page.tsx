@@ -90,6 +90,12 @@ export default async function AdminReportPage({
         <span className="eyebrow">REPORT EDITOR · {report.version}</span>
         <h1>{periodLabel(report.period)}</h1>
         <p>Monthly Shareholder Report</p>
+        <Link
+          className="button secondary"
+          href={`/admin/reports/${id}/present`}
+        >
+          説明用プレビューを開く
+        </Link>
       </div>
       {!isMockEnvironment() &&
         report.period === "2026-08" &&
