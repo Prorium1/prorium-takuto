@@ -24,6 +24,11 @@ export default async function PresentationPage({
     <main className="presentation-page">
       <div className="presentation-topbar">
         <Brand />
+        <Link
+          href={`/admin/fiscal/${Number(report.period.slice(0, 4)) + (Number(report.period.slice(5)) >= 11 ? 1 : 0)}`}
+        >
+          今期全体を見る
+        </Link>
         <Link href={`/admin/reports/${id}`}>編集画面へ戻る</Link>
       </div>
       {source ? (

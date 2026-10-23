@@ -1,6 +1,6 @@
 import { z } from "zod";
 const amount = z.number().int().safe();
-const metrics = z
+export const presentationMetricsSchema = z
   .object({
     revenue: amount,
     costOfSales: amount,
@@ -10,6 +10,7 @@ const metrics = z
     ordinaryProfit: amount,
   })
   .strict();
+const metrics = presentationMetricsSchema;
 const period = z.string().regex(/^20\d{2}-(0[1-9]|1[0-2])$/);
 export const presentationSourceSchema = z
   .object({

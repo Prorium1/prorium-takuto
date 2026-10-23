@@ -16,6 +16,11 @@ export default async function AdminPage() {
     getAdminStore(actor),
   ]);
   const draft = reports.find((report) => report.state === "draft");
+  const today = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Tokyo",
+  }).format(new Date());
+  const fiscalYear =
+    Number(today.slice(0, 4)) + (Number(today.slice(5, 7)) >= 11 ? 1 : 0);
   return (
     <Shell role={actor.role}>
       <div className={styles.overview}>
@@ -30,6 +35,12 @@ export default async function AdminPage() {
             <p>月次の振り返りを、株主に伝わるレポートへ。</p>
           </div>
           <div className={styles.heroAction}>
+            <Link
+              href={`/admin/fiscal/${fiscalYear}`}
+              className="button primary"
+            >
+              今期全体の説明用画面を開く
+            </Link>
             {draft && (
               <Link
                 href={`/admin/reports/${draft.id}/present`}
