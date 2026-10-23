@@ -18,7 +18,7 @@ import {
 } from "@/lib/server/production-repository";
 import { isMockEnvironment } from "@/lib/server/environment";
 import { periodSchema } from "@/lib/domain/validation";
-import { periodLabel, millions, margin } from "@/lib/domain/finance";
+import { periodLabel, yenAmount, margin } from "@/lib/domain/finance";
 import { stagedRowSchema } from "@/lib/domain/freee-staging";
 import { stagedTrend } from "@/lib/domain/staged-trend";
 import { freeeReviewFacts } from "@/lib/domain/freee-review";
@@ -110,10 +110,10 @@ export default async function FreeeMonthReview({
               <em>数字から、経営の説明へ。</em>
             </h1>
             <p>
-              freee取得値では、売上高は{millions(row.candidate.revenue.current)}
-              百万円、営業利益は
-              {millions(row.candidate.operatingProfit.current)}
-              百万円。営業利益率は{operatingMargin.toFixed(1)}
+              freee取得値では、売上高は{yenAmount(row.candidate.revenue.current)}
+              円、営業利益は
+              {yenAmount(row.candidate.operatingProfit.current)}
+              円。営業利益率は{operatingMargin.toFixed(1)}
               %。会計締め・現預金科目・増減理由を確認するまで株主向けの確定実績にはしません。
             </p>
           </div>
@@ -140,11 +140,11 @@ export default async function FreeeMonthReview({
             <article key={item.key} className="freee-review-kpi">
               <span>{item.label}</span>
               <strong>
-                {millions(item.current)}
-                <small>百万円</small>
+                {yenAmount(item.current)}
+                <small>円</small>
               </strong>
               <div className="freee-review-kpi-bottom">
-                <span>前年 {millions(item.previous)}百万円</span>
+                <span>前年 {yenAmount(item.previous)}円</span>
                 <b
                   className={
                     item.yoy.delta < 0

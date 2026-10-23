@@ -17,7 +17,7 @@ export function yoyPresentation(current: number, previous: number) {
       comparison.delta > 0 ? "up" : comparison.delta < 0 ? "down" : "flat",
     label:
       comparison.percent === null
-        ? `${comparison.delta > 0 ? "+" : ""}${millions(comparison.delta)}百万円`
+        ? `${comparison.delta > 0 ? "+" : ""}${yen(comparison.delta)}`
         : percent(comparison.percent),
     note:
       comparison.percent === null ? "前年同月が0以下のため増減額を表示" : null,
@@ -51,6 +51,12 @@ export function millions(value: number, digits = 2) {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
+}
+export function yen(value: number) {
+  return `${yenAmount(value)}円`;
+}
+export function yenAmount(value: number) {
+  return value.toLocaleString("ja-JP", { maximumFractionDigits: 0 });
 }
 export function percent(value: number) {
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;

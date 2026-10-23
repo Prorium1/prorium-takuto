@@ -5,7 +5,7 @@ import { requireActor } from "@/lib/server/auth";
 import { listPublishedReports } from "@/lib/server/repository";
 import {
   compareYoY,
-  millions,
+  yenAmount,
   percent,
   periodLabel,
 } from "@/lib/domain/finance";
@@ -60,8 +60,8 @@ export default async function ArchivePage() {
                 <div>
                   <span>売上高</span>
                   <strong>
-                    {millions(report.content.financial.revenue.current)}
-                    <small>百万円</small>
+                    {yenAmount(report.content.financial.revenue.current)}
+                    <small>円</small>
                   </strong>
                 </div>
                 <span className="positive">

@@ -1,7 +1,7 @@
 import type { PresentationSource } from "@/lib/domain/presentation";
 import type { ReportVersion } from "@/lib/domain/types";
 import type { OwnershipSnapshot } from "@/lib/domain/ownership";
-import { millions, periodLabel, yoyPresentation } from "@/lib/domain/finance";
+import { yenAmount, periodLabel, yoyPresentation } from "@/lib/domain/finance";
 import { formatReportTimestamp } from "@/lib/domain/provenance";
 import { TrendChart } from "./trend-chart";
 import { EventSpotlight } from "./event-spotlight";
@@ -67,8 +67,8 @@ export function PresentationView({
                 "未取得"
               ) : (
                 <>
-                  {millions(value)}
-                  <span>百万円</span>
+                  {yenAmount(value)}
+                  <span>円</span>
                 </>
               )}
             </div>

@@ -2,12 +2,12 @@
 import { useId, useState } from "react";
 import type { FiscalSource } from "@/lib/domain/fiscal";
 import { fiscalSummary } from "@/lib/domain/fiscal";
-import { millions, yoyPresentation } from "@/lib/domain/finance";
+import { yen, yoyPresentation } from "@/lib/domain/finance";
 import { formatReportTimestamp } from "@/lib/domain/provenance";
 import type { OwnershipSnapshot } from "@/lib/domain/ownership";
 import { OwnershipView } from "@/components/ownership-view";
 import { EventSpotlight } from "./event-spotlight";
-const yen = (n: number) => `${n.toLocaleString("ja-JP")}円`;
+import { FiscalManagementSummary } from "./fiscal-management-summary";
 const signed = (n: number) => `${n > 0 ? "+" : ""}${yen(n)}`;
 function chartScale(values: number[]) {
   const lo = Math.min(0, ...values),
@@ -19,7 +19,7 @@ function chartScale(values: number[]) {
     ticks: Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4),
   };
 }
-const x = (i: number) => 64 + i * 83;
+const x = (i: number) => 160 + i * 75;
 const path = (values: (number | null)[], y: (n: number) => number) =>
   values
     .map((v, i) =>
@@ -163,7 +163,7 @@ export function FiscalBriefing({
           <strong>
             {s.outlook?.targetRevenue == null
               ? "未登録"
-              : `${new Intl.NumberFormat("ja-JP", { notation: "compact", maximumFractionDigits: 2 }).format(s.outlook.targetRevenue)}円`}
+              : yen(s.outlook.targetRevenue)}
           </strong>
           <div className="fiscal-ring">
             <svg viewBox="0 0 180 180" aria-hidden="true">
@@ -191,13 +191,14 @@ export function FiscalBriefing({
               "会計実績は目標以上です"
             ) : (
               <>
-                目標まで <b>{millions(stats.requiredRevenue)}百万円</b>
+                目標まで <b>{yen(stats.requiredRevenue)}</b>
               </>
             )}
           </p>
         </div>
       </header>
       <nav className="fiscal-nav" aria-label="今期全体の目次">
+        {s.managementSummary && <a href="#fiscal-management">経営サマリー</a>}
         <a href="#fiscal-overview">現在地</a>
         <a href="#fiscal-landing">着地と目標</a>
         <a href="#fiscal-monthly">月次推移</a>
@@ -235,17 +236,8 @@ export function FiscalBriefing({
           ).map(([label, value, prior]) => (
             <article key={label}>
               <span>{label}</span>
-              <strong>
-                {value === null ? (
-                  "未取得"
-                ) : (
-                  <>
-                    {millions(value)}
-                    <small>百万円</small>
-                  </>
-                )}
-              </strong>
-              <p>{value === null ? "現預金科目の確認待ち" : yen(value)}</p>
+              <strong>{value === null ? "未取得" : <>{yen(value)}</>}</strong>
+              {value === null && <p>現預金科目の確認待ち</p>}
               {prior !== null && value !== null ? (
                 <p className={value >= prior ? "positive" : "negative"}>
                   {yoyPresentation(value, prior).label}
@@ -269,6 +261,9 @@ export function FiscalBriefing({
           ))}
         </div>
       </section>
+      {s.managementSummary && (
+        <FiscalManagementSummary summary={s.managementSummary} />
+      )}
       <section id="fiscal-landing" className="fiscal-section">
         <div className="fiscal-section-heading">
           <span>02 / YEAR-END OUTLOOK</span>
@@ -417,7 +412,7 @@ export function FiscalBriefing({
         <div className="fiscal-chart-card">
           <div className="fiscal-chart-title">
             <h3>{metricLabel}の累計と着地</h3>
-            <span>単位：百万円</span>
+            <span>単位：円</span>
           </div>
           <div className="fiscal-legend">
             <span className="legend-current">今期実績</span>
@@ -434,20 +429,20 @@ export function FiscalBriefing({
               {scale.ticks.map((t) => (
                 <g key={t}>
                   <line
-                    x1="52"
+                    x1="148"
                     x2="1000"
                     y1={scale.y(t)}
                     y2={scale.y(t)}
                     className="fiscal-grid-line"
                   />
-                  <text x="44" y={scale.y(t) + 4} textAnchor="end">
-                    {millions(t)}
+                  <text x="138" y={scale.y(t) + 4} textAnchor="end">
+                    {yen(t)}
                   </text>
                 </g>
               ))}
               {target != null && (
                 <line
-                  x1="52"
+                  x1="148"
                   x2="1000"
                   y1={scale.y(target)}
                   y2={scale.y(target)}
@@ -520,19 +515,19 @@ export function FiscalBriefing({
               {monthlyScale.ticks.map((t) => (
                 <g key={t}>
                   <line
-                    x1="52"
+                    x1="148"
                     x2="1000"
                     y1={monthlyScale.y(t)}
                     y2={monthlyScale.y(t)}
                     className="fiscal-grid-line"
                   />
-                  <text x="44" y={monthlyScale.y(t) + 4} textAnchor="end">
-                    {millions(t)}
+                  <text x="138" y={monthlyScale.y(t) + 4} textAnchor="end">
+                    {yen(t)}
                   </text>
                 </g>
               ))}
               <line
-                x1="52"
+                x1="148"
                 x2="1000"
                 y1={monthlyScale.y(0)}
                 y2={monthlyScale.y(0)}
@@ -636,7 +631,7 @@ export function FiscalBriefing({
                       }
                       textAnchor="middle"
                     >
-                      {millions(b.value)}
+                      {yen(b.value)}
                     </text>
                     <text x={left + 57} y="302" textAnchor="middle">
                       {b.label}
@@ -648,7 +643,7 @@ export function FiscalBriefing({
             </svg>
           </div>
           <p className="presentation-note">
-            単位：百万円。会計上の内訳であり、事業・案件の原因を断定するものではありません。前年との原価・販管費の区分の比較可能性は確認が必要です。
+            単位：円。会計上の内訳であり、事業・案件の原因を断定するものではありません。前年との原価・販管費の区分の比較可能性は確認が必要です。
           </p>
         </div>
       </section>
@@ -706,14 +701,14 @@ export function FiscalBriefing({
               {bsScale.ticks.map((t) => (
                 <g key={t}>
                   <line
-                    x1="52"
+                    x1="148"
                     x2="1000"
                     y1={bsScale.y(t)}
                     y2={bsScale.y(t)}
                     className="fiscal-grid-line"
                   />
-                  <text x="44" y={bsScale.y(t) + 4} textAnchor="end">
-                    {millions(t)}
+                  <text x="138" y={bsScale.y(t) + 4} textAnchor="end">
+                    {yen(t)}
                   </text>
                 </g>
               ))}
@@ -742,7 +737,7 @@ export function FiscalBriefing({
             </svg>
           </div>
           <p className="presentation-note">
-            単位：百万円。月次固定費は未確認のため、現預金が何か月分あるかは算定していません。
+            単位：円。月次固定費は未確認のため、現預金が何か月分あるかは算定していません。
           </p>
         </div>
       </section>
@@ -826,7 +821,9 @@ export function FiscalBriefing({
             </a>
           )}
           <p>
-            成長の事業要因、AIの売上・効率への寄与、開発・採用・株主へのお願いは経営者の確認待ちです。未入力を0件や効果なしとは扱いません。
+            {s.managementSummary
+              ? "事業の進捗とAI活用は、上記の経営者説明に記載しています。数値化したAI効果、開発・採用・株主へのお願いは追加の確認待ちです。"
+              : "成長の事業要因、AIの売上・効率への寄与、開発・採用・株主へのお願いは経営者の確認待ちです。未入力を0件や効果なしとは扱いません。"}
           </p>
         </div>
       </section>

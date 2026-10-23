@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import type { Driver } from "@/lib/domain/types";
-import { millions } from "@/lib/domain/finance";
+import { yenAmount } from "@/lib/domain/finance";
 
 export function DriverBridge({
   title,
@@ -29,21 +29,20 @@ export function DriverBridge({
           }
         >
           {delta > 0 ? "+" : ""}
-          {millions(delta)}
-          <small>百万円</small>
+          {yenAmount(delta)}
+          <small>円</small>
         </span>
       </div>
       <div className="bridge-endpoints">
         <div>
           <span>前年同月</span>
-          <strong>{millions(previous)}</strong>
+          <strong>{yenAmount(previous)}円</strong>
         </div>
         <ArrowRight size={18} />
         <div>
           <span>当月</span>
-          <strong>{millions(current)}</strong>
+          <strong>{yenAmount(current)}円</strong>
         </div>
-        <span className="bridge-unit">百万円</span>
       </div>
       <div className="driver-rows">
         {drivers.map((d, i) => (
@@ -55,7 +54,7 @@ export function DriverBridge({
               <strong>{d.label}</strong>
               <span className={d.amount >= 0 ? "positive" : "negative"}>
                 {d.amount > 0 ? "+" : ""}
-                {millions(d.amount)}
+                {yenAmount(d.amount)}
               </span>
             </div>
             <div className="driver-bar-track">
@@ -77,7 +76,7 @@ export function DriverBridge({
         <span>変化要因の合計</span>
         <strong>
           {current - previous > 0 ? "+" : ""}
-          {millions(current - previous)} 百万円
+          {yenAmount(current - previous)} 円
         </strong>
       </div>
     </article>

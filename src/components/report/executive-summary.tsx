@@ -1,6 +1,6 @@
 import { ArrowRight, Database, Sparkles } from "lucide-react";
 import type { ReportVersion } from "@/lib/domain/types";
-import { millions, yoyPresentation } from "@/lib/domain/finance";
+import { yenAmount, yoyPresentation } from "@/lib/domain/finance";
 import { reportAttribution } from "@/lib/domain/provenance";
 import { priorityRisk } from "@/lib/domain/summary-quality";
 
@@ -24,8 +24,8 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
   );
   const factualPoints = pendingFreee
     ? [
-        `売上高 ${millions(financial.revenue.current)}百万円（前年同月比 ${revenueYoY.label}）`,
-        `営業利益 ${millions(financial.operatingProfit.current)}百万円（前年同月比 ${profitYoY.label}）`,
+        `売上高 ${yenAmount(financial.revenue.current)}円（前年同月比 ${revenueYoY.label}）`,
+        `営業利益 ${yenAmount(financial.operatingProfit.current)}円（前年同月比 ${profitYoY.label}）`,
         "変化の理由は経営者の確認待ちです。",
       ]
     : [];

@@ -65,7 +65,7 @@ test("investors see all nine sections and only published versions", async ({
   ]) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
-  await expect(page.locator(".kpi-card").first()).toContainText("52.64");
+  await expect(page.locator(".kpi-card").first()).toContainText("52,640,000");
   await expect(page.locator(".kpi-card").first()).toContainText("+31.6%");
   await expect(
     page.getByRole("heading", { name: "AI Transformation", exact: true }),
@@ -117,7 +117,7 @@ test("charts, archive and responsive navigation work without overflow", async ({
   await page.getByRole("button", { name: "数値を見る" }).click();
   await expect(page.locator(".chart-card .table-wrap")).toBeVisible();
   await expect(page.locator(".chart-card tbody tr")).toHaveCount(3);
-  await expect(page.locator(".chart-stat")).toContainText("8.42");
+  await expect(page.locator(".chart-stat")).toContainText("8,420,000");
   for (const width of [1440, 768, 375, 320]) {
     await page.setViewportSize({ width, height: 900 });
     expect(
@@ -139,15 +139,15 @@ test("chart months can be selected with keyboard and touch", async ({
 }) => {
   await demo(page, "investor");
   const june = page.getByRole("button", {
-    name: "6月の売上高 48.20百万円",
+    name: "6月の売上高 48,200,000円",
     exact: true,
   });
   await june.focus();
   await page.keyboard.press("Enter");
   await expect(june).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".chart-stat")).toContainText("48.20");
+  await expect(page.locator(".chart-stat")).toContainText("48,200,000");
   await page.keyboard.press("Tab");
-  await expect(page.locator(".chart-stat")).toContainText("50.80");
+  await expect(page.locator(".chart-stat")).toContainText("50,800,000");
   const touchContext = await browser.newContext({
     viewport: { width: 375, height: 900 },
     hasTouch: true,
@@ -157,9 +157,9 @@ test("chart months can be selected with keyboard and touch", async ({
     const touch = await touchContext.newPage();
     await demo(touch, "investor");
     await touch
-      .getByRole("button", { name: "6月の売上高 48.20百万円", exact: true })
+      .getByRole("button", { name: "6月の売上高 48,200,000円", exact: true })
       .tap();
-    await expect(touch.locator(".chart-stat")).toContainText("48.20");
+    await expect(touch.locator(".chart-stat")).toContainText("48,200,000");
     await expect(touch.locator(".source-provenance")).toContainText(
       "freee未接続",
     );

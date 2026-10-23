@@ -11,7 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { AIKpi, ReportVersion } from "@/lib/domain/types";
-import { margin, millions, periodLabel } from "@/lib/domain/finance";
+import { margin, yenAmount, periodLabel } from "@/lib/domain/finance";
 import { KpiGrid } from "./kpi";
 import { TrendChart } from "./trend-chart";
 import { DriverBridge } from "./driver-bridge";
@@ -51,11 +51,11 @@ function AiMetric({ item }: { item: AIKpi }) {
       <span>{item.label}</span>
       <strong>
         {item.unit === "JPY"
-          ? millions(item.value)
+          ? yenAmount(item.value)
           : item.value.toLocaleString("en-US")}
         <small>
           {item.unit === "JPY"
-            ? "百万円"
+            ? "円"
             : item.unit === "hours"
               ? "時間 / 月"
               : "%"}
@@ -419,8 +419,8 @@ export function ReportView({
                 <h3>次の投資へ、着実な余力。</h3>
                 <div>
                   <strong>
-                    {millions(f.cash.current)}
-                    <span>百万円</span>
+                    {yenAmount(f.cash.current)}
+                    <span>円</span>
                   </strong>
                   <span className="badge badge-green">月末現預金</span>
                 </div>
@@ -430,7 +430,7 @@ export function ReportView({
                   </p>
                 ) : (
                   <p>
-                    月次固定費 {millions(f.monthlyFixedCosts)} 百万円に対し、
+                    月次固定費 {yenAmount(f.monthlyFixedCosts)} 円に対し、
                     <b>
                       {f.monthlyFixedCosts > 0
                         ? (f.cash.current / f.monthlyFixedCosts).toFixed(1)
@@ -445,22 +445,22 @@ export function ReportView({
                 <div>
                   <span>総資産</span>
                   <strong>
-                    {millions(f.assets)}
-                    <small>百万円</small>
+                    {yenAmount(f.assets)}
+                    <small>円</small>
                   </strong>
                 </div>
                 <div>
                   <span>負債</span>
                   <strong>
-                    {millions(f.liabilities)}
-                    <small>百万円</small>
+                    {yenAmount(f.liabilities)}
+                    <small>円</small>
                   </strong>
                 </div>
                 <div>
                   <span>純資産</span>
                   <strong>
-                    {millions(f.equity)}
-                    <small>百万円</small>
+                    {yenAmount(f.equity)}
+                    <small>円</small>
                   </strong>
                 </div>
                 <div className="equity-ratio">

@@ -5,6 +5,43 @@ import {
 } from "./presentation";
 const period = z.string().regex(/^20\d{2}-(0[1-9]|1[0-2])$/),
   amount = z.number().safe().int();
+const sourceUrl = z.url().refine((v) => v.startsWith("https://"));
+export const fiscalManagementSummarySchema = z
+  .object({
+    asOf: z.iso.date(),
+    sourceLabel: z.string().min(2).max(160),
+    headline: z.string().min(2).max(180),
+    overview: z.string().min(2).max(1200),
+    funding: z
+      .array(
+        z
+          .object({
+            period: z.string().min(1).max(60),
+            text: z.string().min(2).max(600),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(12),
+    business: z.array(z.string().min(2).max(600)).min(1).max(8),
+    efficiency: z.array(z.string().min(2).max(600)).min(1).max(8),
+    outlook: z.array(z.string().min(2).max(600)).min(1).max(8),
+    schoolLaunches: z
+      .object({
+        confirmed: z
+          .array(
+            z
+              .object({ name: z.string().min(2).max(160), period, sourceUrl })
+              .strict(),
+          )
+          .max(100),
+        totalAdded: z.number().int().min(-1000).max(1000).nullable(),
+        note: z.string().min(2).max(1200),
+        sourceUrl,
+      })
+      .strict(),
+  })
+  .strict();
 export const fiscalOutlookSchema = z
   .object({
     targetRevenue: amount.nonnegative().nullable(),
@@ -43,6 +80,7 @@ export const fiscalSourceSchema = z
       .array(z.object({ period, metrics }).strict())
       .length(12),
     outlook: fiscalOutlookSchema.nullable(),
+    managementSummary: fiscalManagementSummarySchema.nullish().default(null),
   })
   .strict()
   .superRefine((s, ctx) => {
@@ -79,6 +117,25 @@ export const fiscalSourceSchema = z
         fail("前期実績の整合性を確認してください。");
     if (s.outlook && s.outlook.asOf > s.asOf)
       fail("目標の確認日を確認してください。");
+    if (s.managementSummary) {
+      if (s.managementSummary.asOf > s.asOf)
+        fail("経営サマリーの基準日を確認してください。");
+      const schools = s.managementSummary.schoolLaunches;
+      if (
+        new Set(schools.confirmed.map((s) => `${s.name}:${s.period}`)).size !==
+        schools.confirmed.length
+      )
+        fail("スクールを重複して集計できません。");
+      if (
+        schools.confirmed.some(
+          (p) =>
+            p.period < expected(0) ||
+            p.period > `${s.fiscalEndYear}-10` ||
+            p.period > s.managementSummary!.asOf.slice(0, 7),
+        )
+      )
+        fail("今期以外のローンチを集計できません。");
+    }
   });
 export type FiscalSource = z.infer<typeof fiscalSourceSchema>;
 export type FiscalMetrics = z.infer<typeof metrics>;
