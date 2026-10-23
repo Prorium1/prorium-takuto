@@ -1,4 +1,6 @@
 import type { FiscalSource } from "@/lib/domain/fiscal";
+import { ArrowRight, Compass } from "lucide-react";
+import type { CSSProperties } from "react";
 export function FiscalManagementSummary({
   summary,
 }: {
@@ -22,17 +24,31 @@ export function FiscalManagementSummary({
         <p>{summary.overview}</p>
       </div>
       <div className="fiscal-management-grid">
-        <article>
+        <article className="fiscal-management-wide">
           <span className="fiscal-management-number">01</span>
           <h3>資金面</h3>
-          <ol className="fiscal-funding-timeline">
-            {summary.funding.map((item, i) => (
-              <li key={i}>
-                <strong>{item.period}</strong>
-                <p>{item.text}</p>
-              </li>
-            ))}
-          </ol>
+          <figure
+            className="fiscal-diagram fiscal-funding-diagram"
+            aria-label="資金調達の時系列"
+          >
+            <figcaption>
+              <strong>資金調達の流れ</strong>
+              <span>経営者説明</span>
+            </figcaption>
+            <ol className="fiscal-funding-flow" role="list">
+              {summary.funding.map((item, i) => (
+                <li key={i}>
+                  <span className="fiscal-flow-point" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="fiscal-flow-card">
+                    <h4>{item.period}</h4>
+                    <p>{item.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </figure>
         </article>
         <article>
           <span className="fiscal-management-number">02</span>
@@ -74,21 +90,63 @@ export function FiscalManagementSummary({
         <article>
           <span className="fiscal-management-number">03</span>
           <h3>業務効率化と新規展開</h3>
-          <ul>
-            {summary.efficiency.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
+          <figure
+            className="fiscal-diagram fiscal-efficiency-diagram"
+            aria-label="業務効率化と新規展開の流れ"
+          >
+            <figcaption>
+              <strong>取り組みから、新たな展開へ</strong>
+              <span>経営者説明 · 費用削減額は未計測</span>
+            </figcaption>
+            <ol className="fiscal-efficiency-flow" role="list">
+              {summary.efficiency.map((text, i) => (
+                <li key={i}>
+                  <span className="fiscal-flow-point" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p>{text}</p>
+                  {i < summary.efficiency.length - 1 && (
+                    <ArrowRight
+                      className="fiscal-flow-arrow"
+                      aria-hidden="true"
+                    />
+                  )}
+                </li>
+              ))}
+            </ol>
+          </figure>
         </article>
-        <article>
+        <article className="fiscal-management-wide">
           <span className="fiscal-management-number">04</span>
           <h3>今後の展望</h3>
-          <span className="fiscal-outlook-label">今後の方針・見通し</span>
-          <ul>
-            {summary.outlook.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
+          <figure
+            className="fiscal-diagram fiscal-outlook-diagram"
+            aria-label="今後の成長方針の全体像"
+          >
+            <figcaption>
+              <strong>次の成長へ</strong>
+              <span>今後の方針・見通し</span>
+            </figcaption>
+            <div className="fiscal-outlook-hub">
+              <Compass size={22} aria-hidden="true" />
+              <strong>成長に向けた方針</strong>
+            </div>
+            <ul
+              role="list"
+              className={`fiscal-outlook-branches${summary.outlook.length > 3 ? " fiscal-outlook-stacked" : ""}`}
+              style={
+                {
+                  "--branch-count": Math.min(summary.outlook.length, 3),
+                } as CSSProperties
+              }
+            >
+              {summary.outlook.map((text, i) => (
+                <li key={i}>
+                  <p>{text}</p>
+                </li>
+              ))}
+            </ul>
+          </figure>
         </article>
       </div>
       <p className="fiscal-summary-basis">
