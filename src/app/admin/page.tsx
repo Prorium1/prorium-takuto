@@ -18,6 +18,7 @@ export default async function AdminPage() {
     listFiscalPublications(actor, false),
   ]);
   const draft = reports.find((report) => report.state === "draft");
+  const reportStates = [...reports, ...annual];
   const today = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
   }).format(new Date());
@@ -86,13 +87,17 @@ export default async function AdminPage() {
         </header>
         <div className={styles.counts} aria-label="レポートの状況">
           {[
-            ["公開済み", reports.filter((r) => r.state === "published").length],
+            [
+              "公開済み",
+              reportStates.filter((r) => r.state === "published").length,
+            ],
             [
               "確認・承認待ち",
-              reports.filter((r) => ["review", "approved"].includes(r.state))
-                .length,
+              reportStates.filter((r) =>
+                ["review", "approved"].includes(r.state),
+              ).length,
             ],
-            ["下書き", reports.filter((r) => r.state === "draft").length],
+            ["下書き", reportStates.filter((r) => r.state === "draft").length],
           ].map(([label, value]) => (
             <div key={String(label)} className={styles.count}>
               <span>{label}</span>

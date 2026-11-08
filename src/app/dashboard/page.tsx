@@ -19,7 +19,7 @@ export default async function Dashboard() {
       {actor.role === "admin" && (
         <ReportPreparationPanel
           reports={preparation}
-          published={reports.length > 0}
+          published={reports.length > 0 || annual.length > 0}
         />
       )}
       <InvestorDashboard
