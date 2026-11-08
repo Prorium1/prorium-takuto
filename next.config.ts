@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   serverExternalPackages: ["playwright-core", "@sparticuz/chromium"],
   outputFileTracingIncludes: {
+    "/api/fiscal/*/pdf": [
+      "./node_modules/@sparticuz/chromium/bin/**/*",
+      "./node_modules/playwright-core/browsers.json",
+    ],
     "/api/reports/*/pdf": [
       "./node_modules/@sparticuz/chromium/bin/**/*",
       "./node_modules/playwright-core/browsers.json",

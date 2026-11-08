@@ -3,31 +3,26 @@ import { Shell } from "@/components/shell";
 import { OwnershipView } from "@/components/ownership-view";
 import { requireActor } from "@/lib/server/auth";
 import { listPublishedReports } from "@/lib/server/repository";
-import { latestOwnershipReport } from "@/lib/domain/ownership";
-import { periodLabel } from "@/lib/domain/finance";
+import { latestPublishedOwnership } from "@/lib/domain/ownership";
+import { listFiscalPublications } from "@/lib/server/fiscal-publications";
 export const dynamic = "force-dynamic";
 export default async function ShareholdersPage() {
   const actor = await requireActor();
-  const report = latestOwnershipReport(await listPublishedReports(actor));
+  const [reports, annual] = await Promise.all([
+    listPublishedReports(actor),
+    listFiscalPublications(actor),
+  ]);
+  const ownership = latestPublishedOwnership(reports, annual);
   return (
     <Shell role={actor.role}>
       <Link className="admin-back" href="/dashboard">
         ← 株主ポータル
       </Link>
-      {report ? (
+      {ownership ? (
         <>
-          <OwnershipView
-            snapshot={report.content.ownership!}
-            headingLevel={1}
-          />
-          <p className="archive-note">
-            {periodLabel(report.period)}の承認・公開済みレポート ·{" "}
-            {report.version}
-          </p>
-          <Link
-            className="button secondary"
-            href={`/reports/${report.period}?version=${encodeURIComponent(report.version)}#shareholders`}
-          >
+          <OwnershipView snapshot={ownership.snapshot} headingLevel={1} />
+          <p className="archive-note">{ownership.label} · 承認・公開済み</p>
+          <Link className="button secondary" href={ownership.href}>
             掲載レポートとPDFを見る
           </Link>
         </>

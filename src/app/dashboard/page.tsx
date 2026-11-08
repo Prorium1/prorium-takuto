@@ -5,12 +5,14 @@ import { requireActor } from "@/lib/server/auth";
 import { listPublishedReports } from "@/lib/server/repository";
 import { getReportPreparation } from "@/lib/server/repository";
 import { ReportPreparationPanel } from "@/components/report-preparation";
+import { listFiscalPublications } from "@/lib/server/fiscal-publications";
 export const dynamic = "force-dynamic";
 export default async function Dashboard() {
   const actor = await requireActor();
-  const [reports, preparation] = await Promise.all([
+  const [reports, preparation, annual] = await Promise.all([
     listPublishedReports(actor),
     actor.role === "admin" ? getReportPreparation(actor) : Promise.resolve([]),
+    listFiscalPublications(actor),
   ]);
   return (
     <Shell role={actor.role}>
@@ -22,6 +24,7 @@ export default async function Dashboard() {
       )}
       <InvestorDashboard
         reports={reports}
+        fiscalReport={annual[0] || null}
         browserPrint={isCloudMockPreview()}
       />
     </Shell>

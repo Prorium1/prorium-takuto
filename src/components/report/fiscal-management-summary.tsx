@@ -73,9 +73,13 @@ export function FiscalManagementSummary({
               <ul>
                 {schools.confirmed.map((s) => (
                   <li key={`${s.name}:${s.period}`}>
-                    <a href={s.sourceUrl} target="_blank" rel="noreferrer">
-                      {s.name}
-                    </a>
+                    {s.sourceUrl ? (
+                      <a href={s.sourceUrl} target="_blank" rel="noreferrer">
+                        {s.name}
+                      </a>
+                    ) : (
+                      <strong>{s.name}</strong>
+                    )}
                     <span> · {s.period}</span>
                   </li>
                 ))}
@@ -83,9 +87,11 @@ export function FiscalManagementSummary({
             </details>
           )}
           <p className="fiscal-school-note">{schools.note}</p>
-          <a href={schools.sourceUrl} target="_blank" rel="noreferrer">
-            集計元の社内資料を確認 →
-          </a>
+          {schools.sourceUrl && (
+            <a href={schools.sourceUrl} target="_blank" rel="noreferrer">
+              集計元の社内資料を確認 →
+            </a>
+          )}
         </article>
         <article>
           <span className="fiscal-management-number">03</span>

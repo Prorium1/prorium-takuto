@@ -179,6 +179,7 @@ export type AnalysisRun = {
   output: AnalysisDraft;
 };
 export type MockStore = {
+  fiscalPublications?: import("./fiscal-publication").FiscalPublication[];
   reports: ReportVersion[];
   snapshots: FinancialSnapshot[];
   imports: ImportJob[];

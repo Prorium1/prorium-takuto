@@ -5,7 +5,7 @@ import {
 } from "./presentation";
 const period = z.string().regex(/^20\d{2}-(0[1-9]|1[0-2])$/),
   amount = z.number().safe().int();
-const sourceUrl = z.url().refine((v) => v.startsWith("https://"));
+const sourceUrl = z.url().refine((v) => v.startsWith("https://")).nullable();
 export const fiscalManagementSummarySchema = z
   .object({
     asOf: z.iso.date(),

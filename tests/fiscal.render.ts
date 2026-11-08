@@ -6,6 +6,20 @@ import { FiscalBriefing } from "../src/components/report/fiscal-briefing";
 import { mockFiscalSource } from "../src/lib/mock/fiscal";
 import { mockManagementSummary } from "../src/lib/mock/fiscal-summary";
 import { FiscalManagementSummary } from "../src/components/report/fiscal-management-summary";
+import type { ComponentProps } from "react";
+test("investor fiscal view does not expose owner simulation controls or private preview labels", () => {
+  const html = renderToStaticMarkup(
+    createElement(FiscalBriefing, {
+      source: mockFiscalSource(2026),
+      ownership: null,
+      mock: true,
+      audience: "investor",
+    } as ComponentProps<typeof FiscalBriefing>),
+  );
+  assert.doesNotMatch(html, /管理者専用|経営者の画面共有用|参考シナリオを試す/);
+  assert.match(html, /2026年10月期/);
+  assert.match(html, /未取得/);
+});
 test("fiscal presentation separates management target, unknown forecasts, reference scenario and closing evidence", () => {
   const html = renderToStaticMarkup(
     createElement(FiscalBriefing, {

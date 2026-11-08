@@ -31,6 +31,7 @@ export default async function FiscalPage({
     <main className="presentation-page fiscal-page">
       <div className="presentation-topbar">
         <Brand />
+        <Link className="button primary" href={`/admin/fiscal/${year}/share`}>株主への共有・PDF提出</Link>
         <Link href="/admin">管理画面へ戻る</Link>
       </div>
       {source ? (

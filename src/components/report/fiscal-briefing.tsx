@@ -1,5 +1,6 @@
 "use client";
 import { useId, useState } from "react";
+import type { ReactNode } from "react";
 import type { FiscalSource } from "@/lib/domain/fiscal";
 import { fiscalSummary } from "@/lib/domain/fiscal";
 import { yen, yoyPresentation } from "@/lib/domain/finance";
@@ -33,11 +34,17 @@ export function FiscalBriefing({
   ownership,
   referenceVideo,
   mock = false,
+  audience = "owner",
+  afterSummary,
+  print = false,
 }: {
   source: FiscalSource;
   ownership: OwnershipSnapshot | null;
   referenceVideo?: { occurredOn: string; videoUrl: string };
   mock?: boolean;
+  audience?: "owner" | "investor";
+  afterSummary?: ReactNode;
+  print?: boolean;
 }) {
   const stats = fiscalSummary(s),
     latest = s.months.at(-1)!,
@@ -138,13 +145,20 @@ export function FiscalBriefing({
       <header className="fiscal-hero">
         <div>
           <span className="fiscal-status">
-            管理者専用 · 説明用 · 未公開{mock ? " · 架空データ" : ""}
+            {audience === "owner"
+              ? "管理者専用 · 説明用 · 未公開"
+              : "株主向け · 年次事業報告"}
+            {mock ? " · 架空データ" : ""}
           </span>
           <p className="eyebrow">PRORIUM / FISCAL YEAR {s.fiscalEndYear}</p>
           <h1>
-            今期の現在地と、
+            {audience === "owner"
+              ? "今期の現在地と、"
+              : `${s.fiscalEndYear}年10月期`}
             <br />
-            <span>着地への道筋。</span>
+            <span>
+              {audience === "owner" ? "着地への道筋。" : "事業と経営のご報告。"}
+            </span>
           </h1>
           <p className="fiscal-period">
             {s.fiscalEndYear - 1}年11月 — {s.fiscalEndYear}年10月
@@ -256,7 +270,7 @@ export function FiscalBriefing({
               className={i < s.months.length ? "is-actual" : "is-forecast"}
             >
               <b>{Number(p.slice(5))}月</b>
-              <span>{i < s.months.length ? "会計実績" : "参考予測"}</span>
+              <span>{i < s.months.length ? "会計実績" : "実績未取得"}</span>
             </div>
           ))}
         </div>
@@ -264,6 +278,7 @@ export function FiscalBriefing({
       {s.managementSummary && (
         <FiscalManagementSummary summary={s.managementSummary} />
       )}
+      {afterSummary}
       <section id="fiscal-landing" className="fiscal-section">
         <div className="fiscal-section-heading">
           <span>02 / YEAR-END OUTLOOK</span>
@@ -349,48 +364,50 @@ export function FiscalBriefing({
             <p>参考シナリオに対する差額。実績の差額ではありません。</p>
           </div>
         </div>
-        <div className="fiscal-simulation">
-          <div>
-            <h3>参考シナリオを試す</h3>
-            <p>
-              初期値は直近{Math.min(3, s.months.length)}
-              か月の単月平均。この画面だけの試算で、保存・公開されません。
-            </p>
+        {audience === "owner" && (
+          <div className="fiscal-simulation">
+            <div>
+              <h3>参考シナリオを試す</h3>
+              <p>
+                初期値は直近{Math.min(3, s.months.length)}
+                か月の単月平均。この画面だけの試算で、保存・公開されません。
+              </p>
+            </div>
+            <label>
+              実績未取得分の月平均売上（円）
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={revInput}
+                onChange={(e) => setRevInput(e.target.value)}
+              />
+            </label>
+            <label>
+              実績未取得分の月平均営業利益（円）
+              <input
+                type="number"
+                step="1"
+                value={profitInput}
+                onChange={(e) => setProfitInput(e.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setRevInput(String(stats.monthlyRevenue));
+                setProfitInput(String(stats.monthlyProfit));
+              }}
+            >
+              直近平均に戻す
+            </button>
+            {!valid && (
+              <p role="alert">
+                売上は0円以上、営業利益は整数で入力してください。空欄を0円とは扱いません。
+              </p>
+            )}
           </div>
-          <label>
-            実績未取得分の月平均売上（円）
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={revInput}
-              onChange={(e) => setRevInput(e.target.value)}
-            />
-          </label>
-          <label>
-            実績未取得分の月平均営業利益（円）
-            <input
-              type="number"
-              step="1"
-              value={profitInput}
-              onChange={(e) => setProfitInput(e.target.value)}
-            />
-          </label>
-          <button
-            type="button"
-            onClick={() => {
-              setRevInput(String(stats.monthlyRevenue));
-              setProfitInput(String(stats.monthlyProfit));
-            }}
-          >
-            直近平均に戻す
-          </button>
-          {!valid && (
-            <p role="alert">
-              売上は0円以上、営業利益は整数で入力してください。空欄を0円とは扱いません。
-            </p>
-          )}
-        </div>
+        )}
         <div
           className="fiscal-chart-controls"
           role="group"
@@ -830,7 +847,7 @@ export function FiscalBriefing({
       {referenceVideo && (
         <EventSpotlight
           period={latest.period}
-          print={false}
+          print={print}
           event={{
             occurredOn: referenceVideo.occurredOn,
             videoUrl: referenceVideo.videoUrl,
@@ -852,7 +869,10 @@ export function FiscalBriefing({
         </section>
       )}
       <footer className="presentation-footer">
-        経営者の画面共有用プレビューです。仮締め・未締めを含む会計データ、未確認の情報、参考シナリオを区別しています。公開済みの株主レポート・承認済みのSnapshotは変更しません。
+        {audience === "owner"
+          ? "経営者の画面共有用プレビューです。"
+          : "本資料は記載された基準日時点の情報です。"}
+        仮締め・未締めを含む会計データ、未確認の情報、参考シナリオを区別しています。参考シナリオは未取得月を直近の平均で補った計算値であり、確定実績・経営者予想ではありません。
       </footer>
     </article>
   );

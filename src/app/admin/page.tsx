@@ -7,13 +7,15 @@ import { requireAdmin } from "@/lib/server/auth";
 import { getAdminReports, getAdminStore } from "@/lib/server/repository";
 import { periodLabel } from "@/lib/domain/finance";
 import styles from "./overview.module.css";
+import { listFiscalPublications } from "@/lib/server/fiscal-publications";
 
 export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const actor = await requireAdmin();
-  const [reports, store] = await Promise.all([
+  const [reports, store, annual] = await Promise.all([
     getAdminReports(actor),
     getAdminStore(actor),
+    listFiscalPublications(actor, false),
   ]);
   const draft = reports.find((report) => report.state === "draft");
   const today = new Intl.DateTimeFormat("sv-SE", {
@@ -21,6 +23,16 @@ export default async function AdminPage() {
   }).format(new Date());
   const fiscalYear =
     Number(today.slice(0, 4)) + (Number(today.slice(5, 7)) >= 11 ? 1 : 0);
+  const latestPeriod = reports
+    .map((r) => r.period)
+    .sort()
+    .at(-1);
+  const preparedYear =
+    annual[0]?.year ??
+    (latestPeriod
+      ? Number(latestPeriod.slice(0, 4)) +
+        (Number(latestPeriod.slice(5, 7)) >= 11 ? 1 : 0)
+      : fiscalYear);
   return (
     <Shell role={actor.role}>
       <div className={styles.overview}>
@@ -36,7 +48,13 @@ export default async function AdminPage() {
           </div>
           <div className={styles.heroAction}>
             <Link
-              href={`/admin/fiscal/${fiscalYear}`}
+              href={`/admin/fiscal/${preparedYear}/share`}
+              className="button primary"
+            >
+              {preparedYear}年10月期を株主へ共有・PDF提出
+            </Link>
+            <Link
+              href={`/admin/fiscal/${preparedYear}`}
               className="button primary"
             >
               今期全体の説明用画面を開く

@@ -41,7 +41,7 @@ test("shareholder portal makes its three purposes clear and names stay readable 
   await expect(page.locator(".ownership-table")).toContainText("55.00%");
   await expect(page.locator(".ownership-table")).toContainText("550株");
   await expect(page.locator(".ownership-basis")).toContainText(
-    "Mockの確認用名簿",
+    /Mockの確認用名簿|smartround形式の架空サンプル/,
   );
   expect(
     await page.evaluate(
