@@ -86,7 +86,7 @@ export function EventSpotlight({
       )}
       {print && video && (
         <p className="event-print-video">
-          動画：{event.videoTitle} — {video.watch}
+          動画：<a href={video.watch}>{event.videoTitle}</a> — {video.watch}
         </p>
       )}
     </section>

@@ -4,6 +4,9 @@ import { requireActor } from "@/lib/server/auth";
 import { listFinancialDocuments } from "@/lib/server/documents";
 import { listPublishedReports } from "@/lib/server/repository";
 import { DOCUMENT_CATEGORIES } from "@/lib/domain/documents";
+import { listFiscalPublications } from "@/lib/server/fiscal-publications";
+import { PublishedFiscalCard } from "@/components/report/published-fiscal-card";
+import { isCloudMockPreview } from "@/lib/server/environment";
 export const dynamic = "force-dynamic";
 export default async function DocumentsPage({
   searchParams,
@@ -12,9 +15,10 @@ export default async function DocumentsPage({
 }) {
   const actor = await requireActor();
   const filter = await searchParams;
-  const [allDocuments, reports] = await Promise.all([
+  const [allDocuments, reports, annual] = await Promise.all([
     listFinancialDocuments(actor),
     listPublishedReports(actor),
+    listFiscalPublications(actor),
   ]);
   const publicIds = new Set(
     reports.flatMap((r) => (r.content.documents || []).map((d) => d.id)),
@@ -33,6 +37,15 @@ export default async function DocumentsPage({
         <h1>財務資料ライブラリ</h1>
         <p>P/L・B/S・残高試算表など、月ごとの確認済み資料をお届けします。</p>
       </div>
+      {annual
+        .filter((r, i) => annual.findIndex((x) => x.year === r.year) === i)
+        .map((r) => (
+          <PublishedFiscalCard
+            key={r.id}
+            report={r}
+            browserPrint={isCloudMockPreview()}
+          />
+        ))}
       <form className="document-filters">
         <label>
           対象月
@@ -62,7 +75,11 @@ export default async function DocumentsPage({
         <DocumentList documents={selected} />
       ) : (
         <div className="empty-state">
-          <h2>共有済みの財務資料はまだありません。</h2>
+          <h2>
+            {annual.length
+              ? "該当する月次の添付資料はありません。"
+              : "共有済みの財務資料はまだありません。"}
+          </h2>
           <p>
             管理者が月次レポートと一緒に公開すると、ここからダウンロードできます。
           </p>

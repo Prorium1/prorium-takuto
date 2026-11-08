@@ -9,14 +9,18 @@ import {
 } from "@/lib/domain/provenance";
 import { KpiGrid } from "./report/kpi";
 import { PdfButton } from "./report/pdf-button";
-import { latestOwnershipReport } from "@/lib/domain/ownership";
+import { latestPublishedOwnership } from "@/lib/domain/ownership";
+import type { FiscalPublication } from "@/lib/domain/fiscal-publication";
+import { PublishedFiscalCard } from "./report/published-fiscal-card";
 
 export function InvestorDashboard({
   reports,
   browserPrint = false,
+  fiscalReport,
 }: {
   reports: ReportVersion[];
   browserPrint?: boolean;
+  fiscalReport?: FiscalPublication | null;
 }) {
   // Defence in depth: even an admin must see only published snapshots here.
   const published = reports
@@ -36,19 +40,30 @@ export function InvestorDashboard({
   const source = latest ? financialProvenance(latest.content.financial) : null;
   const requests =
     latest?.content.briefing?.filter((item) => item.topic === "asks") || [];
-  const ownership = latestOwnershipReport(published)?.content.ownership;
+  const annual = fiscalReport?.state === "published" ? fiscalReport : null;
+  const ownership = latestPublishedOwnership(
+    published,
+    annual ? [annual] : [],
+  )?.snapshot;
   return (
     <div className="investor-dashboard">
       <header className="investor-dashboard-heading">
         <div>
           <span className="eyebrow">PRORIUM / INVESTOR UPDATE</span>
           <h1>株主ポータル</h1>
-          <p>今月の報告、財務資料、株主構成を確認できます。</p>
+          <p>期全体の報告と月次の推移、組織体制、財務資料を確認できます。</p>
         </div>
         <span className="investor-audience">
           <ShieldCheck size={14} /> 承認・公開済みの情報
         </span>
       </header>
+      {annual && (
+        <PublishedFiscalCard
+          report={annual}
+          browserPrint={browserPrint}
+          showMetrics
+        />
+      )}
       <nav className="portal-entries" aria-label="株主向けの3つの情報">
         <Link
           href={latest ? path : "/reports"}
@@ -72,7 +87,8 @@ export function InvestorDashboard({
           <h2>財務資料・PDF</h2>
           <p>月次のPL・BS・試算表と、ダウンロード資料。</p>
           <strong>
-            {published.some((r) => (r.content.documents || []).length > 0)
+            {annual ||
+            published.some((r) => (r.content.documents || []).length > 0)
               ? "公開済みの財務資料があります"
               : "財務資料の公開準備中"}
           </strong>
@@ -95,15 +111,17 @@ export function InvestorDashboard({
         </Link>
       </nav>
       {!latest ? (
-        <section className="empty-state">
-          <h2>月次レポートはまだ公開されていません。</h2>
-          <p>
-            経営者が内容を確認・承認したレポートと財務資料が、ここに表示されます。
-          </p>
-          <p>
-            公開後、このページから対象月のレポート・数値の根拠・添付資料を確認できます。
-          </p>
-        </section>
+        annual ? null : (
+          <section className="empty-state">
+            <h2>月次レポートはまだ公開されていません。</h2>
+            <p>
+              経営者が内容を確認・承認したレポートと財務資料が、ここに表示されます。
+            </p>
+            <p>
+              公開後、このページから対象月のレポート・数値の根拠・添付資料を確認できます。
+            </p>
+          </section>
+        )
       ) : (
         <>
           <section

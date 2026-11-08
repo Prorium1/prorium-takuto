@@ -124,3 +124,45 @@ export function latestOwnershipReport(
       )[0] || null
   );
 }
+export function latestPublishedOwnership(
+  monthly: import("./types").ReportVersion[],
+  annual: import("./fiscal-publication").FiscalPublication[],
+) {
+  const candidates: {
+    snapshot: OwnershipSnapshot;
+    href: string;
+    label: string;
+    publishedAt: string;
+  }[] = [];
+  const report = latestOwnershipReport(monthly);
+  if (report?.content.ownership)
+    candidates.push({
+      snapshot: report.content.ownership,
+      href: `/reports/${report.period}?version=${encodeURIComponent(report.version)}#shareholders`,
+      label: `${report.period} 月次レポート · ${report.version}`,
+      publishedAt: report.publishedAt || report.createdAt,
+    });
+  const newest = new Map<number, (typeof annual)[number]>();
+  for (const r of annual
+    .filter((r) => r.state === "published")
+    .toSorted((a, b) => b.version - a.version))
+    if (!newest.has(r.year)) newest.set(r.year, r);
+  for (const r of newest.values()) {
+    const snapshot = validOwnership(r.content.ownership);
+    if (snapshot)
+      candidates.push({
+        snapshot,
+        href: `/fiscal/${r.year}?version=${r.version}#fiscal-ownership`,
+        label: `${r.year}年10月期 年次レポート · v1.${r.version - 1}`,
+        publishedAt: r.publishedAt || "",
+      });
+  }
+  return (
+    candidates.sort(
+      (a, b) =>
+        b.snapshot.asOf.localeCompare(a.snapshot.asOf) ||
+        b.publishedAt.localeCompare(a.publishedAt) ||
+        a.href.localeCompare(b.href),
+    )[0] || null
+  );
+}

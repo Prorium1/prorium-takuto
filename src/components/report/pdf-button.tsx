@@ -6,10 +6,14 @@ export function PdfButton({
   period,
   version,
   browserPrint = false,
+  endpoint,
+  filename,
 }: {
   period: string;
   version: string;
   browserPrint?: boolean;
+  endpoint?: string;
+  filename?: string;
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -22,7 +26,7 @@ export function PdfButton({
     setError("");
     try {
       const response = await fetch(
-        `/api/reports/${period}/pdf?version=${encodeURIComponent(version)}`,
+        endpoint || `/api/reports/${period}/pdf?version=${encodeURIComponent(version)}`,
       );
       if (!response.ok)
         throw new Error("PDFを生成できませんでした。もう一度お試しください。");
@@ -30,7 +34,7 @@ export function PdfButton({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Prorium-${period}-${version}.pdf`;
+      a.download = filename || `Prorium-${period}-${version}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {

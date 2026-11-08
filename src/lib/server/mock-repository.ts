@@ -107,6 +107,18 @@ function audit(
     detail,
   });
 }
+export async function withFiscalPublications<T>(
+  actor: Actor,
+  operation: (rows: NonNullable<MockStore["fiscalPublications"]>) => T,
+  write = false,
+): Promise<T> {
+  assertActor(actor);
+  if (write) assertAdmin(actor);
+  return withStore((store) => {
+    store.fiscalPublications ??= [];
+    return operation(store.fiscalPublications);
+  }, write);
+}
 export async function listPublishedReports(
   actor: Actor,
 ): Promise<ReportVersion[]> {
