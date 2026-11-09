@@ -417,3 +417,7 @@ enabled = true
 [functions.ir-platform-sso]
 # This function validates the separate Platform Auth issuer and PKCE in its body.
 verify_jwt = false
+
+[functions.ir-investor-credentials]
+# The body verifies the IR Auth JWT with getUser, then checks current admin membership.
+verify_jwt = false

@@ -53,7 +53,7 @@ export default async function LoginPage({
           <span className="eyebrow">ご本人の確認</span>
           <h2>報告を見るためにログイン</h2>
           <p className="login-intro">
-            会社に登録したメールアドレスをご用意ください。
+            案内されたメールアドレスとパスワードを入力してください。
           </p>
           {(reason === "oauth" ||
             reason === "access" ||

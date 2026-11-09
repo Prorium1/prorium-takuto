@@ -36,12 +36,12 @@ test("login rejects invalid credentials and recognizes the investor account", as
 }) => {
   await page.goto("/login");
   await page.getByLabel("メールアドレス").fill("investor@prorium.example");
-  await page.getByLabel("パスワード").fill("wrong");
+  await page.getByLabel("パスワード", { exact: true }).fill("wrong");
   await page.getByRole("button", { name: "ログイン", exact: true }).click();
   await expect(page.locator(".login-form").getByRole("alert")).toContainText(
     "正しくありません",
   );
-  await page.getByLabel("パスワード").fill("prorium-demo");
+  await page.getByLabel("パスワード", { exact: true }).fill("prorium-demo");
   await page.getByRole("button", { name: "ログイン", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 });
