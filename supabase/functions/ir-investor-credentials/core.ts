@@ -3,6 +3,7 @@ export type CredentialInput = {
   email: string;
   mode: "create" | "issue" | "reset";
   acknowledged: boolean;
+  password?: string;
 };
 export type CredentialErrorCode =
   | "invalid"
@@ -13,6 +14,7 @@ export type CredentialErrorCode =
   | "already-issued"
   | "unrelated"
   | "identity-changed"
+  | "password-policy"
   | "unavailable";
 export class CredentialError extends Error {
   constructor(readonly code: CredentialErrorCode) {
@@ -25,12 +27,21 @@ export function credentialInput(raw: unknown): CredentialInput {
   const o = raw as Record<string, unknown>;
   if (
     Object.keys(o).some(
-      (k) => !["companyId", "email", "mode", "acknowledged"].includes(k),
+      (k) =>
+        !["companyId", "email", "mode", "acknowledged", "password"].includes(k),
     ) ||
     typeof o.companyId !== "string" ||
     !uuid.test(o.companyId) ||
     typeof o.email !== "string" ||
     !["create", "issue", "reset"].includes(String(o.mode))
+  )
+    throw new CredentialError("invalid");
+  if (
+    o.password !== undefined &&
+    (typeof o.password !== "string" ||
+      o.password.length < 6 ||
+      o.password.length > 128 ||
+      /[\u0000-\u0020\u007f]/.test(o.password))
   )
     throw new CredentialError("invalid");
   const email = o.email.trim().toLowerCase();
@@ -45,6 +56,7 @@ export function credentialInput(raw: unknown): CredentialInput {
     email,
     mode: o.mode as CredentialInput["mode"],
     acknowledged: o.acknowledged === true,
+    ...(o.password === undefined ? {} : { password: o.password as string }),
   };
 }
 export function passwordError(message: string): CredentialError {
@@ -119,7 +131,7 @@ export async function issueInvestorCredentials(
     (!input.acknowledged || input.mode === "create")
   )
     throw new CredentialError("denied");
-  const password = generateInvestorPassword();
+  const password = input.password ?? generateInvestorPassword();
   const user = reservation.targetUserId
     ? await deps.update(reservation.targetUserId, input.email, password)
     : await deps.create(input.email, password, input.companyId);

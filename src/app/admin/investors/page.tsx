@@ -8,10 +8,12 @@ import {
 import { InvestorAccessForm } from "@/components/admin/investor-access";
 import { InvestorCredentialsForm } from "@/components/admin/investor-credentials";
 import { formatReportTimestamp } from "@/lib/domain/provenance";
+import { investorInitialPassword } from "@/lib/server/investor-initial-password";
 export const dynamic = "force-dynamic";
 export default async function InvestorsPage() {
   const actor = await requireAdmin();
   const mock = isMockEnvironment();
+  const shared = mock || investorInitialPassword() !== null;
   let invitations: {
     email: string;
     active: boolean;
@@ -33,7 +35,10 @@ export default async function InvestorsPage() {
           <span className="eyebrow">経営者用 · 株主の登録</span>
           <h1>株主のログイン管理</h1>
           <p>
-            投資家ごとにパスワードを発行します。登録した方は、公開済みの報告と資料を閲覧できます。
+            {shared
+              ? "投資家は、登録したメールアドレスと共通の初期パスワードでログインできます。"
+              : "投資家ごとにパスワードを発行します。"}
+            登録した方は、公開済みの報告と資料を閲覧できます。
           </p>
         </div>
         <ol className="investor-access-steps">
@@ -43,8 +48,12 @@ export default async function InvestorsPage() {
         </ol>
         <section className="admin-panel investor-register-panel">
           <h2>新しく登録する</h2>
-          <p>登録すると、専用のパスワードを自動で作ります。</p>
-          <InvestorCredentialsForm mock={mock} />
+          <p>
+            {shared
+              ? "メールアドレスを登録すると、共通の初期パスワードを設定します。"
+              : "登録すると、専用のパスワードを自動で作ります。"}
+          </p>
+          <InvestorCredentialsForm mock={mock} shared={shared} />
           <details className="investor-email-alternative">
             <summary>メールのリンクだけで登録する</summary>
             <p>
@@ -73,13 +82,16 @@ export default async function InvestorsPage() {
               {i.active && (
                 <details>
                   <summary>
-                    {i.password_issued_at
-                      ? "パスワードを再発行する"
-                      : "パスワードを発行する"}
+                    {shared
+                      ? "共通の初期パスワードに設定する"
+                      : i.password_issued_at
+                        ? "パスワードを再発行する"
+                        : "パスワードを発行する"}
                   </summary>
                   <InvestorCredentialsForm
                     email={i.email}
                     issued={!!i.password_issued_at}
+                    shared={shared}
                   />
                 </details>
               )}

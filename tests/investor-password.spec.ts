@@ -17,6 +17,12 @@ test("password login is visible first and the admin can copy and dismiss a clear
   await page.waitForURL("**/admin");
   await page.goto("/admin/investors");
   await expect(
+    page.getByText(
+      "メールアドレスを登録すると、共通の初期パスワードを設定します。",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
     page.getByRole("button", { name: "登録してパスワードを発行", exact: true }),
   ).toBeDisabled();
   await page
@@ -25,6 +31,9 @@ test("password login is visible first and the admin can copy and dismiss a clear
   await expect(
     page.getByRole("heading", { name: "確認用のログイン情報", exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByLabel("共通の初期パスワード", { exact: true }),
+  ).toHaveValue("prorium-demo");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page
     .getByRole("button", { name: "案内文をコピー", exact: true })

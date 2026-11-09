@@ -89,6 +89,8 @@ export async function handler(request: Request) {
             ir_invitation_email: email,
           },
         });
+        if (error?.code === "weak_password")
+          throw new CredentialError("password-policy");
         if (error || !data.user) throw new CredentialError("unavailable");
         return data.user;
       },
@@ -102,6 +104,8 @@ export async function handler(request: Request) {
           password,
           email_confirm: true,
         });
+        if (error?.code === "weak_password")
+          throw new CredentialError("password-policy");
         if (error || !data.user) throw new CredentialError("unavailable");
         return data.user;
       },

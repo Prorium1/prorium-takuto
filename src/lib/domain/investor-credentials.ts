@@ -22,6 +22,8 @@ export function investorCredentialError(code: unknown) {
     denied:
       "このアカウントのパスワードは、投資家の管理画面では変更できません。",
     invalid: "メールアドレスと確認項目を確認してください。",
+    "password-policy":
+      "認証サービスのパスワード条件を満たしていません。管理者が初期パスワードの設定を確認してください。",
   };
   return (
     (typeof code === "string" && messages[code]) ||

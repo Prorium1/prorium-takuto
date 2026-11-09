@@ -11,6 +11,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "./actions";
+import { investorInitialPassword } from "@/lib/server/investor-initial-password";
 import {
   investorCredentialError,
   type InvestorCredentials,
@@ -38,10 +39,17 @@ export async function issueInvestorPasswordAction(
     if (mode !== "create" && !acknowledged)
       return { error: investorCredentialError("invalid") };
     const client = await productionClient(actor, true);
+    const initialPassword = investorInitialPassword();
     const { data, error } = await client.functions.invoke(
       "ir-investor-credentials",
       {
-        body: { companyId: actor.companyId, email, mode, acknowledged },
+        body: {
+          companyId: actor.companyId,
+          email,
+          mode,
+          acknowledged,
+          ...(initialPassword === null ? {} : { password: initialPassword }),
+        },
       },
     );
     if (error) {
@@ -60,9 +68,14 @@ export async function issueInvestorPasswordAction(
     const result = z
       .object({
         email: z.literal(email),
-        password: z
-          .string()
-          .regex(/^[A-HJ-NP-Za-km-z2-9]{5}(?:-[A-HJ-NP-Za-km-z2-9]{5}){3}$/),
+        password:
+          initialPassword === null
+            ? z
+                .string()
+                .regex(
+                  /^[A-HJ-NP-Za-km-z2-9]{5}(?:-[A-HJ-NP-Za-km-z2-9]{5}){3}$/,
+                )
+            : z.literal(initialPassword),
       })
       .strict()
       .parse(data);

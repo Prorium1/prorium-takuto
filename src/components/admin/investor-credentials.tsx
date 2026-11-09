@@ -10,10 +10,12 @@ function CredentialResult({
   credentials: c,
   onDismiss,
   sample,
+  shared,
 }: {
   credentials: InvestorCredentials;
   onDismiss: () => void;
   sample: boolean;
+  shared: boolean;
 }) {
   const passwordId = useId();
   const [visible, setVisible] = useState(false),
@@ -35,9 +37,18 @@ function CredentialResult({
       className="investor-credential-result"
       aria-label="発行したログイン情報"
     >
-      <h3>{sample ? "確認用のログイン情報" : "パスワードを発行しました"}</h3>
+      <h3>
+        {sample
+          ? "確認用のログイン情報"
+          : shared
+            ? "ログイン情報を用意しました"
+            : "パスワードを発行しました"}
+      </h3>
       <p>
-        この画面を閉じると、パスワードは再表示できません。案内文をコピーして、投資家ご本人へお送りください。
+        {shared
+          ? "共通の初期パスワードを設定しました。"
+          : "この画面を閉じると、パスワードは再表示できません。"}
+        案内文をコピーして、投資家ご本人へお送りください。
       </p>
       <dl>
         <div>
@@ -52,7 +63,9 @@ function CredentialResult({
         </div>
       </dl>
       <div className="password-field">
-        <label htmlFor={passwordId}>発行したパスワード</label>
+        <label htmlFor={passwordId}>
+          {shared ? "共通の初期パスワード" : "発行したパスワード"}
+        </label>
         <div className="password-input">
           <input
             id={passwordId}
@@ -102,10 +115,12 @@ export function InvestorCredentialsForm({
   email,
   issued = false,
   mock = false,
+  shared = false,
 }: {
   email?: string;
   issued?: boolean;
   mock?: boolean;
+  shared?: boolean;
 }) {
   const [credentials, setCredentials] = useState<InvestorCredentials | null>(
     null,
@@ -135,6 +150,7 @@ export function InvestorCredentialsForm({
         credentials={credentials}
         onDismiss={() => setCredentials(null)}
         sample={mock}
+        shared={shared}
       />
     );
   return (
@@ -170,7 +186,9 @@ export function InvestorCredentialsForm({
               required
               disabled={pending || mock}
             />
-            新しいパスワードを発行し、ご本人に伝えます。以前のパスワードは使えなくなります。
+            {shared
+              ? "共通の初期パスワードに設定し、ご本人に伝えます。"
+              : "新しいパスワードを発行し、ご本人に伝えます。以前のパスワードは使えなくなります。"}
           </label>
         )}
         <button
@@ -180,9 +198,11 @@ export function InvestorCredentialsForm({
           {pending
             ? "パスワードを発行しています…"
             : email
-              ? issued
-                ? "新しいパスワードを発行"
-                : "パスワードを発行"
+              ? shared
+                ? "共通の初期パスワードに設定"
+                : issued
+                  ? "新しいパスワードを発行"
+                  : "パスワードを発行"
               : "登録してパスワードを発行"}
         </button>
       </form>
