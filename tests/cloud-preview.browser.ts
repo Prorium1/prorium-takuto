@@ -42,6 +42,20 @@ test("cloud investor only sees published fixtures and can print the report", asy
   page,
 }) => {
   await page.goto("/login");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(
+    page.getByRole("heading", { name: "入力なしでデモを確認" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("メールアドレス", { exact: true })).toBeHidden();
+  const enter = page.getByRole("button", {
+    name: "株主としてデモを見る",
+    exact: true,
+  });
+  await expect(enter).toBeInViewport();
+  await page.screenshot({
+    path: "artifacts/no-input-demo-mobile.png",
+    fullPage: true,
+  });
   await page.getByRole("button", { name: "株主としてデモを見る" }).click();
   await page.waitForURL(/\/dashboard$/);
   await page.goto("/reports/2026-08");
@@ -51,7 +65,9 @@ test("cloud investor only sees published fixtures and can print the report", asy
       document.body.dataset.printed = "yes";
     };
   });
-  await page.getByRole("button", { name: "PDF保存 / 印刷" }).click();
+  await page
+    .getByRole("button", { name: "資料を保存・印刷", exact: true })
+    .click();
   await expect(page.locator("body")).toHaveAttribute("data-printed", "yes");
   const pdf = await page.request.get("/api/reports/2026-08/pdf");
   expect(pdf.status()).toBe(501);

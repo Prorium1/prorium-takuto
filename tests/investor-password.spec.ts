@@ -1,9 +1,12 @@
 import { test, expect } from "@playwright/test";
-test("password login is visible first and the admin can copy and dismiss a clearly marked credential sample", async ({
+test("manual demo login remains available and the admin can copy and dismiss a clearly marked credential sample", async ({
   page,
   context,
 }) => {
   await page.goto("/login");
+  await page
+    .getByText("メールアドレス・パスワード入力も試す", { exact: true })
+    .click();
   const password = page.getByRole("textbox", {
     name: "パスワード",
     exact: true,

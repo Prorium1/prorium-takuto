@@ -73,42 +73,56 @@ export function LoginForm({
   );
   return (
     <>
-      {passwordForm}
+      {mockEnabled ? (
+        <>
+          <div className="demo-entry demo-entry-primary">
+            <form action={enterDemoAction}>
+              <input name="role" type="hidden" value="investor" />
+              <button className="button primary">
+                株主としてデモを見る
+                <ArrowRight size={17} />
+              </button>
+            </form>
+            <form action={enterDemoAction}>
+              <input name="role" type="hidden" value="admin" />
+              <button className="button secondary">
+                管理者デモを開く
+                <ArrowRight size={16} />
+              </button>
+            </form>
+            <p>
+              画面の数字は確認用のサンプルです。実際の財務情報は含まれません。
+            </p>
+          </div>
+          <details className="login-demo-credentials">
+            <summary>メールアドレス・パスワード入力も試す</summary>
+            <p className="login-helper">
+              デモのメールアドレス：investor@prorium.example
+              <br />
+              パスワード：prorium-demo
+            </p>
+            {passwordForm}
+          </details>
+        </>
+      ) : (
+        passwordForm
+      )}
       {productionEnabled && !mockEnabled && (
         <details className="login-password-alternative">
           <summary>パスワードがわからない方・メールのリンクで入る</summary>
           <ProductionLogin googleEnabled={googleEnabled} />
         </details>
       )}
-      {mockEnabled ? (
-        <div className="demo-entry">
-          <div className="demo-divider">
-            <span>MOCK EXPERIENCE</span>
-          </div>
-          <p>実際の財務情報を含まない、開発用デモです。</p>
-          <form action={enterDemoAction}>
-            <input name="role" type="hidden" value="investor" />
-            <button className="button secondary">
-              株主としてデモを見る
-              <ArrowRight size={16} />
-            </button>
-          </form>
-          <form action={enterDemoAction}>
-            <input name="role" type="hidden" value="admin" />
-            <button className="text-button">
-              管理者デモを開く
-              <ArrowRight size={14} />
-            </button>
-          </form>
-        </div>
-      ) : !productionEnabled ? (
+      {!mockEnabled && !productionEnabled ? (
         <p className="form-error">
           本番認証は未接続です。Mock環境で起動してください。
         </p>
       ) : null}
       <div className="login-secure">
         <LockKeyhole size={13} />
-        アクセス権を付与された株主・管理者専用
+        {mockEnabled
+          ? "確認用サンプルデータの画面です"
+          : "アクセス権を付与された株主・管理者専用"}
       </div>
     </>
   );
