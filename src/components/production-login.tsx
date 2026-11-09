@@ -3,39 +3,15 @@ import { useActionState } from "react";
 import {
   confirmEmailLinkAction,
   sendLoginLinkAction,
-  startGoogleLoginAction,
 } from "@/app/auth-actions";
-export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
+export function ProductionLogin() {
   const [state, action, pending] = useActionState(sendLoginLinkAction, {});
-  const [googleState, googleAction, googlePending] = useActionState(
-    startGoogleLoginAction,
-    {},
-  );
   const [confirmState, confirm, confirming] = useActionState(
     confirmEmailLinkAction,
     {},
   );
   return (
     <div className="demo-entry">
-      {googleEnabled && (
-        <>
-          <form action={googleAction} className="login-form">
-            <button className="button secondary" disabled={googlePending}>
-              {googlePending ? "Googleに接続中…" : "Googleでログイン"}
-            </button>
-          </form>
-          {googleState.error && (
-            <p role="alert" className="form-error">
-              {googleState.error}
-            </p>
-          )}
-        </>
-      )}
-      <div className="demo-divider">
-        <span>
-          {googleEnabled ? "またはメールでログイン" : "メールでログイン"}
-        </span>
-      </div>
       <ol className="login-steps">
         <li>メールアドレスを入力します。</li>
         <li>届いたメールのリンクを押すと、報告を見られます。</li>

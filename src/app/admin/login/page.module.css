@@ -1,0 +1,79 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.status,
+.step {
+  margin: 24px 0;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+}
+.status {
+  background: #f0f5fa;
+}
+.status strong {
+  font-size: 20px;
+}
+.page p {
+  font-size: 16px;
+  line-height: 1.9;
+  margin: 12px 0;
+}
+.step {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 16px;
+}
+.step > span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eaf0f7;
+  font-weight: 700;
+}
+.step h2 {
+  font-size: 22px;
+  line-height: 1.6;
+}
+.step dl {
+  margin: 20px 0;
+}
+.step dt {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 18px;
+}
+.step dd,
+.url {
+  margin: 6px 0;
+  padding: 12px;
+  background: #f6f8fa;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  user-select: all;
+}
+.page a {
+  overflow-wrap: anywhere;
+}
+.page :global(.button) {
+  white-space: normal;
+  text-align: center;
+  min-height: 48px;
+}
+@media (max-width: 600px) {
+  .status,
+  .step {
+    padding: 20px 16px;
+  }
+  .step {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .step h2 {
+    font-size: 20px;
+  }
+}

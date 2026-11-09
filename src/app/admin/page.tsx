@@ -129,6 +129,7 @@ export default async function AdminPage() {
         </section>
         <nav className={styles.tools} aria-label="登録と設定">
           <Link href="/admin/investors">閲覧する株主を登録する →</Link>
+          <Link href="/admin/login">Googleログインを設定・確認する →</Link>
           <Link href="/admin/shareholders">株主構成を登録・修正する →</Link>
           <Link href="/admin/import">
             <Upload size={18} />

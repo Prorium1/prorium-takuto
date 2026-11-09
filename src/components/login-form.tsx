@@ -3,6 +3,7 @@ import { useActionState, useState } from "react";
 import { ArrowRight, LockKeyhole } from "lucide-react";
 import { enterDemoAction, loginAction } from "@/app/actions";
 import { ProductionLogin } from "./production-login";
+import { GoogleLogin } from "./google-login";
 
 export function LoginForm({
   mockEnabled,
@@ -17,6 +18,7 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const useGoogle = productionEnabled && !mockEnabled && googleEnabled;
   const passwordForm = (
     <form action={action} className="login-form">
       <label>
@@ -73,11 +75,21 @@ export function LoginForm({
   );
   return (
     <>
-      {passwordForm}
+      {useGoogle ? (
+        <>
+          <GoogleLogin />
+          <details className="login-password-alternative">
+            <summary>メールアドレスとパスワードで入る</summary>
+            {passwordForm}
+          </details>
+        </>
+      ) : (
+        passwordForm
+      )}
       {productionEnabled && !mockEnabled && (
         <details className="login-password-alternative">
-          <summary>パスワードがわからない方・メールのリンクで入る</summary>
-          <ProductionLogin googleEnabled={googleEnabled} />
+          <summary>メールのリンクで入る</summary>
+          <ProductionLogin />
         </details>
       )}
       {mockEnabled ? (

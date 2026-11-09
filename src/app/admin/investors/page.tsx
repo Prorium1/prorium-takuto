@@ -1,6 +1,12 @@
 import { Shell } from "@/components/shell";
 import { requireAdmin } from "@/lib/server/auth";
-import { isMockEnvironment } from "@/lib/server/environment";
+import {
+  isMockEnvironment,
+  productionConfigured,
+  productionConfiguration,
+} from "@/lib/server/environment";
+import { googleProviderEnabled } from "@/lib/domain/google-provider";
+import Link from "next/link";
 import {
   productionClient,
   databaseError,
@@ -12,6 +18,9 @@ export const dynamic = "force-dynamic";
 export default async function InvestorsPage() {
   const actor = await requireAdmin();
   const mock = isMockEnvironment();
+  const googleEnabled = productionConfigured()
+    ? await googleProviderEnabled(productionConfiguration())
+    : false;
   let invitations: {
     email: string;
     active: boolean;
@@ -33,25 +42,49 @@ export default async function InvestorsPage() {
           <span className="eyebrow">経営者用 · 株主の登録</span>
           <h1>株主のログイン管理</h1>
           <p>
-            投資家ごとにパスワードを発行します。登録した方は、公開済みの報告と資料を閲覧できます。
+            {googleEnabled
+              ? "投資家のGoogleアカウントのメールアドレスを登録します。登録した方だけが、公開済みの報告と資料を閲覧できます。"
+              : "投資家ごとにパスワードを発行します。登録した方は、公開済みの報告と資料を閲覧できます。"}
           </p>
         </div>
         <ol className="investor-access-steps">
           <li>メールアドレスを登録</li>
-          <li>案内文をコピー</li>
+          <li>{googleEnabled ? "ログインページを案内" : "案内文をコピー"}</li>
           <li>ご本人へ送る</li>
         </ol>
         <section className="admin-panel investor-register-panel">
           <h2>新しく登録する</h2>
-          <p>登録すると、専用のパスワードを自動で作ります。</p>
-          <InvestorCredentialsForm mock={mock} />
-          <details className="investor-email-alternative">
-            <summary>メールのリンクだけで登録する</summary>
-            <p>
-              既にアカウントをお持ちで、メールのリンクで入る場合はこちらから登録できます。
-            </p>
-            <InvestorAccessForm mock={mock} />
-          </details>
+          {googleEnabled ? (
+            <>
+              <p>Googleで入る場合、パスワードの発行は不要です。</p>
+              <InvestorAccessForm mock={mock} />
+              <p>登録後、ご本人に本番のログインページをお知らせください。</p>
+              <p>
+                <a href={`${productionConfiguration().origin}/login`}>
+                  {productionConfiguration().origin}/login
+                </a>
+              </p>
+              <details className="investor-email-alternative">
+                <summary>パスワードを発行して案内する</summary>
+                <InvestorCredentialsForm mock={mock} />
+              </details>
+            </>
+          ) : (
+            <>
+              <p>登録すると、専用のパスワードを自動で作ります。</p>
+              <InvestorCredentialsForm mock={mock} />
+            </>
+          )}
+          {!googleEnabled && (
+            <details className="investor-email-alternative">
+              <summary>Google・メールのリンク用に登録する</summary>
+              <p>
+                メールアドレスを登録します。Googleは連携設定が完了すると利用できます。
+              </p>
+              <InvestorAccessForm mock={mock} />
+              <Link href="/admin/login">Googleログインの設定を確認する →</Link>
+            </details>
+          )}
         </section>
         <section className="investor-access-list" aria-label="登録済みの株主">
           <h2>
