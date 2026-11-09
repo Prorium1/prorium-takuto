@@ -44,7 +44,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
       <div className="executive-card">
         <div className="executive-top">
           <span className="section-kicker">
-            <span>01</span>EXECUTIVE SUMMARY · 今月のサマリー
+            <span>01</span>今月のまとめ
           </span>
           <span className="ai-badge">
             {pendingFreee ? <Database size={12} /> : <Sparkles size={12} />}
@@ -73,9 +73,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
             )}
           </div>
           <div className="executive-takeaways">
-            <h3>
-              今月の要点<span>KEY TAKEAWAYS</span>
-            </h3>
+            <h3>今月の要点</h3>
             <ol>
               {points.map((point, i) => (
                 <li key={i}>
@@ -91,7 +89,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
         </div>
         <div className="summary-context">
           <div className="summary-next">
-            <span className="summary-context-label">NEXT · 見通し・予定</span>
+            <span className="summary-context-label">見通し・予定</span>
             <h3>次に取り組むこと</h3>
             <p>
               {summary.outlook ||
@@ -104,7 +102,7 @@ export function ExecutiveSummary({ report }: { report: ReportVersion }) {
           </div>
           <div className="summary-risk">
             <span className="summary-context-label">
-              WATCH · リスクと対応{risk && ` / 影響度 ${risk.impact}`}
+              心配なことと対応{risk && ` / 影響度 ${risk.impact}`}
             </span>
             <h3>{risk?.title || "注視するリスク"}</h3>
             <p>

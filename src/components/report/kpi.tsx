@@ -12,14 +12,22 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
   const source = financialProvenance(financial);
   const yen = (value: number) => `${value.toLocaleString("ja-JP")}円`;
   const cards = [
-    { key: "revenue", label: "売上高", en: "REVENUE" },
-    { key: "operatingProfit", label: "営業利益", en: "OPERATING PROFIT" },
-    { key: "ordinaryProfit", label: "経常利益", en: "ORDINARY PROFIT" },
-    { key: "cash", label: "現預金", en: "CASH · MONTH END" },
+    { key: "revenue", label: "売上高", explanation: "事業で得た売上" },
+    {
+      key: "operatingProfit",
+      label: "営業利益",
+      explanation: "本業で残った利益",
+    },
+    {
+      key: "ordinaryProfit",
+      label: "経常利益",
+      explanation: "本業の利益に利息などを加減",
+    },
+    { key: "cash", label: "現預金", explanation: "月末の現金・預金" },
   ] as const;
   return (
     <div className="kpi-grid">
-      {cards.map(({ key, label, en }) => {
+      {cards.map(({ key, label, explanation }) => {
         const metric = financial[key];
         const yoy = yoyPresentation(metric.current, metric.previous);
         const comparable = basis.monthly || key === "cash";
@@ -29,7 +37,7 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
               {label}
               <span className="status-dot" title={metric.status} />
             </div>
-            <span className="kpi-en">{en}</span>
+            <span className="kpi-en">{explanation}</span>
             <div className="kpi-value">
               {yenAmount(metric.current)}
               <span>円</span>
@@ -53,7 +61,7 @@ export function KpiGrid({ financial }: { financial: FinancialSnapshot }) {
                 )}
                 {comparable ? yoy.label : "集計基準の確認待ち"}
               </span>
-              {comparable && <span>YoY</span>}
+              {comparable && <span>前年同月比</span>}
               <span className="kpi-status">{metric.status}</span>
             </div>
             <div className="kpi-baseline">

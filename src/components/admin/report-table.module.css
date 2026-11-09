@@ -9,7 +9,7 @@
 }
 .empty {
   color: #596571;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.9;
 }
 @media (max-width: 700px) {
@@ -39,18 +39,18 @@
   }
   .cardHeading > strong {
     color: #203547;
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 600;
   }
   .cardHeading > span {
-    font-size: 11px;
+    font-size: 14px;
     color: #667582;
   }
   .status {
     margin-top: 9px;
   }
   .status > span {
-    font-size: 10px;
+    font-size: 14px;
     padding: 5px 8px;
     border-radius: 4px;
     white-space: normal;
@@ -59,12 +59,12 @@
     margin: 17px 0 14px;
     display: grid;
     gap: 6px;
-    font-size: 11px;
+    font-size: 15px;
     line-height: 1.7;
   }
   .facts > div {
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr);
     gap: 10px;
   }
   .facts dt {
@@ -81,7 +81,7 @@
     border-top: 1px solid #e0e7ef;
     min-height: 46px;
     color: #2463a6;
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
   }
   .card:hover {

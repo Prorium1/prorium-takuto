@@ -21,9 +21,11 @@ export function PublishedFiscalCard({
     <section className="fiscal-portal-card">
       <div>
         <span className="eyebrow">
-          ANNUAL INVESTOR REPORT · {fiscalVersionLabel(r.version)}
+          今期全体のご報告 · {fiscalVersionLabel(r.version)}
         </span>
-        <h2>{r.year}年10月期 事業・経営報告</h2>
+        <h2>
+          <span>{r.year}年10月期</span> <span>事業・経営報告</span>
+        </h2>
         <p>
           {!showMetrics && (
             <>
@@ -37,11 +39,11 @@ export function PublishedFiscalCard({
       </div>
       <div className="fiscal-card-actions">
         <Link className="button primary" href={path}>
-          年次レポートを読む →
+          今期の報告を見る →
         </Link>
         {browserPrint ? (
           <Link className="button secondary" href={path}>
-            レポートを開いてPDF保存
+            報告を開いて保存・印刷
           </Link>
         ) : (
           <PdfButton

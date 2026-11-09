@@ -32,18 +32,21 @@ export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
         </>
       )}
       <div className="demo-divider">
-        <span>{googleEnabled ? "またはメールでログイン" : "メールでログイン"}</span>
+        <span>
+          {googleEnabled ? "またはメールでログイン" : "メールでログイン"}
+        </span>
       </div>
-      <p>
-        登録済みのメールアドレスを入力し、届いた最新のメールのリンクを一度開くとログインできます。
-      </p>
+      <ol className="login-steps">
+        <li>メールアドレスを入力します。</li>
+        <li>届いたメールのリンクを押すと、報告を見られます。</li>
+      </ol>
       <form action={action} className="login-form">
         <label>
-          認証リンクの送信先
+          登録済みのメールアドレス
           <input name="email" type="email" autoComplete="email" required />
         </label>
         <button className="button primary" disabled={pending}>
-          {pending ? "送信中…" : "認証リンクを受け取る"}
+          {pending ? "送信中…" : "ログイン用のメールを受け取る"}
         </button>
       </form>
       {state.error && (
@@ -58,7 +61,9 @@ export function ProductionLogin({ googleEnabled }: { googleEnabled: boolean }) {
       )}
       <details className="login-password-alternative">
         <summary>メールのリンクが開けない場合</summary>
-        <p>まだ開いていない最新のリンクだけをコピーしてください。開いた後のリンクは再利用できません。</p>
+        <p>
+          まだ開いていない最新のリンクだけをコピーしてください。開いた後のリンクは再利用できません。
+        </p>
         <form action={confirm} className="login-form email-confirmation-form">
           <label>
             メールの認証リンクを貼り付ける

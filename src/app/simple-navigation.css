@@ -1,0 +1,536 @@
+@media screen {
+  /* Plain-language navigation and readable controls. Financial report layouts
+   retain their own screen and print rules. */
+  .app-shell .button,
+  .fiscal-share-editor .button,
+  .presentation-topbar .button,
+  .login-page .button {
+    min-height: 48px;
+    padding: 12px 18px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.5;
+    border-radius: 8px;
+    white-space: normal;
+    text-align: center;
+  }
+  .app-shell :is(a, button, input, textarea, summary):focus-visible,
+  .fiscal-share-editor :is(a, button, input, textarea, summary):focus-visible {
+    outline: 3px solid #2869ac;
+    outline-offset: 4px;
+  }
+  .sidebar {
+    overflow-y: auto;
+  }
+  .sidebar .brand-link {
+    margin-bottom: 28px;
+  }
+  .sidebar .nav-label {
+    font-size: 13px;
+    color: #536477;
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+  .sidebar .primary-nav > a {
+    min-height: 48px;
+    font-size: 16px;
+    color: #344b60;
+    padding: 12px 10px;
+  }
+  .sidebar .primary-nav > a.active {
+    color: #1e5891;
+    background: #eef4fa;
+    font-weight: 700;
+  }
+  .sidebar .primary-nav svg {
+    flex: none;
+  }
+  .sidebar .contents-nav a {
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .sidebar .logout-button {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .sidebar .portal-note {
+    font-size: 14px;
+  }
+  .sidebar .portal-note small {
+    font-size: 12px;
+  }
+  .breadcrumb {
+    font-size: 15px;
+    color: #52667b;
+  }
+  .breadcrumb strong {
+    color: #273e54;
+  }
+  .audience-label {
+    display: inline-flex;
+    padding: 6px 12px;
+    border: 1px solid #d6e1ec;
+    background: #f5f8fb;
+    border-radius: 6px;
+    color: #35516d;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .topbar-right {
+    gap: 10px;
+  }
+  .mock-badge {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+  .site-footer {
+    font-size: 12px;
+    color: #526477;
+  }
+  .simple-back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    font-size: 16px;
+    color: #285f99;
+  }
+  .presentation-topbar > a {
+    font-size: 16px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .investor-dashboard-heading {
+    padding-bottom: 20px;
+  }
+  .investor-dashboard-heading .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .investor-dashboard-heading h1 {
+    font-weight: 700;
+  }
+  .investor-dashboard-heading p {
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  .investor-audience {
+    font-size: 14px;
+    white-space: normal;
+    line-height: 1.7;
+  }
+  .investor-audience svg {
+    flex: none;
+  }
+  .portal-entry {
+    background: #fff;
+    border-radius: 10px;
+  }
+  .portal-entry h2 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .portal-entry p {
+    font-size: 16px;
+    color: #526579;
+  }
+  .portal-entry strong {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #43596e;
+  }
+  .portal-entry > span:last-child {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .portal-admin-panel {
+    background: #f7f9fb;
+    padding: 20px 24px;
+  }
+  .portal-chip {
+    font-size: 13px;
+  }
+  .portal-admin-panel h2 {
+    font-size: 22px;
+  }
+  .portal-admin-panel p {
+    font-size: 16px;
+  }
+  .portal-admin-actions .button {
+    background: #fff;
+    color: #285d91;
+    border: 1px solid #bfcede;
+  }
+  .investor-overview :is(p, li, h4),
+  .investor-overview a,
+  .portal-report-summary summary {
+    font-size: 17px;
+  }
+  .investor-basis-line {
+    font-size: 15px;
+  }
+  .kpi-en {
+    font-size: 14px;
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+  .kpi-comparison {
+    flex-wrap: wrap;
+  }
+  .monthly-report .section-heading h2 {
+    font-family: inherit;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 700;
+  }
+  .monthly-report .report-title {
+    font-family: inherit;
+    font-weight: 700;
+  }
+  .investor-shortcuts strong {
+    font-size: 17px;
+  }
+  .investor-shortcuts small {
+    font-size: 15px;
+  }
+  .fiscal-portal-card {
+    background: #fff;
+    border: 1px solid #c6d5e4;
+    box-shadow: none;
+  }
+  .fiscal-portal-card .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .fiscal-portal-card h2 {
+    font-size: 28px;
+    line-height: 1.6;
+  }
+  .fiscal-portal-card .fiscal-portal-metrics {
+    padding-top: 20px;
+    border-top: 1px solid #dce4ec;
+  }
+  .fiscal-portal-card .kpi-card {
+    background: #f3f7fb;
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .fiscal-share-editor {
+    margin-top: 20px;
+  }
+  .fiscal-share-editor > header .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .fiscal-share-editor h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.5;
+  }
+  .fiscal-share-editor h2 {
+    font-size: 25px;
+    line-height: 1.6;
+  }
+  .fiscal-workflow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none;
+    padding: 0;
+    gap: 8px;
+    margin: 24px 0;
+  }
+  .fiscal-workflow li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    color: #56687b;
+    border-bottom: 3px solid #dce4ec;
+    min-width: 0;
+  }
+  .fiscal-workflow li[aria-current] {
+    color: #1d568c;
+    background: #eef5fc;
+    border-color: #2e6fae;
+  }
+  .fiscal-workflow span {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .fiscal-workflow strong {
+    font-size: 16px;
+  }
+  .fiscal-sharing-bar {
+    padding: 20px 0;
+    margin: 18px 0;
+  }
+  .fiscal-sharing-bar > div:first-child {
+    flex-basis: 100%;
+  }
+  .fiscal-sharing-bar strong {
+    font-size: 18px;
+  }
+  .fiscal-sharing-bar p {
+    font-size: 16px;
+  }
+  .fiscal-sharing-bar .button[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .fiscal-review-step {
+    background: #f5f8fc;
+    padding: 24px;
+    margin-bottom: 22px;
+  }
+  .fiscal-review-step h2 {
+    margin: 10px 0;
+  }
+  .fiscal-review-step p {
+    margin: 10px 0;
+  }
+  .fiscal-review-step ul {
+    padding-left: 24px;
+    font-size: 17px;
+    line-height: 1.9;
+  }
+  .simple-step-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #255e96;
+  }
+  .fiscal-edit-details,
+  .fiscal-refresh-details {
+    border: 1px solid #d4dfe9;
+    border-radius: 10px;
+    background: #fff;
+    padding: 0 24px;
+    margin-top: 18px;
+  }
+  .fiscal-share-editor details > summary {
+    cursor: pointer;
+    padding: 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.6;
+    min-height: 52px;
+  }
+  .fiscal-editor-form {
+    padding-bottom: 24px;
+  }
+  .fiscal-editor-form input,
+  .fiscal-editor-form textarea {
+    font-size: 17px;
+  }
+  .fiscal-refresh {
+    padding-bottom: 24px;
+  }
+  .fiscal-sharing-instructions {
+    padding-left: 24px;
+    font-size: 18px;
+    line-height: 1.9;
+  }
+  .simple-notice {
+    background: #f4f7fa;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .login-story {
+    background: #f3f7fb;
+    color: #193148;
+  }
+  .login-story h1 {
+    color: #193148;
+    font-weight: 700;
+  }
+  .login-story-main > .eyebrow {
+    color: #47647f;
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .login-story-main > p {
+    font-size: 17px;
+    color: #496277;
+  }
+  .login-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 36px 0 0;
+  }
+  .login-benefits li {
+    padding: 16px 0;
+    border-top: 1px solid #d4e0eb;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .login-copyright {
+    color: #506578;
+    font-size: 13px;
+  }
+  .login-panel .eyebrow {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .login-panel h2 {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+  .login-intro,
+  .login-form label,
+  .login-steps,
+  .login-panel .demo-entry p {
+    font-size: 17px;
+    line-height: 1.85;
+  }
+  .login-form input {
+    min-height: 52px;
+    font-size: 18px;
+  }
+  .login-steps {
+    padding-left: 24px;
+    margin: 20px 0;
+  }
+  .login-platform-entry {
+    margin-top: 28px;
+    border-top: 1px solid #d6e0e9;
+  }
+  .login-platform-entry summary,
+  .login-password-alternative summary {
+    cursor: pointer;
+    padding: 16px 0;
+    font-size: 16px;
+    min-height: 48px;
+    line-height: 1.7;
+  }
+  .login-secure {
+    font-size: 14px;
+  }
+  @media (max-width: 900px) {
+    .topbar-right {
+      flex-direction: column;
+      gap: 2px;
+    }
+    .audience-label {
+      padding: 3px 8px;
+      font-size: 13px;
+    }
+    .mock-badge {
+      padding: 2px 6px;
+      font-size: 10px;
+    }
+  }
+  @media (max-width: 700px) {
+    .presentation-topbar {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .presentation-topbar > :first-child {
+      flex-basis: 100%;
+    }
+    .presentation-topbar .button {
+      max-width: 100%;
+    }
+    .investor-dashboard-heading h1 {
+      font-size: 28px;
+    }
+    .investor-dashboard-heading p {
+      font-size: 16px;
+    }
+    .investor-audience {
+      padding-top: 10px;
+    }
+    .portal-entry h2 {
+      font-size: 19px;
+    }
+    .portal-entry strong {
+      font-size: 14px;
+    }
+    .portal-entry > span:last-child {
+      font-size: 0;
+    }
+    .fiscal-portal-card {
+      margin: 16px 0 24px;
+      padding: 20px;
+    }
+    .fiscal-portal-card h2 {
+      font-size: 23px;
+    }
+    .fiscal-portal-card h2 span {
+      display: block;
+    }
+    .fiscal-portal-card .fiscal-card-actions {
+      margin-top: 18px;
+    }
+    .fiscal-portal-card .kpi-card {
+      padding: 18px 14px;
+    }
+    .fiscal-workflow {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 12px;
+    }
+    .fiscal-workflow li {
+      padding: 10px 6px;
+    }
+    .fiscal-workflow strong {
+      font-size: 15px;
+    }
+    .fiscal-share-editor h2 {
+      font-size: 22px;
+    }
+    .fiscal-review-step {
+      padding: 22px 18px;
+    }
+    .fiscal-edit-details,
+    .fiscal-refresh-details {
+      padding: 0 18px;
+    }
+    .fiscal-review-step .button,
+    .fiscal-sharing-bar .button {
+      width: 100%;
+      justify-content: center;
+    }
+    .fiscal-sharing-bar .pdf-control {
+      width: 100%;
+    }
+    .login-story-main,
+    .login-copyright {
+      display: none;
+    }
+    .login-story {
+      min-height: auto;
+      padding: 24px;
+    }
+    .login-panel {
+      padding: 28px 24px;
+    }
+    .login-panel h2 {
+      font-size: 26px;
+    }
+    .site-footer {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .app-shell .button,
+    .portal-entry {
+      transition: none;
+    }
+  }
+}
+@media print {
+  .fiscal-workflow,
+  .fiscal-review-step,
+  .fiscal-edit-details,
+  .fiscal-refresh-details {
+    display: none;
+  }
+}

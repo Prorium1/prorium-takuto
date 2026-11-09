@@ -22,7 +22,9 @@ export default async function Page({
   );
   return (
     <Shell role={actor.role}>
-      <Link href={`/admin/fiscal/${year}`}>← 経営者用の今期資料</Link>
+      <Link className="simple-back" href="/admin">
+        ← 経営者のホームに戻る
+      </Link>
       <FiscalShareEditor
         key={`${report?.id}:${report?.revision}`}
         year={Number(year)}

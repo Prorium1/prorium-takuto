@@ -49,12 +49,12 @@ export function InvestorDashboard({
     <div className="investor-dashboard">
       <header className="investor-dashboard-heading">
         <div>
-          <span className="eyebrow">PRORIUM / INVESTOR UPDATE</span>
-          <h1>株主ポータル</h1>
-          <p>期全体の報告と月次の推移、組織体制、財務資料を確認できます。</p>
+          <span className="eyebrow">Prorium · 株主専用</span>
+          <h1>株主向けのご報告</h1>
+          <p>会社のいまを、数字と出来事からお伝えします。</p>
         </div>
         <span className="investor-audience">
-          <ShieldCheck size={14} /> 承認・公開済みの情報
+          <ShieldCheck size={14} /> 会社が確認し、公開した情報です
         </span>
       </header>
       {annual && (
@@ -70,8 +70,8 @@ export function InvestorDashboard({
           className="portal-entry portal-entry-main"
         >
           <span className="portal-entry-number">01</span>
-          <h2>月次レポート</h2>
-          <p>業績と変化の理由、事業の進捗、今後の見通し。</p>
+          <h2>月ごとの報告を見る</h2>
+          <p>売上・利益と、今月起きたこと。</p>
           <strong>
             {latest
               ? `${periodLabel(latest.period)} · 公開済み`
@@ -84,8 +84,8 @@ export function InvestorDashboard({
         </Link>
         <Link href="/documents" className="portal-entry">
           <span className="portal-entry-number">02</span>
-          <h2>財務資料・PDF</h2>
-          <p>月次のPL・BS・試算表と、ダウンロード資料。</p>
+          <h2>資料を保存する</h2>
+          <p>報告書や会計の資料を、手元に保存・印刷できます。</p>
           <strong>
             {annual ||
             published.some((r) => (r.content.documents || []).length > 0)
@@ -98,8 +98,8 @@ export function InvestorDashboard({
         </Link>
         <Link href="/shareholders" className="portal-entry">
           <span className="portal-entry-number">03</span>
-          <h2>株主構成</h2>
-          <p>基準日と発行済株式数、確認済みの保有比率。</p>
+          <h2>株主構成を見る</h2>
+          <p>どなたが、何株・何％を保有しているか。</p>
           <strong>
             {ownership
               ? `${ownership.asOf} 時点 · 公開済み`
@@ -131,7 +131,7 @@ export function InvestorDashboard({
             <div className="investor-latest-top">
               <div>
                 <span className="eyebrow">
-                  LATEST REPORT · {latest.version}
+                  最新の月次報告 · {latest.version}
                 </span>
                 <h2 id="investor-latest-title">{periodLabel(latest.period)}</h2>
               </div>
