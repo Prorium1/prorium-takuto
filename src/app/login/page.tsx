@@ -19,11 +19,28 @@ export default async function LoginPage({
   if (actor) redirect(actor.role === "admin" ? "/admin" : "/dashboard");
   const { reason } = await searchParams;
   const productionEnabled = productionConfigured();
+  const mockEnabled = isMockEnvironment();
   const googleEnabled = productionEnabled
     ? await googleProviderEnabled(productionConfiguration())
     : false;
+  const platformEntry = productionEnabled && (
+    <section className="login-platform-entry" aria-label="経営者のログイン">
+      <h3>経営者の方</h3>
+      <a
+        className="button secondary"
+        href={`${productionConfiguration().origin}/auth/platform`}
+      >
+        Proriumプラットフォームから入る
+      </a>
+      <p className="login-helper">
+        マスターアカウントで、実際の数字や作成中の報告を確認・編集できます。
+      </p>
+    </section>
+  );
   return (
-    <main className="login-page">
+    <main
+      className={`login-page${productionEnabled ? " login-production" : ""}`}
+    >
       <section className="login-story">
         <Brand />
         <div className="login-story-main">
@@ -50,40 +67,43 @@ export default async function LoginPage({
       </section>
       <section className="login-panel">
         <div className="login-panel-inner">
-          <span className="eyebrow">ご本人の確認</span>
+          <span className="eyebrow">
+            {productionEnabled ? "本番の報告ページ" : "確認用デモ"}
+          </span>
           <h2>報告を見るためにログイン</h2>
           <p className="login-intro">
-            案内されたメールアドレスとパスワードを入力してください。
+            {mockEnabled
+              ? "画面と操作を確認するためのデモです。実際の財務情報は含まれません。"
+              : googleEnabled
+                ? "Googleアカウントを選ぶだけで入れます。新しいパスワードは不要です。"
+                : "経営者の方はプラットフォームから、株主の方はご案内のログイン情報で入れます。"}
           </p>
           {(reason === "oauth" ||
             reason === "access" ||
+            reason === "not-invited" ||
             reason === "platform") && (
             <p role="alert" className="form-error">
               {reason === "platform"
                 ? "Proriumのログイン連携を完了できませんでした。プラットフォームのマスターアカウントでログインして、もう一度お試しください。"
                 : reason === "oauth"
                   ? "Google認証を完了できませんでした。もう一度お試しください。"
-                  : "認証を完了できませんでした。新しい認証リンクでお試しください。"}
+                  : reason === "not-invited"
+                    ? "このアカウントには閲覧権限がありません。ご案内を受け取ったメールアドレスのアカウントで入り直してください。未登録の場合は、Proriumの担当者へ登録をご依頼ください。"
+                    : "ログインを完了できませんでした。もう一度お試しください。メールで入る場合は最新のリンクを開いてください。"}
             </p>
           )}
+          {!googleEnabled && platformEntry}
+          {productionEnabled && !googleEnabled && (
+            <h3 className="login-email-heading">メールアドレスで入る方</h3>
+          )}
           <LoginForm
-            mockEnabled={isMockEnvironment()}
+            mockEnabled={mockEnabled}
             productionEnabled={productionEnabled}
             googleEnabled={googleEnabled}
           />
-          {productionEnabled && (
-            <details className="login-platform-entry">
-              <summary>経営者・管理者の方はこちら</summary>
-              <a
-                className="button secondary"
-                href={`${productionConfiguration().origin}/auth/platform`}
-              >
-                Proriumプラットフォームから管理画面へ
-              </a>
-              <p className="login-helper">
-                登録済みのマスターアカウントで、そのまま管理・編集できます。
-              </p>
-            </details>
+          {googleEnabled && platformEntry}
+          {productionEnabled && !googleEnabled && (
+            <p className="login-provider-note">Googleログインは準備中です。</p>
           )}
         </div>
       </section>

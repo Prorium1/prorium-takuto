@@ -16,13 +16,22 @@ export async function startGoogleLoginAction(
   try {
     const config = productionConfiguration();
     if (!(await googleProviderEnabled(config)))
-      return { error: "Googleログインは現在設定中です。メールでログインしてください。" };
+      return {
+        error: "Googleログインは現在設定中です。メールでログインしてください。",
+      };
     const client = await createSupabaseClient();
     const { data, error } = await client.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${config.origin}/auth/callback` },
+      options: {
+        redirectTo: `${config.origin}/auth/callback`,
+        queryParams: { prompt: "select_account" },
+      },
     });
-    if (error || !data.url || new URL(data.url).origin !== new URL(config.url).origin)
+    if (
+      error ||
+      !data.url ||
+      new URL(data.url).origin !== new URL(config.url).origin
+    )
       return { error: "Googleログインを開始できませんでした。" };
     authorizationUrl = data.url;
   } catch {

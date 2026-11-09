@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseClient } from "@/lib/server/supabase";
 import { productionConfiguration } from "@/lib/server/environment";
+import { loginDestination } from "@/lib/domain/login-access";
 export async function GET(request: Request) {
   const config = productionConfiguration();
   const params = new URL(request.url).searchParams;
@@ -24,11 +25,16 @@ export async function GET(request: Request) {
           p_company: config.companyId,
         },
       );
-      if (!invitationError && !actorError && actor?.id === verified.user.id)
-        return NextResponse.redirect(
-          `${config.origin}${actor.role === "admin" ? "/admin" : "/dashboard"}`,
-        );
-      await client.auth.signOut();
+      const destination =
+        !invitationError && !actorError
+          ? loginDestination(actor, verified.user.id, config.companyId)
+          : null;
+      if (destination)
+        return NextResponse.redirect(`${config.origin}${destination}`);
+      await client.auth.signOut({ scope: "local" });
+      return NextResponse.redirect(
+        `${config.origin}/login?reason=${invitationError || actorError ? "access" : "not-invited"}`,
+      );
     }
   }
   // Supabase's default email template returns implicit tokens in the fragment.
