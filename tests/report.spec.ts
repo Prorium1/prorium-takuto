@@ -68,7 +68,7 @@ test("investors see all nine sections and only published versions", async ({
   await expect(page.locator(".kpi-card").first()).toContainText("52,640,000");
   await expect(page.locator(".kpi-card").first()).toContainText("+31.6%");
   await expect(
-    page.getByRole("heading", { name: "AI Transformation", exact: true }),
+    page.getByRole("heading", { name: "AIの活用", exact: true }),
   ).toBeVisible();
   await expect(page.locator("#forward .indicator-kind")).toHaveText([
     "Actual",
@@ -76,7 +76,7 @@ test("investors see all nine sections and only published versions", async ({
     "Forecast",
     "Pipeline",
   ]);
-  await expect(page.locator(".mock-badge")).toContainText("MOCK DATA");
+  await expect(page.locator(".mock-badge")).toContainText("確認用データ");
   await expect(page.locator(".source-provenance")).toContainText(
     "Synthetic freee fixture",
   );
@@ -127,7 +127,7 @@ test("charts, archive and responsive navigation work without overflow", async ({
     ).toBe(true);
   }
   await page.getByRole("button", { name: "メニューを開く" }).click();
-  await page.getByRole("link", { name: "07 Forward Indicators" }).click();
+  await page.getByRole("link", { name: "07 これからの見通し" }).click();
   await expect(page).toHaveURL(/#forward$/);
   await page.goto("/reports");
   await expect(page.locator(".archive-card")).toHaveCount(3);
@@ -273,7 +273,7 @@ test("admin creates, edits, generates, approves, publishes and revises without c
     oldSummary,
   );
   await page.goto("/admin");
-  await page.getByText("最近の操作", { exact: true }).click();
+  await page.getByText("操作の履歴を見る", { exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "改訂版を作成", exact: true }),
   ).toBeVisible();

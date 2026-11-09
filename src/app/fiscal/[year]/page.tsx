@@ -31,7 +31,7 @@ export default async function Page({
     <main className="presentation-page fiscal-page">
       <div className="presentation-topbar">
         <Brand />
-        <Link href="/dashboard">株主ポータルへ</Link>
+        <Link href="/dashboard">← 株主のホームに戻る</Link>
         <PdfButton
           period={`${year}-10`}
           version={fiscalVersionLabel(report.version)}

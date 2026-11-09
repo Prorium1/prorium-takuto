@@ -108,13 +108,13 @@ export function ReportView({
       <div className="report-heading">
         <div>
           <div className="report-eyebrow">
-            <span className="eyebrow">MONTHLY SHAREHOLDER REPORT</span>
+            <span className="eyebrow">株主の皆さまへの月次報告</span>
             <span className="report-edition">
               VOL. {String(month).padStart(2, "0")}
             </span>
           </div>
           <h1>
-            <span className="report-title">Monthly Report</span>
+            <span className="report-title">月ごとのご報告</span>
             <span className="report-period">{periodLabel(report.period)}</span>
             <span
               className={`badge ${report.state === "published" ? "badge-green" : "badge-purple"}`}
@@ -162,7 +162,7 @@ export function ReportView({
             ? "月次サマリー / 添付財務資料"
             : financialBasis(f).label}
         </span>
-        <span>JPY</span>
+        <span>金額は円で表示</span>
         <span className="report-version">
           {report.version}
           <Layers size={12} />
@@ -204,7 +204,7 @@ export function ReportView({
       <section id="performance" className="report-section">
         <SectionHeading
           number="02"
-          title="Financial Performance"
+          title="売上と利益"
           subtitle="成長と収益性を、前年同月との比較で。"
         />
         {f.available !== false ? (
@@ -240,7 +240,7 @@ export function ReportView({
       <section id="drivers" className="report-section">
         <SectionHeading
           number="03"
-          title="Why It Changed"
+          title="数字が変わった理由"
           subtitle="数字の変化には、事業の理由がある。"
         />
         {c.financialAnalysis &&
@@ -278,7 +278,7 @@ export function ReportView({
       <section id="business" className="report-section">
         <SectionHeading
           number="04"
-          title="Business Highlights"
+          title="事業の進み具合"
           subtitle="成長の現場から。今月の事業トピックス。"
         />
         {!c.highlights.length && (
@@ -321,7 +321,7 @@ export function ReportView({
       <section id="ai" className="report-section">
         <SectionHeading
           number="05"
-          title="AI Transformation"
+          title="AIの活用"
           subtitle="AIを販売する。そして、AIで経営する。"
         />
         {c.ai.revenue.length > 0 && c.ai.efficiency.length > 0 ? (
@@ -338,7 +338,7 @@ export function ReportView({
                     <TrendingUp size={19} />
                   </span>
                   <div>
-                    <span className="eyebrow">AI AS REVENUE</span>
+                    <span className="eyebrow">AIによる売上</span>
                     <h3>新しい売上をつくる。</h3>
                   </div>
                   <ArrowUpRight size={19} />
@@ -365,7 +365,7 @@ export function ReportView({
                     <Zap size={19} />
                   </span>
                   <div>
-                    <span className="eyebrow">AI AS EFFICIENCY</span>
+                    <span className="eyebrow">AIによる効率化</span>
                     <h3>利益を生む仕組みをつくる。</h3>
                   </div>
                   <ArrowUpRight size={19} />
@@ -408,14 +408,14 @@ export function ReportView({
       <section id="position" className="report-section">
         <SectionHeading
           number="06"
-          title="Financial Position"
+          title="資金と財産の状況"
           subtitle="成長を支える、財務の安定性。"
         />
         {f.available !== false ? (
           <>
             <div className="position-grid">
               <article className="position-main">
-                <span className="eyebrow">CASH & RESILIENCE</span>
+                <span className="eyebrow">手元の資金と安定性</span>
                 <h3>次の投資へ、着実な余力。</h3>
                 <div>
                   <strong>
@@ -489,7 +489,7 @@ export function ReportView({
       <section id="forward" className="report-section">
         <SectionHeading
           number="07"
-          title="Forward Indicators"
+          title="これからの見通し"
           subtitle="実績と、これからの可能性を分けて見る。"
         />
         <div className="forward-legend">
@@ -535,7 +535,7 @@ export function ReportView({
       <section id="risks" className="report-section">
         <SectionHeading
           number="08"
-          title="Risks & Actions"
+          title="心配なことと対応"
           subtitle="リスクを認識し、具体的な行動で向き合う。"
         />
         {!c.risks.length && (
@@ -561,7 +561,7 @@ export function ReportView({
                 </div>
               </div>
               <div className="risk-action">
-                <span className="eyebrow">ACTION</span>
+                <span className="eyebrow">対応すること</span>
                 <p>{risk.action}</p>
                 <span>
                   {risk.owner}
@@ -576,7 +576,7 @@ export function ReportView({
       <section id="ceo" className="report-section">
         <SectionHeading
           number="09"
-          title="CEO Commentary"
+          title="社長からのメッセージ"
           subtitle="株主の皆さまへ。"
         />
         <div className="ceo-card">
@@ -598,7 +598,7 @@ export function ReportView({
       <section id="documents" className="financial-documents-section">
         <SectionHeading
           number="+"
-          title="Financial Documents"
+          title="会計の資料"
           subtitle="月ごとの財務資料を、必要なときに。"
         />
         {c.documents?.length ? (

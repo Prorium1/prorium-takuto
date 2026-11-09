@@ -17,8 +17,8 @@ test("executive overview separates outlook and risk and leaves the published con
   const html = renderToStaticMarkup(
     createElement(ExecutiveSummary, { report }),
   );
-  assert.match(html, /NEXT · 見通し・予定/);
-  assert.match(html, /WATCH · リスクと対応/);
+  assert.match(html, /見通し・予定/);
+  assert.match(html, /心配なことと対応/);
   assert.match(html, /href="#drivers"/);
   assert.match(html, /href="#ai"/);
   assert.equal(JSON.stringify(report), before);

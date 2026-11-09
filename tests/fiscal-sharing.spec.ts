@@ -6,7 +6,14 @@ test("annual review publishes an immutable investor page and PDF while draft acc
   await page.goto("/login");
   await page.getByRole("button", { name: "管理者デモを開く" }).click();
   await page.waitForURL("**/admin");
-  await page.goto("/admin/fiscal/2026/share");
+  await expect(
+    page.getByRole("heading", { name: "経営者のホーム", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "報告を確認する", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/fiscal\/2026\/share$/);
+  await expect(
+    page.locator('.fiscal-workflow [aria-current="step"]'),
+  ).toHaveText("1内容を確認");
   await page.getByRole("button", { name: "株主共有用の下書きを作成" }).click();
   await expect(page.getByLabel("社員数", { exact: true })).toHaveValue("8");
   await page
@@ -16,7 +23,34 @@ test("annual review publishes an immutable investor page and PDF while draft acc
     .getByRole("button", { name: "入力内容を保存", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "内容の確認を完了", exact: true }),
+    page.getByRole("button", { name: "確認して次へ進む", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("社員数", { exact: true })).not.toBeVisible();
+  await page
+    .getByRole("link", { name: "報告を開いて確認する", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/admin\/fiscal\/2026\/preview\?version=1$/);
+  await page
+    .getByRole("link", { name: "← 確認・公開の画面に戻る", exact: true })
+    .click();
+  await page.getByText("人数や文章を確認・修正する", { exact: true }).click();
+  await page
+    .getByLabel("人数・編成の補足", { exact: true })
+    .fill("Mock: 人数と担当領域を確認しました。");
+  await expect(
+    page.getByRole("link", { name: "報告を開いて確認する", exact: true }),
+  ).toHaveAttribute("aria-disabled", "true");
+  await expect(
+    page.getByRole("button", { name: "資料を保存（PDF）", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "確認して次へ進む", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "入力内容を保存", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "確認して次へ進む", exact: true }),
   ).toBeEnabled();
   const context = await browser.newContext(),
     investor = await context.newPage();
@@ -36,21 +70,23 @@ test("annual review publishes an immutable investor page and PDF while draft acc
       (await investor.goto("/fiscal/2026/print?version=1&preview=1"))?.status(),
     ).toBe(404);
     await page
-      .getByLabel(
-        "取得済み実績、締め状況、未取得月と組織情報の表示を確認しました",
-      )
+      .getByLabel("金額・人数・未確定の情報の表示を確認しました")
       .check();
     await page
-      .getByRole("button", { name: "内容の確認を完了", exact: true })
+      .getByRole("button", { name: "確認して次へ進む", exact: true })
       .click();
     await page
-      .getByRole("button", { name: "この版を承認", exact: true })
-      .click();
-    await page
-      .getByRole("button", { name: "株主専用ページへ公開", exact: true })
+      .getByRole("button", { name: "この内容で承認する", exact: true })
       .click();
     await expect(
-      page.getByRole("button", { name: "共有URLをコピー" }),
+      page.locator('.fiscal-workflow [aria-current="step"]'),
+    ).toHaveText("3株主に公開");
+    expect((await investor.goto("/fiscal/2026?version=1"))?.status()).toBe(404);
+    await page
+      .getByRole("button", { name: "株主に公開する", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "共有リンクをコピー" }),
     ).toBeVisible();
     await investor.goto("/dashboard");
     await expect(
@@ -74,7 +110,7 @@ test("annual review publishes an immutable investor page and PDF while draft acc
       path: "/tmp/prorium-annual-dashboard-mobile.png",
     });
     await investor.setViewportSize({ width: 1280, height: 900 });
-    await investor.getByRole("link", { name: "年次レポートを読む" }).click();
+    await investor.getByRole("link", { name: "今期の報告を見る" }).click();
     await expect(
       investor.getByRole("heading", { name: "事業を支える、人と体制。" }),
     ).toBeVisible();
@@ -122,8 +158,9 @@ test("annual review publishes an immutable investor page and PDF while draft acc
     const { writeFile } = await import("node:fs/promises");
     await writeFile("/tmp/prorium-annual-published.pdf", await response.body());
     await page
-      .getByRole("button", { name: "改訂版を作成", exact: true })
+      .getByRole("button", { name: "内容を直して新しい版を作る", exact: true })
       .click();
+    await page.getByText("人数や文章を確認・修正する", { exact: true }).click();
     await expect(page.getByLabel("社員数", { exact: true })).toBeVisible();
     expect((await investor.goto("/fiscal/2026?version=2"))?.status()).toBe(404);
     expect((await investor.goto("/fiscal/2026?version=1"))?.status()).toBe(200);

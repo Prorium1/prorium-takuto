@@ -15,7 +15,7 @@ test("shareholder portal makes its three purposes clear and names stay readable 
 }) => {
   await signIn(page, "investor");
   await expect(
-    page.getByRole("heading", { name: "株主ポータル", exact: true }),
+    page.getByRole("heading", { name: "株主向けのご報告", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".portal-entries > a")).toHaveCount(3);
   await expect(page.locator(".portal-admin-panel")).toHaveCount(0);

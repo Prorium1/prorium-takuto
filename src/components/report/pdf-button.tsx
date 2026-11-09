@@ -8,12 +8,14 @@ export function PdfButton({
   browserPrint = false,
   endpoint,
   filename,
+  disabled = false,
 }: {
   period: string;
   version: string;
   browserPrint?: boolean;
   endpoint?: string;
   filename?: string;
+  disabled?: boolean;
 }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +28,8 @@ export function PdfButton({
     setError("");
     try {
       const response = await fetch(
-        endpoint || `/api/reports/${period}/pdf?version=${encodeURIComponent(version)}`,
+        endpoint ||
+          `/api/reports/${period}/pdf?version=${encodeURIComponent(version)}`,
       );
       if (!response.ok)
         throw new Error("PDFを生成できませんでした。もう一度お試しください。");
@@ -45,17 +48,21 @@ export function PdfButton({
   }
   return (
     <div className="pdf-control">
-      <button className="button primary" onClick={download} disabled={pending}>
+      <button
+        className="button secondary"
+        onClick={download}
+        disabled={pending || disabled}
+      >
         {pending ? (
           <LoaderCircle size={16} className="spinner" />
         ) : (
           <Download size={16} />
         )}
         {pending
-          ? "PDFを生成中…"
+          ? "資料を準備しています…"
           : browserPrint
-            ? "PDF保存 / 印刷"
-            : "PDFを保存"}
+            ? "資料を保存・印刷"
+            : "資料を保存（PDF）"}
       </button>
       {error && (
         <p className="form-error" role="alert">

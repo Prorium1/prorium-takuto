@@ -34,74 +34,76 @@ export default async function AdminPage() {
       ? Number(latestPeriod.slice(0, 4)) +
         (Number(latestPeriod.slice(5, 7)) >= 11 ? 1 : 0)
       : fiscalYear);
+  const current = annual[0];
   return (
     <Shell role={actor.role}>
       <div className={styles.overview}>
-        <nav className="ir-audience-nav" aria-label="経営者と投資家の画面">
-          <span aria-current="page">経営者用 · 編集・承認・公開</span>
-          <Link href="/dashboard">投資家向け公開レポートを見る →</Link>
-        </nav>
         <header className={styles.hero}>
-          <div>
-            <span className={styles.eyebrow}>PRORIUM / INVESTOR RELATIONS</span>
-            <h1>レポート管理</h1>
-            <p>月次の振り返りを、株主に伝わるレポートへ。</p>
-          </div>
-          <div className={styles.heroAction}>
-            <Link
-              href={`/admin/fiscal/${preparedYear}/share`}
-              className="button primary"
-            >
-              {preparedYear}年10月期を株主へ共有・PDF提出
-            </Link>
-            <Link
-              href={`/admin/fiscal/${preparedYear}`}
-              className="button primary"
-            >
-              今期全体の説明用画面を開く
-            </Link>
-            {draft && (
-              <Link
-                href={`/admin/reports/${draft.id}/present`}
-                className="button secondary"
-              >
-                説明用プレビューを開く
-              </Link>
-            )}
-            {draft && (
-              <span>
-                {periodLabel(draft.period)} ·{" "}
-                {draft.contextRequired
-                  ? "振り返りの入力待ち"
-                  : "下書きを編集中"}
-              </span>
-            )}
-            <Link
-              href={draft ? `/admin/reports/${draft.id}` : "/admin/reports"}
-              className="button primary"
-            >
-              {draft ? "下書きを編集" : "レポートを管理"}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+          <span className={styles.eyebrow}>経営者だけが使う画面</span>
+          <h1>経営者のホーム</h1>
+          <p>株主へのご報告は、ここから進めます。</p>
         </header>
+        <section
+          className={styles.nextAction}
+          aria-labelledby="next-action-title"
+        >
+          <div>
+            <span className={styles.eyebrow}>
+              {current?.state === "published"
+                ? "共有する資料"
+                : "最初にすること"}
+            </span>
+            <h2 id="next-action-title">{preparedYear}年10月期の報告</h2>
+            <p>
+              {current?.state === "published"
+                ? "公開済みの報告です。共有リンクと提出用の資料を開けます。"
+                : "報告の内容を確認し、承認してから株主に公開します。"}
+            </p>
+          </div>
+          <Link
+            href={`/admin/fiscal/${preparedYear}/share`}
+            className="button primary"
+          >
+            {current?.state === "published"
+              ? "共有リンクと資料を開く"
+              : "報告を確認する"}
+            <ArrowRight size={20} />
+          </Link>
+        </section>
+        <nav className={styles.destinations} aria-label="見る画面を選ぶ">
+          <Link href={`/admin/fiscal/${preparedYear}`}>
+            <span>経営者向け · 非公開</span>
+            <h2>会社の数字を詳しく見る</h2>
+            <p>売上や利益の推移を確認します。</p>
+            <strong>経営分析を開く →</strong>
+          </Link>
+          <Link href="/dashboard">
+            <span>株主向け · 公開済みの情報</span>
+            <h2>株主の画面を見る</h2>
+            <p>株主に公開している報告を確認します。</p>
+            <strong>株主のホームを開く →</strong>
+          </Link>
+        </nav>
         <div className={styles.counts} aria-label="レポートの状況">
           {[
-            [
-              "公開済み",
-              reportStates.filter((r) => r.state === "published").length,
-            ],
+            ["作成中", reportStates.filter((r) => r.state === "draft").length],
             [
               "確認・承認待ち",
               reportStates.filter((r) =>
                 ["review", "approved"].includes(r.state),
               ).length,
             ],
-            ["下書き", reportStates.filter((r) => r.state === "draft").length],
+            [
+              "公開済み",
+              reportStates.filter((r) => r.state === "published").length,
+            ],
           ].map(([label, value]) => (
             <div key={String(label)} className={styles.count}>
               <span>{label}</span>
-              <strong>{value}</strong>
+              <strong>
+                {value}
+                <small>件</small>
+              </strong>
             </div>
           ))}
         </div>
@@ -111,25 +113,32 @@ export default async function AdminPage() {
         >
           <div className={styles.panelHeading}>
             <div>
-              <span className={styles.eyebrow}>MONTHLY REPORTS</span>
-              <h2 id="monthly-reports-heading">月次レポート</h2>
+              <h2 id="monthly-reports-heading">月ごとの報告</h2>
+              <p>月ごとの振り返りや、出来事を記録します。</p>
             </div>
-            <Link className={styles.importLink} href="/admin/import">
-              <Upload size={16} />
-              データ取込
+            <Link
+              className="button secondary"
+              href={draft ? `/admin/reports/${draft.id}` : "/admin/reports"}
+            >
+              {draft
+                ? `${periodLabel(draft.period)}の続きを書く`
+                : "月次レポートを作る"}
             </Link>
           </div>
           <ReportTable reports={reports} />
         </section>
+        <nav className={styles.tools} aria-label="登録と設定">
+          <Link href="/admin/investors">閲覧する株主を登録する →</Link>
+          <Link href="/admin/shareholders">株主構成を登録・修正する →</Link>
+          <Link href="/admin/import">
+            <Upload size={18} />
+            会計データを取り込む →
+          </Link>
+        </nav>
         <details className={styles.activity}>
           <summary>
-            <div>
-              <h2>最近の操作</h2>
-              <p>ログイン・編集・公開の履歴</p>
-            </div>
-            <span className={styles.activityToggle}>
-              履歴を見る <span aria-hidden="true">＋</span>
-            </span>
+            <h2>操作の履歴を見る</h2>
+            <span aria-hidden="true">＋</span>
           </summary>
           <div className={styles.activityBody}>
             <AuditList events={store.audit} />

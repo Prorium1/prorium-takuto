@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { LoginForm } from "@/components/login-form";
 import { getActor } from "@/lib/server/auth";
@@ -28,46 +27,22 @@ export default async function LoginPage({
       <section className="login-story">
         <Brand />
         <div className="login-story-main">
-          <span className="eyebrow">PRORIUM SHAREHOLDER PORTAL</span>
+          <span className="eyebrow">株主専用の報告ページ</span>
           <h1>
-            成長のいまを、
+            会社のいまが、
             <br />
-            次の可能性を。
+            ひと目でわかる。
           </h1>
           <p>
-            事業の変化を、数字とその理由から。
+            売上と利益、事業の進み具合、これからの見通し。
             <br />
-            Proriumの経営を、ひとつのレポートで。
+            Proriumからのご報告をまとめて確認できます。
           </p>
-          <div className="login-report-cover">
-            <span className="cover-top">
-              MONTHLY SHAREHOLDER REPORT
-              <ArrowUpRight size={18} />
-            </span>
-            <div className="cover-title">
-              Clarity.
-              <br />
-              Every month.
-            </div>
-            <span className="cover-caption">
-              数字の先にある、経営の意思を。
-            </span>
-            <div className="cover-contents">
-              <span>
-                <i>01</i> Performance
-              </span>
-              <span>
-                <i>02</i> Perspective
-              </span>
-              <span>
-                <i>03</i> Possibilities
-              </span>
-            </div>
-            <span className="cover-bottom">
-              PRIVATE SHAREHOLDER PUBLICATION
-              {isMockEnvironment() && <span>MOCK</span>}
-            </span>
-          </div>
+          <ul className="login-benefits">
+            <li>会社の状況を知る</li>
+            <li>報告書を保存・印刷する</li>
+            <li>株主構成を確認する</li>
+          </ul>
         </div>
         <span className="login-copyright">
           © 2026 Prorium Inc. · Investor Relations
@@ -75,10 +50,10 @@ export default async function LoginPage({
       </section>
       <section className="login-panel">
         <div className="login-panel-inner">
-          <span className="eyebrow">WELCOME TO PRORIUM</span>
-          <h2>株主の皆さまへ。</h2>
+          <span className="eyebrow">ご本人の確認</span>
+          <h2>報告を見るためにログイン</h2>
           <p className="login-intro">
-            最新の経営状況と、これからの成長をお届けします。
+            会社に登録したメールアドレスをご用意ください。
           </p>
           {(reason === "oauth" ||
             reason === "access" ||
@@ -91,8 +66,14 @@ export default async function LoginPage({
                   : "認証を完了できませんでした。新しい認証リンクでお試しください。"}
             </p>
           )}
+          <LoginForm
+            mockEnabled={isMockEnvironment()}
+            productionEnabled={productionEnabled}
+            googleEnabled={googleEnabled}
+          />
           {productionEnabled && (
-            <div className="login-platform-entry">
+            <details className="login-platform-entry">
+              <summary>経営者・管理者の方はこちら</summary>
               <a
                 className="button secondary"
                 href={`${productionConfiguration().origin}/auth/platform`}
@@ -102,13 +83,8 @@ export default async function LoginPage({
               <p className="login-helper">
                 登録済みのマスターアカウントで、そのまま管理・編集できます。
               </p>
-            </div>
+            </details>
           )}
-          <LoginForm
-            mockEnabled={isMockEnvironment()}
-            productionEnabled={productionEnabled}
-            googleEnabled={googleEnabled}
-          />
         </div>
       </section>
     </main>

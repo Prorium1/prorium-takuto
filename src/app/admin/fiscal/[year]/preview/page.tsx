@@ -27,7 +27,9 @@ export default async function Page({
     <main className="presentation-page fiscal-page">
       <div className="presentation-topbar">
         <Brand />
-        <Link href={`/admin/fiscal/${year}/share`}>編集・承認画面へ戻る</Link>
+        <Link className="button secondary" href={`/admin/fiscal/${year}/share`}>
+          ← 確認・公開の画面に戻る
+        </Link>
       </div>
       <FiscalPublicationView report={report} mock={isMockEnvironment()} />
     </main>

@@ -21,15 +21,15 @@ import { Brand } from "./brand";
 import type { Role } from "@/lib/domain/types";
 
 export const reportSections = [
-  ["summary", "Executive Summary"],
-  ["performance", "Financial Performance"],
-  ["drivers", "Why It Changed"],
-  ["business", "Business Highlights"],
-  ["ai", "AI Transformation"],
-  ["position", "Financial Position"],
-  ["forward", "Forward Indicators"],
-  ["risks", "Risks & Actions"],
-  ["ceo", "CEO Commentary"],
+  ["summary", "今月のまとめ"],
+  ["performance", "売上と利益"],
+  ["drivers", "数字が変わった理由"],
+  ["business", "事業の進み具合"],
+  ["ai", "AIの活用"],
+  ["position", "資金と財産の状況"],
+  ["forward", "これからの見通し"],
+  ["risks", "心配なことと対応"],
+  ["ceo", "社長からのメッセージ"],
 ];
 const mobileQuery = "(max-width: 900px)";
 function subscribeMobile(callback: () => void) {
@@ -164,7 +164,7 @@ export function ShellClient({
         >
           <X size={20} />
         </button>
-        <span className="nav-label">SHAREHOLDER PORTAL</span>
+        <span className="nav-label">株主向け · 報告を見る</span>
         <nav className="primary-nav" aria-label="メインナビゲーション">
           <Link
             className={path === "/dashboard" ? "active" : ""}
@@ -172,7 +172,7 @@ export function ShellClient({
             onClick={() => setOpen(false)}
           >
             <LayoutDashboard size={18} />
-            <span>株主ポータル</span>
+            <span>株主のホーム</span>
             <span className="nav-dot" />
           </Link>
           <Link
@@ -189,7 +189,7 @@ export function ShellClient({
             onClick={() => setOpen(false)}
           >
             <FileText size={18} />
-            <span>財務資料・PDF</span>
+            <span>資料を保存</span>
           </Link>
           <Link
             href="/shareholders"
@@ -201,14 +201,16 @@ export function ShellClient({
           </Link>
           {role === "admin" && (
             <>
-              <span className="nav-label admin-nav-label">MANAGEMENT</span>
+              <span className="nav-label admin-nav-label">
+                経営者向け · 報告を作る
+              </span>
               <Link
                 className={path === "/admin/investors" ? "active" : ""}
                 href="/admin/investors"
                 onClick={() => setOpen(false)}
               >
                 <ShieldCheck size={18} />
-                <span>投資家のアクセス権</span>
+                <span>閲覧する株主を登録</span>
               </Link>
               <Link
                 className={
@@ -223,7 +225,7 @@ export function ShellClient({
                 onClick={() => setOpen(false)}
               >
                 <ShieldCheck size={18} />
-                <span>レポート編集・公開</span>
+                <span>経営者のホーム</span>
               </Link>
               <Link
                 href="/admin/shareholders"
@@ -246,7 +248,7 @@ export function ShellClient({
         </nav>
         {report && (
           <div className="contents-nav">
-            <span className="nav-label">IN THIS REPORT</span>
+            <span className="nav-label">この報告の目次</span>
             <nav aria-label="レポート目次">
               {reportSections.map(([id, name], i) => (
                 <a
@@ -273,8 +275,8 @@ export function ShellClient({
               株主限定ポータル
               <small>
                 {mock
-                  ? "Mock development environment"
-                  : "Private investor portal"}
+                  ? "架空データの確認用画面"
+                  : "登録された方だけが閲覧できます"}
               </small>
             </span>
           </div>
@@ -307,23 +309,20 @@ export function ShellClient({
             >
               <Brand />
             </Link>
-            <span>Investor Relations</span>
+            <span>Prorium</span>
             <span className="breadcrumb-slash">/</span>
             <strong>
               {admin
-                ? "Management"
+                ? "経営者の画面"
                 : path === "/reports"
-                  ? "Report Archive"
-                  : "Monthly Report"}
+                  ? "過去の報告"
+                  : "株主向けの画面"}
             </strong>
           </div>
           <div className="topbar-right">
-            {mock && <span className="mock-badge">MOCK DATA</span>}
-            <span className="private-label">
-              <LockKeyhole size={12} /> PRIVATE
-            </span>
-            <span className="user-avatar">
-              {role === "admin" ? "AD" : "PS"}
+            {mock && <span className="mock-badge">確認用データ</span>}
+            <span className="audience-label">
+              {admin ? "経営者用" : "株主向け"}
             </span>
           </div>
         </header>
@@ -333,7 +332,7 @@ export function ShellClient({
         <footer className="site-footer">
           <span>© 2026 Prorium Inc.</span>
           <span>
-            <FileText size={12} /> Confidential · For shareholders only{" "}
+            <FileText size={12} /> 株主限定の資料です{" "}
             {mock && <span className="footer-mock">/ サンプルデータ</span>}
           </span>
         </footer>

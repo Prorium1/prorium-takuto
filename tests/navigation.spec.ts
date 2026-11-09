@@ -11,7 +11,7 @@ test("mobile navigation isolates focus, closes on Escape, and reflects the readi
   await page.goto("/reports/2026-08");
   const trigger = page.getByRole("button", { name: "メニューを開く" });
   const firstSection = page.getByRole("link", {
-    name: "01 Executive Summary",
+    name: "01 今月のまとめ",
     exact: true,
   });
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
@@ -38,10 +38,10 @@ test("mobile navigation isolates focus, closes on Escape, and reflects the readi
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator("#ai").scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole("link", { name: "05 AI Transformation", exact: true }),
+    page.getByRole("link", { name: "05 AIの活用", exact: true }),
   ).toHaveAttribute("aria-current", "location");
   await page.locator("#risks").scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole("link", { name: "08 Risks & Actions", exact: true }),
+    page.getByRole("link", { name: "08 心配なことと対応", exact: true }),
   ).toHaveAttribute("aria-current", "location");
 });
