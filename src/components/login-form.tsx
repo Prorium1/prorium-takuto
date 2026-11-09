@@ -16,6 +16,7 @@ export function LoginForm({
   const [state, action, pending] = useActionState(loginAction, {});
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const passwordForm = (
     <form action={action} className="login-form">
       <label>
@@ -31,19 +32,31 @@ export function LoginForm({
           disabled={!mockEnabled && !productionEnabled}
         />
       </label>
-      <label>
-        パスワード
-        <input
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          placeholder="パスワードを入力"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={!mockEnabled && !productionEnabled}
-        />
-      </label>
+      <div className="password-field">
+        <label htmlFor="login-password">パスワード</label>
+        <div className="password-input">
+          <input
+            id="login-password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            autoComplete="current-password"
+            placeholder="パスワードを入力"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            maxLength={256}
+            disabled={!mockEnabled && !productionEnabled}
+          />
+          <button
+            type="button"
+            aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+            aria-pressed={showPassword}
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "隠す" : "表示"}
+          </button>
+        </div>
+      </div>
       {state.error && (
         <p className="form-error" role="alert">
           {state.error}
@@ -60,16 +73,12 @@ export function LoginForm({
   );
   return (
     <>
-      {productionEnabled && !mockEnabled ? (
-        <>
+      {passwordForm}
+      {productionEnabled && !mockEnabled && (
+        <details className="login-password-alternative">
+          <summary>パスワードがわからない方・メールのリンクで入る</summary>
           <ProductionLogin googleEnabled={googleEnabled} />
-          <details className="login-password-alternative">
-            <summary>パスワードでログインする場合</summary>
-            {passwordForm}
-          </details>
-        </>
-      ) : (
-        passwordForm
+        </details>
       )}
       {mockEnabled ? (
         <div className="demo-entry">

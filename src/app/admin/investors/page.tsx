@@ -6,14 +6,21 @@ import {
   databaseError,
 } from "@/lib/server/production-repository";
 import { InvestorAccessForm } from "@/components/admin/investor-access";
+import { InvestorCredentialsForm } from "@/components/admin/investor-credentials";
+import { formatReportTimestamp } from "@/lib/domain/provenance";
 export const dynamic = "force-dynamic";
 export default async function InvestorsPage() {
   const actor = await requireAdmin();
-  let invitations: { email: string; active: boolean; created_at: string }[] =
-    [];
-  if (!isMockEnvironment()) {
+  const mock = isMockEnvironment();
+  let invitations: {
+    email: string;
+    active: boolean;
+    created_at: string;
+    password_issued_at: string | null;
+  }[] = [];
+  if (!mock) {
     const client = await productionClient(actor, true);
-    const { data, error } = await client.rpc("ir_list_invitations", {
+    const { data, error } = await client.rpc("ir_list_investor_access", {
       p_company: actor.companyId,
     });
     databaseError(error);
@@ -21,29 +28,69 @@ export default async function InvestorsPage() {
   }
   return (
     <Shell role={actor.role}>
-      <div className="page-heading">
-        <span className="eyebrow">INVESTOR ACCESS</span>
-        <h1>投資家のアクセス管理</h1>
-        <p>
-          登録したメールアドレスで本人確認した方だけが、公開レポートと財務資料を閲覧できます。
-        </p>
-      </div>
-      <section className="admin-panel">
-        <InvestorAccessForm mock={isMockEnvironment()} />
-        <p className="workflow-info">
-          登録後、ログインURLをご本人に共有してください。アクセスを停止すると、次の閲覧・ダウンロードから取得できなくなります。
-        </p>
-        <div className="attached-files">
-          {invitations.map((i) => (
-            <div key={i.email}>
-              <span>
-                {i.email} · {i.active ? "アクセス有効" : "停止中"}
-              </span>
-              <InvestorAccessForm email={i.email} active={i.active} />
-            </div>
-          ))}
+      <div className="investor-access-page">
+        <div className="page-heading">
+          <span className="eyebrow">経営者用 · 株主の登録</span>
+          <h1>株主のログイン管理</h1>
+          <p>
+            投資家ごとにパスワードを発行します。登録した方は、公開済みの報告と資料を閲覧できます。
+          </p>
         </div>
-      </section>
+        <ol className="investor-access-steps">
+          <li>メールアドレスを登録</li>
+          <li>案内文をコピー</li>
+          <li>ご本人へ送る</li>
+        </ol>
+        <section className="admin-panel investor-register-panel">
+          <h2>新しく登録する</h2>
+          <p>登録すると、専用のパスワードを自動で作ります。</p>
+          <InvestorCredentialsForm mock={mock} />
+          <details className="investor-email-alternative">
+            <summary>メールのリンクだけで登録する</summary>
+            <p>
+              既にアカウントをお持ちで、メールのリンクで入る場合はこちらから登録できます。
+            </p>
+            <InvestorAccessForm mock={mock} />
+          </details>
+        </section>
+        <section className="investor-access-list" aria-label="登録済みの株主">
+          <h2>
+            登録済みの株主 <small>{invitations.length}名</small>
+          </h2>
+          {!invitations.length && (
+            <p>まだ登録されていません。上の入力欄から登録できます。</p>
+          )}
+          {invitations.map((i) => (
+            <article className="investor-access-card" key={i.email}>
+              <h3>{i.email}</h3>
+              <p>
+                <strong>{i.active ? "閲覧できます" : "アクセス停止中"}</strong>{" "}
+                ·{" "}
+                {i.password_issued_at
+                  ? `パスワード発行：${formatReportTimestamp(i.password_issued_at)}`
+                  : "パスワードは未発行"}
+              </p>
+              {i.active && (
+                <details>
+                  <summary>
+                    {i.password_issued_at
+                      ? "パスワードを再発行する"
+                      : "パスワードを発行する"}
+                  </summary>
+                  <InvestorCredentialsForm
+                    email={i.email}
+                    issued={!!i.password_issued_at}
+                  />
+                </details>
+              )}
+              <InvestorAccessForm email={i.email} active={i.active} />
+            </article>
+          ))}
+          <p>
+            アクセスを停止すると、次の閲覧・資料保存から利用できなくなります。
+          </p>
+        </section>
+      </div>
     </Shell>
   );
 }

@@ -17,6 +17,7 @@ import "./report-legibility.css";
 import "./fiscal-diagrams.css";
 import "./fiscal-sharing.css";
 import "./simple-navigation.css";
+import "./investor-access.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
