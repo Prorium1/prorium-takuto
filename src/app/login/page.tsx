@@ -19,6 +19,7 @@ export default async function LoginPage({
   if (actor) redirect(actor.role === "admin" ? "/admin" : "/dashboard");
   const { reason } = await searchParams;
   const productionEnabled = productionConfigured();
+  const mockEnabled = isMockEnvironment();
   const googleEnabled = productionEnabled
     ? await googleProviderEnabled(productionConfiguration())
     : false;
@@ -50,10 +51,16 @@ export default async function LoginPage({
       </section>
       <section className="login-panel">
         <div className="login-panel-inner">
-          <span className="eyebrow">ご本人の確認</span>
-          <h2>報告を見るためにログイン</h2>
+          <span className="eyebrow">
+            {mockEnabled ? "確認用デモ" : "ご本人の確認"}
+          </span>
+          <h2>
+            {mockEnabled ? "入力なしでデモを確認" : "報告を見るためにログイン"}
+          </h2>
           <p className="login-intro">
-            案内されたメールアドレスとパスワードを入力してください。
+            {mockEnabled
+              ? "ボタンを押すだけで、架空の株主として入れます。メールアドレスの登録は不要です。"
+              : "案内されたメールアドレスとパスワードを入力してください。"}
           </p>
           {(reason === "oauth" ||
             reason === "access" ||
@@ -67,7 +74,7 @@ export default async function LoginPage({
             </p>
           )}
           <LoginForm
-            mockEnabled={isMockEnvironment()}
+            mockEnabled={mockEnabled}
             productionEnabled={productionEnabled}
             googleEnabled={googleEnabled}
           />

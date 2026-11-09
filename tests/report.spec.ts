@@ -35,6 +35,9 @@ test("login rejects invalid credentials and recognizes the investor account", as
   page,
 }) => {
   await page.goto("/login");
+  await page
+    .getByText("メールアドレス・パスワード入力も試す", { exact: true })
+    .click();
   await page.getByLabel("メールアドレス").fill("investor@prorium.example");
   await page.getByLabel("パスワード", { exact: true }).fill("wrong");
   await page.getByRole("button", { name: "ログイン", exact: true }).click();

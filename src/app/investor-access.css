@@ -204,6 +204,33 @@
     line-height: 1.8;
     padding: 12px 0;
   }
+  .demo-entry-primary {
+    margin-top: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .demo-entry-primary .button {
+    margin: 0;
+    min-height: 54px;
+    font-size: 17px;
+  }
+  .demo-entry-primary > p {
+    text-align: left;
+    margin: 4px 0 0;
+  }
+  .login-demo-credentials {
+    margin-top: 24px;
+    border-top: 1px solid #d7e1ea;
+  }
+  .login-demo-credentials summary {
+    padding: 18px 0;
+    font-size: 15px;
+    line-height: 1.8;
+    cursor: pointer;
+  }
+  .login-demo-credentials .login-helper {
+    overflow-wrap: anywhere;
+  }
   @media (max-width: 700px) {
     .investor-access-steps {
       grid-template-columns: 1fr;
